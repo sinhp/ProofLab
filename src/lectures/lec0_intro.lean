@@ -11,7 +11,6 @@ set_option pp.generalized_field_notation false
 -- set_option pp.all true
 
 /-
-/-
 In this lesson, we learn the very basics of the language of Lean, and how to write some mathematical statements and their proofs in Lean.
 
 We also learn about tactics and how to write some trivial proofs using the following tactics: 
@@ -227,7 +226,6 @@ end
 -- set_option trace.type_context.is_def_eq true
 -- set_option trace.type_context.is_def_eq_detail true
 
--- We can write the same proof with tactic `refl`: 
 example : 
   2 + 3 = 5 
 := 
@@ -288,7 +286,7 @@ end
 `exact` tactic allows to provide direct proof terms. If the goal is ` ⊢ X ` then `exact hp` will close the goal if and only if `hp : X`.
 -/ 
 
--- Comment out the below lines to see various other ways that lean can display info:
+-- Comment out the below lines to see various other ways that lean can display info: 
 -- set_option pp.notation false
 -- set_option pp.parens true
 
