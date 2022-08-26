@@ -11,17 +11,12 @@ set_option pp.generalized_field_notation false
 -- set_option pp.all true
 
 /-
-In this lesson, we learn to prove some basic arithmetic equalities using the following tactics: 
+/-
+In this lesson, we learn the very basics of the language of Lean, and how to write some mathematical statements and their proofs in Lean.
+
+We also learn about tactics and how to write some trivial proofs using the following tactics: 
 1. refl 
 2. exact 
-3. rw 
-4. change 
-5. calc 
-6. ring
-7. simp
-8. have  
-9. show 
-10. linarith
 -/
 
 namespace PROOFS
