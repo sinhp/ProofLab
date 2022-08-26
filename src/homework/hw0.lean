@@ -39,7 +39,6 @@ end
 
 example (x y : ℕ) (h₁ : y = x) (h₂ : y - 1 = 0) : 
  5^(y - 1) = (2 + 3)^(x - 1) :=
-  -- The goal is to construct a proof of `5 = 2 + x`.
 begin
   sorry,  
 end
@@ -48,6 +47,17 @@ end
 
 
 /-! ## Question 4 -/
+
+example (x y : ℕ) (h₁ : y = x) (h₂ : x - 1 = 0) : 
+ 5^(y - 1) = 5^0 :=
+begin
+  sorry,
+end
+
+
+
+
+/-! ## Question 5 -/
 
 example (a b c x y z : ℕ) (h₁ : x^2 + y^2 + z^2 = 26) 
 (h₂ : x^2 = 2 * a) (h₃ : y^2 = b) (h₄ : z^2 = 1) : 
