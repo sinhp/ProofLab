@@ -55,7 +55,7 @@ Some familiar number systems such as __natural numbers (ℕ)__ , __integers (ℤ
 
 section -- `section` declares an environment 
 #check bool -- the type of booleans
-#check tt
+#check tt 
 #check ff 
  
 
@@ -160,7 +160,7 @@ To assert a statement in Lean we use the `example` environment which includes
 - statement we wanna prove 
 - the proof of the statement (which comes it two styles: term style and tactic style). 
 
-A genral __term style__ form of an `example` is as follows: 
+A general __term style__ form of an `example` is as follows: 
 
 example (context_of_our_assumptions) : 
   statement_of_lemma := 
@@ -189,7 +189,7 @@ example : 2 + 3 = 5 := rfl
 
 - These are __instructions__ given by the author to the reader for finding find the relevant proof that the author has in mind. In a similar way, tactics are instructions that we tell proof assistants (in our case Lean) to construct a proof term. __Tactics__ are like cooking recipes for making a dish while the __term proofs__ are the food. 
 
-- The point of tactics is when we are faced with constructing a complicated proof (term), we can break down the process into multiple intermediary easier goals which we know how to solve. This is such a crucial technique not only in Lean but in all of mathematics.
+- The point of tactics -- and this point becomes clear after the third lecture -- is when we are faced with constructing a complicated proof, we can break down the process into __multiple intermediary easier goals__ which we know how to solve. This is such a crucial technique not only in Lean but in all of mathematics. And while we are constructing these smaller proofs to be later composed, we interact with Lean to see the result of our instructions.
 
 - Like informal proofs, proof tactics support an incremental style of writing proofs, in which you unfold a proof and work on goals one step at a time.
 
@@ -205,7 +205,7 @@ begin
 end 
 
 
-**Note**: Even if we prove a theorem in tactic mode, what is stored in Lean is the proof term corresponding to this tactic proof. Lean has an automatic way of converting a tactic proof to a term proof and we usually do not see this unless we use the command `show_term`. 
+**Note**: Even if we prove a theorem in tactic mode, what is __stored__ in Lean is the __proof term__ corresponding to this tactic proof. Lean has an automatic way of converting a tactic proof to a term proof and we usually do not see this unless we use the command `show_term`. 
 -/
 
 
@@ -309,6 +309,9 @@ example (x : ℕ) (h : 5 = 2 + x) :
 begin
   sorry
 end
+
+
+
 
 
 
