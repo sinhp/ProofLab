@@ -60,7 +60,9 @@ section -- `section` declares an environment
 #check bool -- the type of booleans
 #check tt 
 #check ff 
-
+-- you can put parentheses around an infix operation (like disjunction and conjunction) to talk about the operation itself.
+#check (∨)
+#check (∧)
 
 #check 0
 #check (0 : ℤ)
