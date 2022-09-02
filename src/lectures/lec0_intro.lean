@@ -357,7 +357,7 @@ example (x : ℕ) (h₁ : 5 = 2 + x) (h₂ : 2 + x = 4) :
   5 = 4 :=
   -- we sub 2 + x in h₁ with 4 because of h₂. 
 begin 
-  
+ sorry,  
 end 
 
 
