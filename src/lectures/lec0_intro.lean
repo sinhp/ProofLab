@@ -117,6 +117,9 @@ section
 #check list empty 
 #check ([] : list empty)
 #check ([] : list ℕ)
+
+
+#check [1,16]
 end 
 
 
@@ -139,7 +142,7 @@ end
 
 section
 #check 2 + 2 = 4
-#check 2 + 2 = 5
+#check 2 + 2 = 5 -- the command #check does not check the validity only the type
 #check ∀ x y z n : ℕ, n > 2 → x * y * z ≠ 0 → x^n + y^n ≠ z^n
 end 
 
@@ -159,9 +162,12 @@ end
 For `P : Prop`, we read `hp : P` as "hp is a proof of P", or we have a hypothesis "P" verified by "hp", or "P is true by virtue of hp". 
 -/
 section
+-- Terms of propositions are proofs of propositions.
+#check (rfl : 1 = 1)
 #check (rfl : 2 + 2 = 4) --rfl refers to "reflexivity"
 #check rfl  
 #check @rfl
+#check ∀ x y : ℤ, x + y = y + x
 #check (add_comm : ∀ x y : ℤ, x + y = y + x)
 end
 
@@ -231,11 +237,19 @@ end
 
 /-! ### Tactic refl -/
 
+example : 
+  3 = 1 + 2 :=
+begin 
+  refl, -- refl is a tactic corresponding to reflexitivity proof
+end   
+
+
+
 -- We use `refl` instead in the _tactic mode_:
 example (a b c d : ℕ) : 
-(a + b) * (c + d) = (a + b) * (c + d) := 
+  (a + b) * (c + d) = (a + b) * (c + d) := 
 begin 
-sorry
+refl,
 end   
 
 
@@ -246,21 +260,33 @@ example :
   2 + 3 = 5 
 := 
 begin
-  sorry 
+  refl,
 end 
 
 example : (0 : ℕ) + (0 : ℕ) = (0 : ℕ) := 
 -- experiment with changing the first/last ℕ to ℤ 
 begin
-  sorry,  
+  refl,  
 end 
+
+example : (0 : ℤ) + (0 : ℕ) = (0 : ℤ ) := 
+-- experiment with changing the first/last ℕ to ℤ 
+-- this has something to do with coersion 
+begin
+  refl,  
+end 
+
+
 
 example (x : ℕ) : 
   x + 0 = x :=
   -- true by definition
 begin
-  sorry, 
+  refl, 
 end
+
+#check nat.add
+
 
 example (x : ℕ) : 
   0 + x = x :=
@@ -272,13 +298,13 @@ end
 example : 
   (2 : ℝ) + (2 : ℝ) = (4 : ℝ) :=
 begin
-  sorry
+  refl,
 end
 
 example : (2 : ℝ) + (2 : ℕ) = (4 : ℝ) :=
 begin
   -- refl,
-  sorry 
+  refl, -- why did previous one work?
 end
 
 -- try `refl` in below; does it work?
@@ -316,19 +342,23 @@ end
 example (h : 2 + 2 = 5) : 
   2 + 2 = 4 :=
 begin
- sorry
+ refl,
 end
 
-example (x : ℕ) (h : 5 = 2 + x) : 
+example (x : ℕ) (h₁ : 5 = 2 + x) (h₂ : 2 + x = 4) : 
   5 = 2 + x :=
   -- The goal is to construct a proof of ` 5 = 2 + x `.
 begin
-  sorry
+  exact h₁,
 end
 
 
-
-
+example (x : ℕ) (h₁ : 5 = 2 + x) (h₂ : 2 + x = 4) : 
+  5 = 4 :=
+  -- we sub 2 + x in h₁ with 4 because of h₂. 
+begin 
+  
+end 
 
 
 /-! ### Tactic rewrite 
@@ -349,7 +379,8 @@ example (m n : ℕ) (h₁ : m + 1 = 7) (h₂ : n = m) :
   n + 1 = 7 := 
 begin
   -- we want to prove that `n + 1 = 7`. Since we know that `n = m` we need to replace `m` by `n` in the hypothesis `h₁`. 
-  sorry,
+  rw h₂,
+  exact h₁,
 end
 
 example (m n : ℕ) (h₁ : m + 1 = 7) (h₂ : m = n) : 
