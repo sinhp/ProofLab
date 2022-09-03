@@ -14,8 +14,10 @@ set_option pp.generalized_field_notation false
 In this lesson, we learn the very basics of the language of Lean, and how to write some mathematical statements and their proofs in Lean.
 
 We also learn about tactics and how to write some trivial proofs using the following tactics: 
-1. refl 
-2. exact 
+1. `refl` 
+2. `exact`
+3. `rw` and its variants 
+4. `change`
 -/
 
 namespace PROOFS
@@ -353,12 +355,6 @@ begin
 end
 
 
-example (x : ℕ) (h₁ : 5 = 2 + x) (h₂ : 2 + x = 4) : 
-  5 = 4 :=
-  -- we sub 2 + x in h₁ with 4 because of h₂. 
-begin 
- sorry,  
-end 
 
 
 /-! ### Tactic rewrite 
@@ -378,91 +374,68 @@ One of the earliest kind of proofs one encounters in mathematics is proof by cal
 example (m n : ℕ) (h₁ : m + 1 = 7) (h₂ : n = m) : 
   n + 1 = 7 := 
 begin
-  -- we want to prove that `n + 1 = 7`. Since we know that `n = m` we need to replace `m` by `n` in the hypothesis `h₁`. 
-  rw h₂,
-  exact h₁,
+  -- we want to prove that `n + 1 = 7`. Since we know that `n = m` we need to replace `n` by `m` in the goal. Then we use hypothesis `h₁`. 
+  rw h₂, -- replaces `n` by `m` in the goal.
+  exact h₁, -- use the hypothesis `h₁` to finish the proof.
 end
 
-example (m n : ℕ) (h₁ : m + 1 = 7) (h₂ : m = n) : 
-  n + 1 = 7 := 
+
+-- transitivity of equality via `rw`
+example (x y z : ℝ) (h₁ : x = y) (h₂ : y = z) : 
+  x = z := 
 begin
--- rw in the other direction, replacing n by m. 
-  sorry,
-end
+  rw h₁, -- changes the goal `x = z` to `y = z` by replacing `x` with `y` in virtue of `h₁`. 
+  -- all we need to prove now is `y = z` which we do by `h₂`.  
+  exact h₂,   
+end 
+
+#check eq.trans
+
+
+-- symmetry of equality via `rw`
+lemma symm_of_eq {X : Type} (x y : X) (h₁ : x = y) : 
+  y = x := 
+begin
+  rw h₁, 
+end 
+#check eq.symm
 
 
 -- try refl first; what do you get?
 example (x y : ℕ) (h₁ : x = 0) (h₂ : y = 0) :
   x + y = 0 := 
 begin
-  -- perhaps refl? 
-  -- Use the hypothesis `h₁ : x = 0` to change all x's to 0's in the goal.
-  -- Uses the hypothesis `h₂ : y = 0` to change all y's to 0's in the goal.
-  -- 0 + 0 = 0, so we are done. 
-  sorry, 
+  -- refl, 
+  rw h₁, -- Uses the hypothesis h₁ : x = 0 to change all x's to 0's in the goal.
+  rw h₂, -- Uses the hypothesis h₂ : y = 0 to change all y's to 0's in the goal.
+  -- 0 + 0 = 0 is done 
 end 
 
--- try library_search before the last line
-example (x y : ℕ) (h₁ : x = 0) (h₂ : y = 0) :
-  x * y = 0 := 
-begin
--- We substitute `0` for `x` in the goal 
--- We substitute `0` for `y` in the goal 
-sorry, 
-end 
-
--- another proof of the same statement
-example (x y : ℕ) (h₁ : x = 0) (h₂ : y = 0) :
-  x * y = 0 := 
-begin
--- We substitute `0` for `x` in the goal 
--- We substitute `0` for `y` in the goal 
--- `mul_zero` isntead of `zero_mul`. 
-  sorry, 
-end 
 
 -- try refl first, why does it not work? 
 example (x y : ℕ) (h : x = y) : 
   x + 0 = y + 0 := 
 begin
 -- refl, 
-sorry, 
+rw h, 
 end   
 
-example (x y z : ℕ)
-  (h₁ : x + 0 = y) (h₂ : y = z) : x = z :=
-begin
---  rw h, -- fails because rw works up to syntactic equality
-sorry,
-end
-
--- transitivity of equality via `rw`
-example (X : Type) (x y z : X) (h₁ : x = y) (h₂ : y = z) : 
-  x = z := 
-begin
-  sorry,  
-end 
-#check eq.trans
-
--- symmetry of equality via `rw`
-lemma symm_of_eq {X : Type} (x y : X) (h₁ : x = y) : 
-  y = x := 
-begin
-  sorry, 
-end 
-
-#check eq.symm
 
 
+
+
+
+/-! ### Tactic change -/
+
+/- If we tweak our assumptions a little bit as follows, we are not able to directly use `rw` anymore.  -/
 example (x y z : ℕ)
   (h₁ : x + 0 = y) (h₂ : y = z) : x = z :=
 begin
 --  rw h₁, -- fails because rw works up to syntactic equality
-  change x = y at h₁, -- change works up to definitional equality
+  change x = y at h₁, -- change works up to _definitional_ equality
   rw h₁, -- now it works
   exact h₂, 
 end
-
 
 
 
