@@ -119,8 +119,6 @@ begin
 end
 
 
-
-
 -- try library_search before the last line
 example (x y : ℕ) (h₁ : x = 0) (h₂ : y = 0) :
   x * y = 0 := 
