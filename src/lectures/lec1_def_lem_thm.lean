@@ -160,7 +160,7 @@ example (x y : ℕ) (h₁ : x = 0) (h₂ : y = 0) :
   x * y = 0 := 
 begin
   rw h₁, 
-  exact zero_mul y, -- this time we apply lemma `zero_mul` to `0`, to prove that `0 * y = 0`. 
+  exact zero_mul y, -- this time we apply lemma `zero_mul` to `y`, to prove that `0 * y = 0`. 
 end 
 
 -- yet another proof of the same statement
