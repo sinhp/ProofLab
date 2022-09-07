@@ -12,9 +12,7 @@ set_option pp.generalized_field_notation false
 -- set_option pp.all true
 
 /-
-In this lesson, we learn how to define stuff in Lean. We also learn to state and use lemmas and theorems in Lean to prove some basic arithmetic equalities using the following additional tactics on top of the tactics `refl`, `exact`, `rw`, and `change`  of the previous lesson:
-
-5. `calc` 
+In this lesson, we learn how to define stuff in Lean. We also learn to state and use lemmas and theorems in Lean to prove some basic arithmetic equalities using the additional tactic `calc` on top of the tactics `refl`, `exact`, `rw`, and `change` of the previous lesson. 
 -/
 
 namespace PROOFS
@@ -97,6 +95,7 @@ end --end of the section
 
 
 /-
+Here we are going to a state a lemma which says that equality in a type `X` is symmetric, i.e. if `x = y` in X then `y = x`. We are going to call this lemma `symme_of_eq`, but you could as well chosen a different name.
 Here's a proof of the lemma `symm_of_eq` (symmetry of equality) for any type `X` in the tactic style.  
 -/
 
@@ -174,7 +173,9 @@ begin
 end 
 
 
-
+/- 
+remember the example below from previos lecture? we had the problem of applying `rw` directly to `h₁` (since `x + 0` is not a subexpression of the goal), so we applied the tactic `change`. But we could also use the lemma `add_zero : ∀ (a : ℕ), a + 0 = a` to first repalce `x + 0` by `x` in hypothesis `h₁` to obtain a new `h₁ : x = y`, and then replace `x` by `y` in the goal using `rw h₁`. The new goal is now `y = z`. Finally, we finish the proof by copying `h₂`. 
+-/
 example (x y z : ℕ)
   (h₁ : x + 0 = y) (h₂ : y = z) : x = z :=
 begin

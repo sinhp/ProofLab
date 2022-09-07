@@ -29,7 +29,7 @@ namespace PROOFS
 
 /-! # What is Lean 
 
-Lean is a functional programming language that makes it easy to write correct and maintainable code. We use Lean as an __interactive theorem prover__. 
+Lean is a functional programming language (developed by Leonardo de Moura at Microsoft Research) that makes it easy to write correct and maintainable code. We use Lean as an __interactive theorem prover__. 
   - Lean helps us prove the __correctness__ of mathematical statements, 
   - Lean lets us develop __automation__ to support __mathematical reasoning__ and __proof__.
 
