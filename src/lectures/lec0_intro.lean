@@ -421,6 +421,100 @@ rw h,
 end   
 
 
+/-! #### Variants of rewrite-/
+
+/- 
+We already have seen the simple version of the rewrite tactic: 
+1. `rw h₁` (rewrites `h₁` in the current goal)
+
+We now see some useful variants of `rw` tactic: 
+2. `rw ← h₁` (backward rewrite)
+3. `rw h₁ at h₂` (rewrites hypothesis `h₁` in the hypothesis `h₂`)
+4. `rw ← h₁  at h₂` (backward rewrites hypothesis `h₁` in the hypothesis `h₂`)
+5. `rw h at *` (rewrites hypothesis `h` everywhere)
+-/
+
+/- Rewrite in the opposite direction-/
+example (m n : ℕ) (h₁ : m + 1 = 7) (h₂ : m = n) : 
+  n + 1 = 7 := 
+begin
+-- we want to prove that `n + 1 = 7`. Since, by `h₂` we know that `m = n` we need to replace `n` by `m` in the goal. However, for this we need to use `h₂` in the opposite direction of the above. Then we use the hypothesis `h₁`. 
+  rw ← h₂,
+  exact h₁,
+end
+
+
+-- transitivity of equality via `rw`
+example (x y z : ℝ) (h₁ : x = y) (h₂ : y = z) : 
+  x = z := 
+begin
+  rw h₁, -- changes the goal `x = z` to `y = z` by replacing `x` with `y` in virtue of `h₁`. 
+  -- all we need to prove now is `y = z` which we do by `h₂`.  
+  exact h₂,   
+end 
+
+
+/- another proof involves replacing `y` with `z` (in virtue of `h₂`) in hypothesis `h₁` to get a new hypothesis `x = z` which is our goal.  
+
+This proof uses the following variant of the rewrite tactic: 
+`rw h₁ at h₂` (rewrites hypothesis `h₁` in the hypothesis `h₂`)
+-/
+
+example (x y z : ℝ) (h₁ : x = y) (h₂ : y = z) : 
+  x = z := 
+begin
+rw h₂ at h₁, 
+exact h₁,
+end 
+
+#check eq.trans -- for transitivity of equality relation 
+
+
+
+example (x : ℕ) (h₁ : 5 = 2 + x) (h₂ : 2 + x = 4) : 
+  5 = 4 :=
+  -- we sub 2 + x in h₁ with 4 because of h₂. 
+begin 
+ rw h₂ at h₁, 
+ exact h₁, 
+end 
+
+
+/-
+`rw h at *` rewrites `h` everywhere, in the goal and all hypotheses.
+-/
+
+example (x y z : ℕ) (h₁ : x = 2) (h₂ : 2 + x = y) (h₃ : z = x + 2): 
+  x + z = x + y := 
+begin
+  rw h₃, -- this changes the goal by replacing `z` with `x + 2`
+  rw ← h₂,
+  rw h₁,
+end      
+
+
+#check add_comm
+
+example (x y z w : ℕ) (h₂ : 2 + x + 5 = y + w + 5) (h₃ : z = x + 2): 
+  x + z = x + y + w := 
+begin
+  rw add_comm at h₂,
+  rw h₂ at h₃,
+  rw h₃,
+end   
+
+
+
+example (x y z : ℕ)
+  (h₁ : x + 0 = y) (h₂ : y = z) : x = z :=
+begin
+--  rw h₁, -- fails because rw works up to syntactic equality
+  change x = y at h₁, -- change works up to definitional equality
+  rw h₁, -- now it works
+  exact h₂, 
+end
+
+
 
 
 
