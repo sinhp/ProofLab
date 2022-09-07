@@ -21,6 +21,7 @@ namespace PROOFS
 
 /-! ## Definitions, Lemmas, Theorems -/
 
+
 section 
 /- 
 We can __define__ new stuff in Lean: A __definition__ assigns an expression to a keyword and puts it in the environment.
@@ -54,7 +55,7 @@ begin
   tactic_n [...], 
 end 
 
-For instance, in below, 
+For instance, in below, we have a __term-style__ of the lemma `bar`: 
 - `bar` is the __name_of_lemma__ which we can invoke later. 
 - `(m n : ℤ)` is th __context__ of the lemma: these are the parameters which are used in the statement of the lemma. Think of context as a way of telling to Lean "let x, y, z, and n be natural numbers".
 - `2 + n + m = n + 2 + m` is the __statement__ of the lemma: i.e. the thing we want to prove. The statement is usually a proposition which makes sense only in a given context. For instance, the contexts 
@@ -62,15 +63,17 @@ For instance, in below,
 -/
 
 lemma bar (m n : ℤ) : 
-  2 + n - m = n + 2 - m := 
+  2 + n - m = n + 2 - m :=   
 congr_arg (λ x, x - m) (add_comm 2 n) -- you do not need to understand this proof now
 
 #check bar 
+#check (bar 2 : ∀ (n : ℤ), 2 + n - 2 = n + 2 - 2)
+#check (bar 2 5 : 2 + 5 - 2 = 5 + 2 - 2)
 
-/- 
--`flt` is the __name_of_lemma__ which we can invoke later. 
-- `(x y z n : ℕ)` is th __context__ of the lemma: 
-- `n > 2 → x * y * z ≠ 0 → x^n + y^n ≠ z^n` is the __statement__ of the lemma:
+/- In below, 
+-`flt` is the __name_of_theorem__ which we can invoke later. 
+- `(x y z n : ℕ)` is th __context__ of the theorem: 
+- `n > 2 → x * y * z ≠ 0 → x^n + y^n ≠ z^n` is the __statement__ of the theorem:
 -`sorry` is a way of telling Lean that we are going to supply a __proof__ later. 
 
 -/
@@ -93,6 +96,29 @@ end --end of the section
 
 
 
+/-
+Here's a proof of the lemma `symm_of_eq` (symmetry of equality) for any type `X` in the tactic style.  
+-/
+
+lemma symm_of_eq {X : Type} (x y : X) (h₁ : x = y) : 
+  y = x := 
+begin
+  rw h₁, 
+end 
+
+
+/-
+Here's a proof of the lemma `trans_of_eq` (transitivity of equality) for any type `X` in the tactic style.  
+-/
+
+lemma trans_of_eq {X : Type} (x y z : X) (h₁ : x = y) (h₂ : y = z) : 
+  x = z := 
+begin
+  rw h₁, 
+  rw h₂,    
+end 
+
+
 /-! ### Using definitions, lemmas, theorems -/
 
 /-
@@ -112,6 +138,7 @@ begin
  exact (eq.symm e), -- here's how we use the lemma `eq.symm`. 
 end
 
+
 #check eq.subst
 example (m n : ℕ) (h : n + 1 = 7) (e : m = n) : m + 1 = 7 := 
 begin
@@ -119,13 +146,14 @@ begin
 end
 
 
--- try library_search before the last line
+#check (zero_mul : ∀ x : ℝ, 0 * x = 0) -- this lemma says that for all real numbers `x`, multiplying `x` by zero on the left yields zero.  
+
 example (x y : ℕ) (h₁ : x = 0) (h₂ : y = 0) :
   x * y = 0 := 
 begin
   rw h₁, -- we substitute `0` for `x` in the goal 
   rw h₂, -- we substitute `0` for `y` in the goal 
-  exact zero_mul 0,
+  exact zero_mul 0, -- we apply lemma `zero_mul` to `0` to prove that `0 * 0 = 0`. 
 end 
 
 -- another proof of the same statement
@@ -133,9 +161,18 @@ example (x y : ℕ) (h₁ : x = 0) (h₂ : y = 0) :
   x * y = 0 := 
 begin
   rw h₁, 
+  exact zero_mul y, -- this time we apply lemma `zero_mul` to `0`, to prove that `0 * y = 0`. 
+end 
+
+-- yet another proof of the same statement
+example (x y : ℕ) (h₁ : x = 0) (h₂ : y = 0) :
+  x * y = 0 := 
+begin
+  rw h₁, 
   rw h₂, 
   exact mul_zero 0, -- `mul_zero` isntead of `zero_mul`. 
 end 
+
 
 
 example (x y z : ℕ)

@@ -393,7 +393,7 @@ end
 
 
 -- symmetry of equality via `rw`
-lemma symm_of_eq {X : Type} (x y : X) (h₁ : x = y) : 
+example {X : Type} (x y : X) (h₁ : x = y) : 
   y = x := 
 begin
   rw h₁, 
@@ -491,28 +491,6 @@ begin
   rw ← h₂,
   rw h₁,
 end      
-
-
-#check add_comm
-
-example (x y z w : ℕ) (h₂ : 2 + x + 5 = y + w + 5) (h₃ : z = x + 2): 
-  x + z = x + y + w := 
-begin
-  rw add_comm at h₂,
-  rw h₂ at h₃,
-  rw h₃,
-end   
-
-
-
-example (x y z : ℕ)
-  (h₁ : x + 0 = y) (h₂ : y = z) : x = z :=
-begin
---  rw h₁, -- fails because rw works up to syntactic equality
-  change x = y at h₁, -- change works up to definitional equality
-  rw h₁, -- now it works
-  exact h₂, 
-end
 
 
 
