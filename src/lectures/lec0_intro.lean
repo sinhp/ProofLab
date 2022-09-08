@@ -48,8 +48,8 @@ In Lean things are largely organized as __types__ (collections) and __terms__ (e
 Some familiar number systems such as __natural numbers (ℕ)__ , __integers (ℤ)__, __rational numbers (ℚ)__, and __real numbers (ℝ)__ are encoded as types in Lean. (Lean's "check" command tells us the type of the object we have constructd). 
 -/
 
-#check ℕ
-#check ℤ -- integers 
+#check ℕ -- the type of natural numbers
+#check ℤ -- integers type (ℤ is a special symbol typed by \Z )
 #check ℚ -- rationals 
 #check ℝ -- real numbers 
 
@@ -79,12 +79,15 @@ section -- `section` declares an environment
 #check ((1 : ℝ), (-1 : ℝ))
 #check ((1,-1) : ℝ × ℝ)
 #check λ x, x + 1
+
+-- the empty type (`empty`) does not have any terms: we cannot find any `a` such that `a : empty`. 
 end 
 
 section -- we use `sections` to limit the __scope__ of a variable. Whatever variable we introduce in between `section ... end` remains hidden from the rest of the file. 
 #check 2 + 2
 set_option pp.all true
 #check 2 + 2
+
 end
 
 
@@ -109,19 +112,34 @@ Note that the variables `A ... W` are global variables which means they are acce
 
 /-! ### New Types from the Old -/
 
+-- We know that `A` and `B` are types becasue in the previous section we declared so by `variable A : Type`. In below we are defining new types from the old ones by describing what the terms of these new types are. 
+
 section 
-#check A × B -- the type of pairs 
+#check A × B -- the type of pairs: the terms of `A × B` are pairs `(a,b)` where `a : A` and `b : B`. Therefore, if `a : A` and `b : B` then  `(a,b) : A × B`.  
+#check ℕ × ℕ 
+#check (1, 2)
+
 #check A ⊕ B  -- the sum type 
+
 #check A → B -- the type of functions which we talk about in the lecture: a term of type A → B is a function which takes a term of A and returns a term of B. 
 #check λ (x : ℤ), x + 1
 #check λ (x : ℝ), x + 2 
-#check list A
+
+#check list A -- for any type `A` we can form a new type `list A`: the terms of `list A` are lists (finite ordered sequence) of terms of `A`. 
+#check list ℕ 
+#check [0,2,5] -- Lean infers the type of the list `[0,2,5]`
+#check [2,0,5] -- this is a different list than the one above
+
 #check list empty 
-#check ([] : list empty)
-#check ([] : list ℕ)
+#check ([] : list empty) -- the empty list of the empty type 
+#check ([] : list ℕ) -- the empty list of natural numbers 
 
+#check (-2 : ℤ)
+#check ([-2] : list ℤ) -- the list that has only one member in it and that is `-2 : ℤ`. the round bracket is to say to Lean to consider `-2` as an integer 
 
-#check [1,16]
+#check [2, 1]
+#check ([-2, 1] : list ℤ) 
+#check [1,16,2,10,1,1,1] 
 end 
 
 
@@ -138,26 +156,27 @@ end
 
 
 /-! ### Propositions
-- Some Lean expression are __propositions__, i.e. assertions that can be judged to be true or false. For instance `2 + 2 = 5` is a proposition. 
+- Some Lean expression are __propositions__, i.e. assertions that can be judged to be true or false. For instance `2 + 2 = 5` is a proposition, albeit a false one. 
 - Propositions are terms of type `Prop`. Here are some examples:
 -/
 
 section
 #check 2 + 2 = 4
 #check 2 + 2 = 5 -- the command #check does not check the validity only the type
-#check ∀ x y z n : ℕ, n > 2 → x * y * z ≠ 0 → x^n + y^n ≠ z^n
+#check ∀ x y z n : ℕ, n > 2 → x * y * z ≠ 0 → x^n + y^n ≠ z^n 
 end 
 
 /- 
 We introduce a proposition by the expression `P : Prop`. 
 -/
 section 
-variables P Q : Prop 
+variables P Q : Prop -- let "P and Q be propositions"
 #check P 
-#check P ∧ Q
-#check P ∨ Q
-#check P → Q
-#check P ↔ Q
+#check Prop -- this is the type of all propositions. So, we have `P : Prop : Type`. We can think of propositions (such as `P`) as types and proofs of propositions as terms of types. so you can have `rfl : 2 + 2 = 4 : Prop : Type`.
+#check P ∧ Q -- the conjunction of `P` and `Q` (and)
+#check P ∨ Q -- the disjunction of `P` and `Q` (or)
+#check P → Q -- the implication (if `P` then `Q`)
+#check P ↔ Q -- biimplication (`P` if and only if `Q`)
 end 
 
 /- 
@@ -165,12 +184,18 @@ For `P : Prop`, we read `hp : P` as "hp is a proof of P", or we have a hypothesi
 -/
 section
 -- Terms of propositions are proofs of propositions.
-#check (rfl : 1 = 1)
-#check (rfl : 2 + 2 = 4) --rfl refers to "reflexivity"
+#check (rfl : 1 = 1) -- `rfl` is a proof of reflexivity of eqaulity, thins like `x = x` 
+#check (rfl : 2 + 2 = 4) --rfl refers to "reflexivity", `rfl` works because the "normal" form of `2 + 2` and `4` are syntactically the same. 
 #check rfl  
-#check @rfl
-#check ∀ x y : ℤ, x + y = y + x
-#check (add_comm : ∀ x y : ℤ, x + y = y + x)
+#check @rfl -- this gives a more explicit type of `rfl`
+#check ∀ x y : ℤ, x + y = y + x -- says "for all integers x and y, the sum x + y is equal to the sum y + x."
+#check (rfl : ∀ x y : ℤ, x + y = y + x)
+variables x y : ℤ 
+#check (rfl : x + y = y + x) -- syntactically these expressions are not the same. `rfl` works for syntactic equality and definitional equality. While `x + y` and `y + x` are propositionally equal. 
+variable a : ℕ 
+#check (rfl : a + 0 = x) -- Lean knows `a` is a natural number because we told it so. Then it infers that the `+` operation is an operation between two natural numbers. Then it infers that `0` is a natural number. And then it infers the equality `=` is between two natural numbers. And then it expects `x` to be a natural number, but we told Lean `variable x y : ℤ`. So these are not equal for the simple type-checking reasons. 
+#check (rfl : a + 0 = a) -- a bit weird, what's going on is that Lean knows that it has to use `rfl` to establish syntactic equality, but definitionally `a` is the same as `a + 0`. So it converts the second `a` in to `a + 0` and then used `rfl`. 
+#check (add_comm : ∀ x y : ℤ, x + y = y + x) -- here we invoke a lemma. We borrowed it from the Lean library.  
 end
 
 
@@ -202,6 +227,7 @@ example (a b c d : ℕ) : (a + b) * (c + d) = (a + b) * (c + d) := rfl
 
 -- The term `rfl` proves more than syntactic equalities, it proves the equalities between terms which are __definitionally equal__. 
 example : 2 + 3 = 5 := rfl 
+
 
 -- `( ( ) ( ) ) ( ( ) ( ) ( ) ) = ( ( ) ( ) ( ) ( ) ( ) )`
 
@@ -242,7 +268,7 @@ end
 example : 
   3 = 1 + 2 :=
 begin 
-  refl, -- refl is a tactic corresponding to reflexitivity proof
+  refl, -- refl is a __tactic__ corresponding to reflexitivity proof
 end   
 
 
