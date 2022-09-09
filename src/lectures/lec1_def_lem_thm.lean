@@ -12,7 +12,7 @@ set_option pp.generalized_field_notation false
 -- set_option pp.all true
 
 /-
-In this lesson, we learn how to define stuff in Lean. We also learn to state and use lemmas and theorems in Lean to prove some basic arithmetic equalities using the additional tactic `calc` on top of the tactics `refl`, `exact`, `rw`, and `change` of the previous lesson. 
+In this lesson, we learn how to define stuff in Lean. We also learn to state and use lemmas and theorems in Lean to prove some basic arithmetic equalities in combination with the tactics `refl`, `exact`, `rw`, and `change` we learned in the previous lesson. 
 -/
 
 namespace PROOFS
