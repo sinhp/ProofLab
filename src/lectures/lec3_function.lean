@@ -229,6 +229,13 @@ sorry
 -- #check distance_rat (3/2 : ℚ) (1/2 : ℚ) -- should be a rational number
 -- #eval distance_rat (3/2 : ℚ) (1/2 : ℚ) -- should evaluate to 1
 
+
+
+
+
+
+
+
 /-! ### Using functions 
 We can __evaluate__ a function at an input by applying the function to it. 
 -/
