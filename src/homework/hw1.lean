@@ -102,6 +102,7 @@ section
 variables x y : ℝ
 #check (neg_neg : ∀ a : ℝ, - -a = a)
 #check (neg_lt.mpr : -x < y → -y < x)
+#check (neg_lt : -x < y ↔ -y < x)
 end  
 /- 
 

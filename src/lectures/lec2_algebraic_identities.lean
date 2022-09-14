@@ -148,7 +148,7 @@ end
 
 
 -- Difference of two squares
-lemma diff_of_squares_real_alt (a b : ℝ) : 
+lemma diff_of_squares (a b : ℝ) : 
   (a + b) * (a - b) = a^2 - b^2 :=
 begin
   calc   (a + b) * (a - b) = (a + b) * a - (a + b) * b : mul_sub (a + b) a b 
