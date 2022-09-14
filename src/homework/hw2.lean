@@ -1,6 +1,6 @@
 import ..prooflab
-import lectures.algebraic_identities
-import lectures.function
+import lectures.lec2_algebraic_identities
+import lectures.lec3_function
 
 /-! # Homework 2 
 Homework must be done individually.
