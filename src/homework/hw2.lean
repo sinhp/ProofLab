@@ -96,8 +96,13 @@ end
 
 
 /-! ## Question 4 (25 points): 
-Construct a proof for the following statement using any tactics we heav learned (tactics 1-7 in the list at the top of this file) except `ring` and only the lemmas we have learned so far. 
+Construct a proof for the following statement using any tactics we heav learned (tactics 1-7 in the list at the top of this file) except `ring` and only the lemmas we have learned so far and possibly the lemma `pow_mul` below. 
 -/
+
+section 
+variable a : ℝ
+#check (pow_mul a : ∀ (m n : ℕ), a ^ (m * n) = (a ^ m) ^ n)
+end 
 
 example (a b : ℝ) : 
   a^4 - b^4 = (a^2 + b^2) * (a + b) * (a - b) :=
