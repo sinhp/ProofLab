@@ -114,13 +114,13 @@ end
 
 
 
-
 /-! ## Question 5 (25 points): 
 1. For a type `X`, Define the function `triple_shuffle` which takes a triple `(a, b, c)` as in input, where `a b c : X`, and returns the triple `(b , c, a)` 
 -/
 
 def triple_shuffle  : X × X × X → X × X × X := 
-sorry 
+sorry
+
 
 /-
 2. Evaluate the application of `triple_shuffle` to `(1,2,3)`. 

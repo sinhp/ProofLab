@@ -202,6 +202,38 @@ end
 
 
 
+/-
+To make polyrith work on your system you need to have the following installed on your computer (these are separate than elan and leanproject): 
+1. This tactic only works with a working **internet connection**, since it calls Sage using the SageCell web API at https://sagecell.sagemath.org/.
+2. Python 3 (which you can test by opening a terminal and executing `python3 --version`.
+3. Make sure requests library is installed: `python3 -m pip install requests`.
+-/
+
+example (a b : ℤ) (h₁ : a - 5 * b = 4) (h₂ : b + 2 = 3) : 
+  a = 9 :=
+begin
+  -- polyrith
+end 
+
+
+
+
+
+
+
+example {x y : ℤ} (h₁ : 2 * x + y = 4) (h₂ : x + y = 1) : 
+  x = 3 :=
+begin
+sorry,  
+end 
+
+
+
+example {x y : ℤ} (h₁ : 2 * x + y = 4) (h₂ : x + y = 1) : 
+  x = 3 :=
+begin
+sorry,  
+end 
 
 
 

@@ -224,218 +224,33 @@ def is_odd (n : ℕ) :=
 /- CHALLENGE: define a function `distance_rat : ℚ → ℚ → ℚ` which takes two real numbers `x : ℚ ` and `y : ℚ ` as inputs and returns as output the standard Euclidean distance `| x - y |` between them. 
 -/ 
 def distance_rat (x y : ℚ) := 
-sorry
+abs(x - y)
 
--- #check distance_rat (3/2 : ℚ) (1/2 : ℚ) -- should be a rational number
--- #eval distance_rat (3/2 : ℚ) (1/2 : ℚ) -- should evaluate to 1
 
+#check int.nat_abs
 
 
 
+#check abs
+def distance_nat (x y : ℤ) := 
+int.nat_abs ( x - y ) 
 
 
+#check distance_rat
+#check distance_nat
 
 
-/-! ### Using functions 
-We can __evaluate__ a function at an input by applying the function to it. 
--/
+#check distance_nat (1/3) (1/2)
+#eval distance_nat (1/3) (1/2)
 
--- #eval double 7
--- #eval double_alt 7
+#check distance_rat (3/2 : ℚ) (1/2 : ℚ) -- should be a rational number
+#eval distance_rat (3/2 : ℚ) (1/2 : ℚ) -- should evaluate to 1
+#eval distance_rat (1/3) (1/2) -- should evaluate to 1
 
 
-/- 
-__The output of a function can be a function__: A function `f : A → B → C` should be read as a function `f : A → (B → C)` where for any input `a : A`, the output is a function `f a : B → C` which upon receiving an input `b : B` returns the ouput `f a b : C`. 
 
-Given this, there are two things we should be careful about: 
-1. Functions can be
-* __fully applied__ (e.g., `f a b` if `f` is binary);
-* __partially applied__ (e.g., `f a`);
-* __left unapplied__ (e.g., `f`).
-
-2. Evaluation/application is __left-associative__: `f a b` = `((f a) b)`.
--/
-
-def mul_square (m n : ℕ) := 
-m * m * n * n
-
--- #check mul_square 
--- #check mul_square 1 
-
-
-#check nat.add  
-#check nat.mul
-#check nat.le
-#check int.add
-#check int.mul
-#check rat.add
-#check rat.mul
-
-def sum_square (m n : ℕ) := 
-m * m + n * n
-
--- #check sum_square 
--- #check sum_square 1 
--- #check sum_square 1 2
--- #eval sum_square 1 2
-
-
-
-def fst_fun (x : X) := 
-λ (y : Y), x
-
--- What is the type of fst_fun? And what does it do?
-#check fst_fun 
-
-
-def fst_fun_alt (x : X) (y : Y) := 
-x 
--- What is the type of fst_fun_alt? And what does it do?
--- #check fst_fun_alt
-
-
--- CHALLENGE: define the second projection
-def snd_fun  : X → Y → Y := 
-sorry 
--- #check snd_fun
-section 
-variables (x : X) (y : Y)
-#check snd_fun x y
-#eval snd_fun x y
-end 
-
-
-def fst (p : X × Y) := 
-p.1
-
--- #check fst
--- #check fst
--- #check fst (1 , 2)
-#eval fst (2, 1)
-
-
-def snd (p : X × Y) := 
-p.2
-
-
-
-
-
-
-def pairing (f : Z → X) (g : Z → Y) (z : Z) : X × Y := 
-(f z , g z) 
-
-
-/-
-Question: What does the function `pairing switch nat_of_bool` do? 
--/
--- #check pairing switch nat_of_bool
--- #eval pairing switch nat_of_bool ff
--- #eval pairing switch nat_of_bool tt
-
-/-
-Question: What does the function `pairing double bool_of_nat` do? 
--/
--- #check pairing double bool_of_nat
-
-
-
-
-
-
-def decouple (f : Z → X × Y) : (Z → X) × (Z → Y) := 
-(λ z, (f z).1, λ z, (f z).2)
-
-/-
-Question: What does the function `decouple` do? 
--/
-
--- #check decouple (pairing switch nat_of_bool)
--- #check decouple (pairing switch nat_of_bool)
-
-
-def swap (x : X) (y : Y) := 
-(y , x)
-
-/-
-Question: What does the function `swap` do? 
--/
-
--- #check swap 
-
-section 
--- #check swap 2 4
--- #eval swap 2 4
-end 
-
-
-def swap_pair (X Y : Type) : X × Y → Y × X := 
-λ a, (a.2, a.1)
-
-/-
-Question: What does the function `swap_pair` do? 
--/
-
-
---#check swap_pair (7,3)
---#eval swap_pair (7,3)
-
-def swap_pair_alt {X Y : Type} : X × Y → Y × X := 
-λ a, (a.2, a.1)
-
-
-example : 
-  swap_pair_alt ( swap_pair_alt (1, 3) ) = (1,3)  := 
-begin 
-  sorry, 
-end 
-
-
-
-
--- An example of a function which take a function as its argument
-
-def evaluation (f : X → Y) (x : X) := f x
-#check evaluation  
-#eval evaluation double 3 
-
--- CHALLENGE: Write `evaluation` in the lambda notation. 
-
-
-def curry : (X × Y → Z) → X → (Y → Z) :=
-λ f, λ x, λ y, f (x , y)
-
-def uncurry : (X → (Y → Z)) → (X × Y → Z) := 
-sorry
-
---#check curry fst 
---#check (curry fst) ff 2
---#eval (curry fst) ff 2
--- #check uncurry (curry fst) (ff, 2) -- why?
-
-
-/- We use `uncurry` to define the product projections from `fst_fun` and `snd_fun`. -/
-
-#check fst_fun 
-#check uncurry 
-
--- Challenge: Fix the following definition 
-def fst_alt (f) := 
-uncurry (fst_fun f)
-
-#check fst_alt
-
-
-
-/-
-Question: What does the function `my_complicated_function` do? 
--/
-def my_complicated_function : (X → Y → Z) → ((Y → X) → Y) → X → Z :=
-λ f g x, f x (g (λy, x))
 
 
 
 
 end PROOFS
-
-
