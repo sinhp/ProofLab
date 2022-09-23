@@ -387,41 +387,6 @@ end
 
 
 
-
-
--- How many functions empty → bool 
-
--- How many functions unit → bool 
-
-
-
-
-
--- How many functions bool → bool 
-
-
-
--- How many functions bool → bool → bool 
-
-
--- How many functions (bool → bool) → bool
-
-
--- How many functions (bool → bool) → bool
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #check empty.elim
 
 
