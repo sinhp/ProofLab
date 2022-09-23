@@ -17,7 +17,7 @@ set_option pp.generalized_field_notation false
 
 namespace PROOFS
 
-variables {A B C X Y Z U V W : Type} 
+variables {A B C X Y Z U V W : Type} -- curly brackets make type implicit and that is what you get things like M_1? ... 
 
 
 /-! ### Functions evaluation
@@ -26,29 +26,21 @@ variables {A B C X Y Z U V W : Type}
 **Question**: What did all the functions we defined in the previous lecture have in common? 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 **Answer** : They all had one input and one output. 
+-/
 
+#check rational_sum_of_squares -- one input one output
 
-
-
+/-
 We can __evaluate__ a function at an input by applying the function to it. 
 -/
 
--- #eval double 7
+#check double 
+#eval double 7
+#check double_alt -- the domain of this function is natural numbers and the codomain of this function is natural numbers. 
+#reduce double_alt -- this function takes one input and returns one output, but it uses in its definition the function `nat.add` which takes 2 inputs and 1 output. 
+#check nat.add
+
 -- #eval double_alt 7
 
 
@@ -64,76 +56,117 @@ Given this, there are two things we should be careful about:
 2. Evaluation/application is __left-associative__: `f a b` = `((f a) b)`.
 -/
 
+
+#check nat.add -- the type of `nat.add` is `ℕ → ℕ → ℕ` which is implicitly understood by Lean to be `ℕ → (ℕ → ℕ)` 
+#check nat.add 1
+#check nat.add 1 2
+#eval nat.add 1 2
+#eval nat.add 1 (2) 
+
+
+
 def mul_square (m n : ℕ) := 
 m * m * n * n
 
--- #check mul_square 
--- #check mul_square 1 
+#check mul_square 
+#check mul_square 1 -- the type of `mul_square 1` is `ℕ → ℕ`
 
+/-Question: what does the function `mul_square 1` do?  -/
 
+/- The following functions from mathlib all take 2 inputs and return 1 output -/
 #check nat.add  
 #check nat.mul
-#check nat.le
+#check nat.le -- is a function which takes two natural number and returns a proposition. `nat.le m n` is the proposition that `m ≤ n`. `le` is short for less than or equal to. 
 #check int.add
 #check int.mul
 #check rat.add
 #check rat.mul
 
-def sum_square (m n : ℕ) := 
+def sum_squares (m n : ℕ) := 
 m * m + n * n
 
--- #check sum_square 
--- #check sum_square 1 
--- #check sum_square 1 2
--- #eval sum_square 1 2
+#check sum_squares
+-- #check sum_squares 1 
+#check sum_squares 1 2
+#eval sum_squares 1 2
 
 
 
 def fst_fun (x : X) := 
-λ (y : Y), x
+λ (y : Y), x -- the input is of type `X` and the output is a function. the domain is `X` and the codomain `Y → X`. 
 
 -- What is the type of fst_fun? And what does it do?
 #check fst_fun 
+#check @fst_fun -- for all types `X` and `Y` the type of `fst_fun` is `X → Y → X`. 
 
 
 def fst_fun_alt (x : X) (y : Y) := 
 x 
 -- What is the type of fst_fun_alt? And what does it do?
--- #check fst_fun_alt
+#check fst_fun_alt
+#check @fst_fun_alt -- make it explicit 
 
+#check fst_fun_alt 17 4
+#eval fst_fun_alt 17 4
+
+#check fst_fun_alt 17
+#check @fst_fun 17 -- why can we not make the second variable explicit? we'll come back to this in the next lecture. 
 
 -- CHALLENGE: define the second projection
 def snd_fun  : X → Y → Y := 
-sorry 
+λ x, λ y, y  
+-- the domain of `fst_fun` and `snd_fun` are the same but not their codomain. 
+
 -- #check snd_fun
 section 
 variables (x : X) (y : Y)
 #check snd_fun x y
-#eval snd_fun x y
+-- #eval snd_fun x y
 end 
 
 
 def fst (p : X × Y) := 
-p.1
+p.1 
+-- for a pair `p`, i.e. a term of type `X × Y` the output of `fst` is the first coordinate of `p` which we access using projection `.1`. 
 
 -- #check fst
 -- #check fst
 -- #check fst (1 , 2)
+#check fst (2, 1)
 #eval fst (2, 1)
+
+
 
 
 def snd (p : X × Y) := 
 p.2
 
 
+/-! ### Examples of a function which take a function as its argument -/
 
+def evaluation (f : X → Y) (x : X) := f x
+#check evaluation  
+#eval evaluation double 3 
+
+-- CHALLENGE: Write `evaluation` in the lambda notation. 
+
+
+
+-- `pairing` is a function which takes as input two functions. 
 def pairing (f : Z → X) (g : Z → Y) (z : Z) : X × Y := 
 (f z , g z) 
 
 
+section 
+variable f : Z → X 
+variable g : Z → Y
+#check pairing f g
+end 
+
 
 def pairing_alt (f : Z → X) (g : Z → Y)  := 
-λ z, (f z , g z) -- abstracting over z with λ 
+λ z, (f z , g z) -- abstracting over z 
+
 
 
 section 
@@ -156,6 +189,9 @@ Question: What does the function `pairing double bool_of_nat` do?
 
 
 
+/-
+Question: What does the function `cartesian_prod` do? 
+-/
 def cartesian_prod (f : A → B) (g : X → Y) : A × X → B × Y :=   
 λ p, (f p.1, g p.2) 
 
@@ -207,51 +243,47 @@ def swap_pair_alt {X Y : Type} : X × Y → Y × X :=
 example : 
   swap_pair_alt ( swap_pair_alt (1, 3) ) = (1,3)  := 
 begin 
-  sorry, 
+  refl, 
 end 
 
 
 
--- What does the function `bool_prod` do? 
 
-def bool_prod : (bool → X) → X × X := 
-sorry
+def copy (x : X) : X × X := 
+(x, x) 
 
--- #eval bool_prod switch 
--- eval 
-
-
--- What does the function `prod_bool` do? 
-
-def prod_bool : X × X → (bool → X) := 
-sorry
-
--- #eval prod_bool (1,2) ff
+#check copy
+#check @copy 
 
 
 
 
 
-
--- An example of a function which take a function as its argument
-
-def evaluation (f : X → Y) (x : X) := f x
-#check evaluation  
-#eval evaluation double 3 
-
--- CHALLENGE: Write `evaluation` in the lambda notation. 
 
 
 def curry : (X × Y → Z) → X → (Y → Z) :=
-λ f, λ x, λ y, f (x , y)
+sorry 
+
+
 
 def uncurry : (X → (Y → Z)) → (X × Y → Z) := 
 sorry
+
+
+
+
+
 
 --#check curry fst 
 --#check (curry fst) ff 2
 --#eval (curry fst) ff 2
 -- #check uncurry (curry fst) (ff, 2) -- why?
+
+
+
+
+
+
 
 
 /- We use `uncurry` to define the product projections from `fst_fun` and `snd_fun`. -/
@@ -277,13 +309,56 @@ def my_complicated_function : (X → Y → Z) → ((Y → X) → Y) → X → Z 
 
 
 
-/-! ### Equality of Functions -/
 
-/-
+
+/-! ### Equality of Functions 
 Once we have defined functions (or anything) in Lean we can prove properties of them: For instance we might want to prove two functions are equal to each other.
 
-- __Function Extensionality__ is a logical principle which says that we can prove any two functions `f : X → Y` and `g : X → Y`  (with the same domain and the same codomain) are equal (written as `f = g` ) if for all elements `x : X` we have a proof of `f x = g x`. In Lean, this is `funext`. Here's a little secret: `funext` is assumed in Lean so we do not need to be explicit about it when we use it. 
+__Function Extensionality__ is a logical principle which says that we can prove two functions `f : X → Y` and `g : X → Y`  (with the same domain and the same codomain) are equal (written as `f = g` ) if for all elements `x : X` we have a proof of `f x = g x`. In Lean, this is `funext`. Here's a little secret: `funext` is assumed in Lean so we do not need to be explicit about it when we use it. 
 -/
+
+
+example : (λ n : ℕ, (2 * n)) = (λ n: ℕ, n + n) := 
+begin
+ funext x, -- we fix x : ℕ (alternatively, let n: ℕ be given)
+ rw two_mul, -- we need to prove 2 * n = n + n which is proved by lemma `two_mul`
+end 
+
+
+
+example : (λ n : ℕ, (2 * n)) = (λ n: ℕ, n + n) := 
+begin
+ funext x, -- we fix x : ℕ (alternatively, let n: ℕ be given)
+ rw ← two_mul, 
+ -- we need to prove 2 * n = n + n which is proved by lemma `two_mul`
+end 
+
+
+
+example : (λ n : ℕ, (2 * n)) = (λ n: ℕ, n + n) := 
+begin
+ funext, -- we fix n : ℕ (alternatively, let n: ℕ be given)
+ exact two_mul n,
+end 
+
+
+
+
+
+
+
+
+
+example : (λ n : ℕ, (2 * n)) = (λ n: ℕ, n + n) := 
+begin
+funext, 
+-- After ext, we must show that given x : ℕ, we have 2 * x = x + x
+-- refl, note that refl does not work. what error do you get if you try refl after ext? 
+ring,
+end 
+
+
+
 
 example : (λ n : ℕ, (2 * n)) = (λ n: ℕ, n + n) := 
 begin
@@ -298,45 +373,11 @@ end
 example : 
   mul_square 1 = square := 
 begin 
-  sorry, 
-end   
-
-
-
-
-
-
-
-
-example : 
-  mul_square 1 = square := 
-begin 
   ext a, 
   rw mul_square,
   rw square, 
   ring, 
 end  
-
-
-
-
-
-
-
-
-example : double = double_alt := 
-begin 
-sorry,  
-end 
-
-
-
-
-
-
-
-
-
 
 
 
@@ -352,15 +393,13 @@ end
 
 
 
-
-
 example : double = double_alt := 
 begin 
 -- ext n, -- instead of the default variable name x : ℕ , we use n : ℕ. 
 ext n,
 rw double,
 rw double_alt, 
-linarith,  -- we cannot use `ring` here, since natural numbers do not form a ring (recall that a ring)  
+linarith,  -- we cannot use `ring` here, since natural numbers do not form a ring (recall that a ring). `linarith` is for linear arithmetic.   
 end 
 
 
@@ -376,22 +415,40 @@ end
 
 
 
-example (a a' b b' : X)
-    (f : X → X → X) (ha : a = a') (hb : b = b') :
-  f a b = f a' b' :=
-begin
-  induction hb, induction ha, refl,
-end
 
 
-
-
+/-! ### Functions out of empty type 
+There is a type which is called the __empty__ type and is denoted by `empty` in Lean. This type does not have any terms in it. Therefore, to specify a function with domain `empty` and codomain `X` (for any type `X`) we do not need to do anything, since there is no term in `empty` for which we need to return a term of `X`. Therefore, there is always a function `empty → X` for any type `X`. 
+-/
 
 #check empty.elim
+#check (empty.elim : empty → X)
+
+
+/- Let's prove that any two functions of type `empty → X` are equal. Therefore, there is a __unique__ function `empty → X`. -/
+
+lemma empty_unique_fun (f g : empty → X) : 
+  f = g :=
+begin
+  funext, 
+  exact empty.elim x, 
+end  
+
+
+
+/-! ### Functions out of unit type 
+There is a type which is called the __unit__ type and is denoted by `unit` in Lean. This type has exactly one term in it which is `unit.star`.
+-/
 
 
 #check unit
 #print unit
+#check unit.star
+
+
+
+
+/- To specify a function with domain `unit` and codomain `X` (for any type `X`) we need to specify which term of `X` is assigned to `unit.star`, in other words which term of `X` does this function return for the input `unit.star`. Therefore there are as many functions `unit → X` as the terms/elements of `X`-/
 
 
 #check trivial
@@ -403,19 +460,6 @@ def elem_fun (x : X) : unit → X :=
 
 #check elem_fun ff
 #check elem_fun tt 
-
-
-def bool_power_fun (f : X → Y) : (bool → X) → (bool → Y) := 
-λ α, λ b, f (α b)
-
-
-#check bool_power_fun switch
-#check bool_power_fun switch switch
-#check bool_power_fun switch switch ff
-#eval bool_power_fun switch switch ff
-
-
-
 
 
 
