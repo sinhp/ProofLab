@@ -17,8 +17,8 @@ set_option pp.generalized_field_notation false
 
 /- 
 New tactics we'll learn in this lesson: 
-1. dsimp 
-2. cases
+10. `dsimp` and its variants 
+11. `cases`
 -/
 
 
