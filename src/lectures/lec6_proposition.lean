@@ -316,23 +316,43 @@ begin
 end 
 
 
+example : 
+  false → true := 
+begin
+-- an example of this is the proposition (0 = 1) → (1 = 1)
+intro hp, 
+exact trivial, -- trivial is the unique proof of proposition `true`, therefore `true` is true. 
+end 
+
+
 --introduction example
 lemma conjunction_commutative :
   P ∧ Q → Q ∧ P := 
 begin
-  intro h, 
-  cases h,
-  split, 
-  {exact h_right},
-  {exact h_left}, 
+  intro hpq, 
+  -- we want to use the elim rule of conjunction (`∧`) to construct a proof of `P` and a proof of `Q` to use them later. 
+  cases hpq with hp hq,
+  -- we want to use the intro rule of conjunction to prove our goal `Q ∧ P` 
+  split,
+  {
+    -- well, we know that `Q` is true and the proof of that is `hq`. 
+    exact hq,
+  },
+  {-- well, we know that `P` is true and the proof of that is `hp`. 
+    assumption, -- note that `hp` was introduced later in the proof
+  },
 end   
+
+
+
 
 --Alternatively, we can use the lemma `conjunction_swap` which we proved before: 
 example : 
   P ∧ Q → Q ∧ P := 
 begin
-  intro h, 
-  exact (conjunction_swap P Q h), 
+-- the second line of the following proof uses the elimination rule of implication which we have not learned yet, but we will in about five minutes.  
+  intro hpq, 
+  exact conjunction_swap P Q hpq, 
 end 
 
 
@@ -341,21 +361,47 @@ end
 lemma nat_mul_congr (x y z : ℕ) (h : x = y) : 
   x * z = y * z := 
 begin
-sorry, 
+  rw h,
 end 
  
 -- #check nat_mul_congr
 
+--introduction example
+example (n : ℕ) : 
+  (0 = 1) → (0 = n) := 
+begin
+  intro h₁, 
+  -- now under the hypothetical assumption that `0 = 1` we need to prove that `0 = n`.  
+  have h₂ : 0 * n = 1 * n, rw nat_mul_congr 0 1 n h₁, 
+  have h₃ : 0 = 0 * n, rw zero_mul, 
+  have h₄ : n = 1 * n, rw one_mul, 
+  rw ← h₃ at h₂,  
+  rw ← h₄ at h₂,  
+  show 0 = n, from h₂, 
+end 
 
 -- introduction example
 example (n : ℕ) : 
   (0 = 1) → (0 = n) := 
 begin
   intro h₁, 
-  -- now under the hypothetical assumption that `0 = 1` we need to prove that `0 = n`.  
-  sorry, 
+  -- now under the hypothetical assumption that `0 = 1` we need to prove that `0 = n`.  To prove this we use the lemma `nat_mul_congr` in the following way: we use the lemma by using x to be `0` and `y` to be `1` and `z` to be `n`   
+  have h₂: 0 * n = 1 * n, from nat_mul_congr 0 1 n h₁, -- this proves ` 0 * n = 1 * n` 
+  -- use h₂ to prove `0 =n` 
+  rw [zero_mul, one_mul] at h₂, 
+  assumption,
 end 
 
+
+-- Challenge: prove this with the tatic `calc` 
+example (n : ℕ) : 
+  (0 = 1) → (0 = n) := 
+begin 
+intro h₁, 
+calc 0 = 0 * n : by rw zero_mul
+... = 1 * n : by rw h₁
+... = n : by rw one_mul,
+end 
 
 
 
@@ -384,7 +430,11 @@ end
 example : 
   P → Q → P :=
 begin
-sorry,
+-- we want to prove `P → (Q → P)` so we use the intro rule of `→`
+intro h₁, 
+-- we are proving an implication, hence we use the intro rule of → 
+intro h₂, 
+assumption,
 end 
 
 
@@ -400,8 +450,7 @@ end
 
 
 
-
--- elimination exmaple: applicaiton
+-- Application elimination exmaple aka Modus Ponens
 lemma modus_ponens : 
   P → (P → Q) → Q := 
 begin   
@@ -411,20 +460,21 @@ end
 
 
 
-
-
--- dependent application/evaluation
+-- Depenedent Modus Ponens
 lemma dep_modus_ponens: 
   P → (P → P → Q) → Q :=
 begin
-  sorry, 
+  -- we want to prove P → ((P →(P → Q)) → Q) so we use intro rule of → 
+  intro h₁, 
+  -- we want to prove (P →(P → Q))  → Q so we use intro rule of → 
+  intro h₂, 
+  --  we want to Q; we create a new subgoal P → Q, and prove it using tactic `have`
+  have h₃ : P → Q, from h₂ h₁, 
+-- we use `h₃` to prove `Q` by application elimination. 
+  exact h₃ h₁, 
 end 
 
-example : 
-  P → (P → P → Q) → Q :=
-begin
-  sorry, 
-end 
+
 
 /-
 Transitivity of implications: If we know that  proposition P implies Q and Q implies R then we know that  P implies R. 
