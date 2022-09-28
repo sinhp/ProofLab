@@ -356,44 +356,8 @@ begin
 end 
 
 
-/- Next examples constructs a proof of `(0 = 1) → (0 = n)`. -/
 
-lemma nat_mul_congr (x y z : ℕ) (h : x = y) : 
-  x * z = y * z := 
-begin
-  rw h,
-end 
- 
--- #check nat_mul_congr
-
---introduction example
-example (n : ℕ) : 
-  (0 = 1) → (0 = n) := 
-begin
-  intro h₁, 
-  -- now under the hypothetical assumption that `0 = 1` we need to prove that `0 = n`.  
-  have h₂ : 0 * n = 1 * n, rw nat_mul_congr 0 1 n h₁, 
-  have h₃ : 0 = 0 * n, rw zero_mul, 
-  have h₄ : n = 1 * n, rw one_mul, 
-  rw ← h₃ at h₂,  
-  rw ← h₄ at h₂,  
-  show 0 = n, from h₂, 
-end 
-
--- introduction example
-example (n : ℕ) : 
-  (0 = 1) → (0 = n) := 
-begin
-  intro h₁, 
-  -- now under the hypothetical assumption that `0 = 1` we need to prove that `0 = n`.  To prove this we use the lemma `nat_mul_congr` in the following way: we use the lemma by using x to be `0` and `y` to be `1` and `z` to be `n`   
-  have h₂: 0 * n = 1 * n, from nat_mul_congr 0 1 n h₁, -- this proves ` 0 * n = 1 * n` 
-  -- use h₂ to prove `0 =n` 
-  rw [zero_mul, one_mul] at h₂, 
-  assumption,
-end 
-
-
--- Challenge: prove this with the tatic `calc` 
+ -- an example of implication introduction 
 example (n : ℕ) : 
   (0 = 1) → (0 = n) := 
 begin 
@@ -405,13 +369,68 @@ end
 
 
 
---introduction example
-lemma conjunction_commutative_alt :
-  P ∧ Q → Q ∧ P := 
-begin
-  sorry, 
-end   
+/- Next examples constructs a proof of `(0 = 1) → (0 = n)`. -/
 
+lemma nat_mul_congr (x y z : ℕ) (h : x = y) : 
+  x * z = y * z := 
+begin
+  rw h,
+end 
+ 
+
+
+-- #check nat_mul_congr
+
+------------------------
+-- tactic __have__ 
+------------------------
+
+/- `have` is a good tactic to use, if you want to add a new intermediate subgoal which, after proving it, can be used later as a new assumption in the (updated) context. 
+
+There are two styles of using the tactic `have`.
+
+- The term-style: 
+` have hp : P, from ...  `
+
+
+- The tactic-style: 
+` have hp : P, by {tactic_1 ..., tactic_2 ...,  tactic_n ... } `
+
+In the first style, we are introducing a new assumption `hp` (a proof of proposition `P`) from another proof (`...`) that we know how to construct.   
+-/
+
+
+
+example (n : ℕ) : 
+  (0 = 1) → (0 = n) := 
+begin
+  -- we want to prove an implication, hence we use the implication introduction rule. 
+  intro h₁, 
+  -- under the hypothetical assumption that `0 = 1` we need to prove that `0 = n`.  To prove this we use the lemma `nat_mul_congr` in the following way: we use the lemma by using x to be `0` and `y` to be `1` and `z` to be `n` 
+  -- We use the tactic `have` to add a new assumption `h₂` which proves that `0 * n = 1 * n` from the lemma `nat_mul_congr` applied to arguments `0 1 n h₁`. 
+  have h₂ : 0 * n = 1 * n, from nat_mul_congr 0 1 n h₁, 
+  -- this proves ` 0 * n = 1 * n` 
+  -- use h₂ to prove `0 =n` 
+  rw [zero_mul, one_mul] at h₂, 
+  assumption,
+end 
+
+
+
+example (n : ℕ) : 
+  (0 = 1) → (0 = n) := 
+begin
+  intro h₁, 
+  -- now under the hypothetical assumption that `0 = 1` we need to prove that `0 = n`.  
+  have h₂ : 0 * n = 1 * n, from nat_mul_congr 0 1 n h₁, 
+  -- we add a new assumption that `0 = 0 * n` using the tactic-style `have` and the lemma `zero_lemma`. 
+  have h₃ : 0 = 0 * n, by {rw zero_mul}, 
+  -- we add a new assumption that `n = 1 * n` using the tactic-style `have` and the lemma `one_mul`. 
+  have h₄ : n = 1 * n, by {rw one_mul}, 
+  rw ← h₃ at h₂,  
+  rw ← h₄ at h₂,  
+  show 0 = n, from h₂, 
+end 
 
 
 
@@ -420,7 +439,8 @@ end
 example : 
   P ∧ Q → Q ∧ P := 
 begin
-  sorry,  
+  intro h₁, 
+  exact conjunction_swap P Q h₁, 
 end 
 
 
@@ -434,6 +454,7 @@ begin
 intro h₁, 
 -- we are proving an implication, hence we use the intro rule of → 
 intro h₂, 
+-- we know `P` is true by `h₁`. 
 assumption,
 end 
 
@@ -502,6 +523,7 @@ example :
 begin 
   sorry, 
 end 
+
 
 
 ------------------------
