@@ -44,20 +44,20 @@ Prove the implication
 `m * n - m - n + 1 = 1 → (m = 2) ∧ (n = 2)` 
 for natural numbers `m` and `n` by filling in `sorry` placeholders below. 
 
-You might like to use the lemma `nat.mul_eq_one_iff.mp` which says if the multiplication of two natural numbers is `1` then both of them must be `1`
+You need to use the lemma `mul_eq_one_of_pos_of_pos` in below which says if the multiplication of two positive integers is `1` then both of them must be `1`. Notice that we did not provide the proof of this lemma here, and __you don't need to provide it either__. We will construct a proof of this lemma in the next lecture. 
 -/
 
-section
-variables m n : ℕ
-#check (nat.mul_eq_one_iff.mp : m * n = 1 → m = 1 ∧ n = 1 )
+-- no need to solve the following, just use it in the next proof 
+lemma mul_eq_one_of_pos_of_pos  (m n : ℤ) (h : m * n = 1) : 
+  (0 < m ∧ 0 < n) → (m = 1 ∧ n = 1) := 
+begin 
+  sorry, 
 end 
 
-
-example (m n : ℕ) : 
-  m * n - m - n + 1 = 1 → (m = 2) ∧ (n = 2) := 
+-- give a proof of this one using the lemma above. 
+example (m n : ℤ) : 
+  m * n - m - n + 1 = 1 → (1 < m ∧ 1 < n) → (m = 2) ∧ (n = 2) := 
 begin
-  intro h₁, 
-  have h₂ : (m - 1) * (n - 1) = 1, sorry, 
   sorry, 
 end  
 
