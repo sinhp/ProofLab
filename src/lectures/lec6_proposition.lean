@@ -551,27 +551,66 @@ variables a b c : ℝ
 #check (le_trans : a ≤ b → b ≤ c → a ≤ c)
 end 
 
+
+example (x y z : ℝ) (h₀ : x ≤ y) (h₁ : y ≤ z) :
+  x ≤ z := 
+begin
+exact le_trans h₀ h₁,
+end 
+
+
 example (x y z : ℝ) (h₀ : x ≤ y) (h₁ : y ≤ z) :
   x ≤ z := 
 begin
 -- our goal is to prove `x ≤ z`. After using `apply le_trans` Lean is searching the context to find some `y` with `x ≤ y` and `y ≤ z` so that it can apply `le_trans` to them. 
-  sorry,
+  apply le_trans,
 -- the goals are ⊢ x ≤ ?m_1 and ?m_1 ≤ z : We solve the first goal using `h₀`. One `h₀` is supplied, `?m_1` is replaced by `y`. 
-  sorry, 
+  apply h₀,
 -- ⊢ the only remaining goal is  `y ≤ z`. 
-  sorry,
+  apply h₁,
 -- alternatively, we could have used `exact h₁` as usual.   
 end
+
 
 
 /- 
 let's do curry fully tactic style; we use our new tactic `apply`.
 -/
+-- a tautology is proposition which is always true. 
 lemma curry_prop : 
   (P ∧ Q → R) → (P → Q → R) :=
 begin 
-  sorry, 
+  intro h₁, -- we want to prove the implication (P ∧ Q → R) → (P → Q → R) hence we use the introduction rule of implication. 
+  intro h₂, -- we want to prove the implication P → (Q → R), hence we use the introduction rule of implication. 
+  intro h₃,  -- we want to prove Q → R, hence we use the introduction rule of implication. 
+  apply h₁, -- we want to show R hence by backward proving we need to supply a proof of P ∧ Q
+  split, -- we want to prove P ∧ Q and therefore we use the introduction rule of conjunction 
+  repeat {assumption},
 end 
+
+
+example : 
+  (P ∧ Q → R) → (P → Q → R) :=
+begin
+itauto,
+end   
+
+
+example : 
+  (P ∧ Q → R) → (P → Q → R) :=
+begin
+itauto,
+end   
+
+
+
+example : 
+  (P ∧ Q → R) → (P → Q → R) :=
+begin
+exact and_imp.mp,
+end  
+
+
 
 #check curry_prop
 #check curry 

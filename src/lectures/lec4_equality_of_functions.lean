@@ -13,6 +13,11 @@ set_option pp.generalized_field_notation false
 -- set_option pp.all true
 
 
+/- 
+New tactic we'll learn in this lesson: 
+8. funext 
+9. linarith
+-/
 
 
 namespace PROOFS
@@ -261,18 +266,38 @@ def copy (x : X) : X × X :=
 
 
 
-def curry : (X × Y → Z) → X → (Y → Z) :=
-sorry 
+def curry : (X × Y → Z) → (X → (Y → Z)) :=
+ λf, λ x, λ y, f (x, y)
 
-
+#check curry
+#check @curry
+#check @curry X Y Z
 
 def uncurry : (X → (Y → Z)) → (X × Y → Z) := 
-sorry
+λ f, λ p, f p.1 p.2 
+#check @uncurry
+#check @uncurry X Y Z
+
+
+#check curry ∘ uncurry 
+#check @curry X Y Z ∘ @uncurry X Y Z
+
+example : 
+  @curry X Y Z  ∘ @uncurry X Y Z = id := 
+begin
+  funext f x y, 
+  dsimp,
+  unfold uncurry,
+  unfold curry,
+end 
 
 
 
-
-
+example : 
+  @uncurry X Y Z  ∘ @curry X Y Z = id := 
+begin
+  sorry, 
+end 
 
 --#check curry fst 
 --#check (curry fst) ff 2
