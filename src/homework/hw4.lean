@@ -104,7 +104,14 @@ end
 
 
 /-! ## Question 5 (20 points): 
-Prove the following statement. You might like to use  lemmas `abs_mul` and/or `abs_lt`.
+Prove the following statement. You might like to use any of the following lemmas (most likely you need only some of them not all.): 
+- `abs_mul` 
+- `abs_lt`.
+- `abs_nonneg`
+- `abs_pos`
+- `real_le_of_mul_nonneg_left`
+- `real_lt_of_mul_pos_right`
+- `real_le_mul_right`
 -/
 
 section 
@@ -112,6 +119,43 @@ variables a b : ℝ
 #check (abs_mul a b : |a * b| = |a| * |b|)
 #check (abs_lt : |a| < b ↔ -b < a ∧ a < b)
 end 
+
+
+lemma real_le_of_mul_nonneg_left {a b c : ℝ} (h₀ : a < b) (h₁ : 0 ≤ c): 
+  c * a ≤ c * b := 
+begin
+  apply mul_le_mul_of_nonneg_left, 
+  {
+    apply le_of_lt,
+    apply h₀, 
+  },
+  {
+     apply h₁, 
+  },
+end   
+
+
+lemma real_lt_of_mul_pos_right {a b c : ℝ} (h₀ : a < b) (h₁ : 0 < c): 
+  a * c < b * c := 
+begin
+  rw mul_comm a c,
+  rw mul_comm b c, 
+  apply mul_lt_mul_of_pos_left, 
+  assumption',
+end 
+
+
+lemma real_le_mul_right {a b c : ℝ} (h₀ : a ≤ b) (h₁ : 0 < c): 
+  a * c ≤ b * c := 
+begin
+  apply (mul_le_mul_right h₁).mpr,
+  assumption,  
+end 
+
+#check abs_nonneg
+ 
+
+
 
 
 example (x y ε : ℝ) : 
