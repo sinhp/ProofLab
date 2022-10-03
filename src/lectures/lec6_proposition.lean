@@ -645,7 +645,189 @@ end
 
 
 
+/-! ### Negation  
+If we start with a propositon `P`, the negation `¬P` (aka "not P") is _defined_ by the formula `P → false`, which you can think of as saying that `P` implies something impossible (`false`). Therefore, if `¬ P` is the case, then `P` cannot be the case, since if `P` were the case, we would conclude that something false/impossible would be the case. The rules for negation are therefore similar to the rules for implication. To prove/introduce `¬P`, assume `P` and derive a contradiction `false` (i.e. construct a proof of proposition `false`).  An example of this is the proof of irrationality of root 2.
+To eliminate `¬P`, given a proof of `P` and a proof of `¬ P` we get `false`. 
+-/
+
+-- We are trying to prove that "if P then if not P then false"
+example : 
+  P → ¬P → false := 
+begin 
+  intro hp, -- we want to prove the implication P → (¬P → false), therefore we use implication introduction
+  intro hnp, -- we want to prove the implication (¬P) → false, therefore we use implication introduction 
+  apply hnp,          -- we have a proof of ¬P, so we use the elimination for negation to construct a proof of false.
+  assumption,
+end  
 
 
 
-end PROOFS 
+
+
+
+example : P → ¬P → false := 
+begin 
+intro hp, 
+intro hnp, 
+exact hnp hp, -- the direct form of implication elimination
+end  
+
+
+
+
+lemma not_imply : 
+  (P ∧ ¬ Q) → ¬ (P → Q) := 
+begin
+  intro hpnq, -- we are trying to prove the implication (P ∧ ¬ Q) → (¬ (P → Q))
+  -- we want to prove  the negation ¬ (P → Q), so we use the intro rule for negation 
+  intro hpq, 
+  cases hpnq with hp hnq,-- we eliminate the conjunction 
+  apply hnq, -- we use the elim rule for `¬ Q` to change the goal from false to Q
+  apply hpq, --we use the elim rule for `P → Q` after which we just need to prove `P`.  
+  assumption, 
+end   
+
+
+
+lemma proof_by_contrapositive 
+  (P Q : Prop) : (P → Q) → (¬Q → ¬P) := 
+begin 
+  intro hpq, 
+  intro hnq,
+  intro hp,
+  apply hnq, 
+  apply hpq,
+  assumption,
+end 
+
+
+
+
+
+
+-- Tactic __suffices__:
+lemma proof_by_contrapositive_alt
+(P Q : Prop) : (P → Q) → (¬Q → ¬P) := 
+begin
+  intro hpq, 
+  intro hnq, 
+  intro hp, 
+  suffices hq : Q, from hnq hq, -- this is very much like apply; it changes the goal to the assumption of the implication. It says I only need to prove Q becasue once i do that i can use `hnq` 
+  apply hpq, 
+  exact hp,
+end 
+
+-- Another example of `suffices`
+example : 
+  P → (Q ∧ R) → P ∧ Q := 
+begin
+  intros h₁ h₂ , 
+  suffices h₃ : Q, from ⟨h₁,h₃⟩,
+  exact h₂.1,
+end 
+
+
+
+
+-- Tactic __exfalso__:
+example : 
+  P ∧ ¬ P → Q :=
+begin
+  intro hpnp, -- we want to prove the implication (P ∧ ¬ P) → Q, so we use the intro rule of implication
+  cases hpnp with hp hnp, 
+  exfalso, -- is a tactic for the backward elimination of `false`. This means from a proof of `false` everything followes. 
+  exact hnp hp,
+end
+
+
+
+
+
+example : 
+  P ∧ ¬ P → Q :=
+begin
+  intro hpnp, -- we want to prove the implication (P ∧ ¬ P) → Q, so we use the intro rule of implication
+  cases hpnp with hp hnp, 
+  have f : false, from hnp hp, 
+  exfalso, -- is a tactic for the backward elimination of `false`. This means from a proof of `false` everything followes. 
+  assumption,
+end
+
+
+
+example : 
+  P ∧ ¬ P → Q := 
+begin
+  intro hpnp,
+  exfalso, 
+  sorry, 
+end 
+
+
+/- A __contradiction__ is a collection of propositions which together lead an absuridty, i.e. a proof of `false`. For instance if we have a proof of a proposition `P` and a proof of `¬ P` then we can prove `false`. Hence `¬ P` contradicts `P`. 
+Tactic __contradiction__: The `contradiction` tactic searches for a contradiction among the hypotheses of the current goal. 
+-/
+
+example : 
+  P ∧ ¬ P → Q :=
+begin
+  intro h, 
+  cases h, 
+  contradiction,
+end
+
+
+
+
+
+
+
+
+/-! ### Disjunction (or) 
+-- Tactic for `∨` introduction:  We use the tactic __left__ or __right__ in order to prove a propositional formula of the form `P ∨ Q`. 
+ 
+-- We use the tactic __cases__ in order to use a proof of `P ∨ Q` to prove some other proposition. 
+-/
+
+
+
+example (hp : P) : 
+  P ∨ Q ∨ ¬ P :=
+begin
+  left,
+  assumption,
+end 
+
+
+
+
+
+example (hq : Q) : 
+  P ∨ Q ∨ ¬ P :=
+begin
+  right, 
+  left, 
+  assumption,
+end
+
+
+example (hq : Q) : 
+  P ∨ Q ∨ ¬ P :=
+begin
+  itauto,
+end
+
+
+-- Challenge: fill in the `sorry` below. 
+-- introduction example
+example (h : P ∧ Q) : 
+  P ∨ Q :=
+begin
+  sorry, 
+end 
+
+
+
+
+
+end PROOFS
