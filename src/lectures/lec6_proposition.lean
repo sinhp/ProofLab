@@ -78,7 +78,21 @@ We call a compound proposition (such as “The sun is shining and It is raining�
 /-! ### Conjunction (and) 
 We use the tactic __split__ in order to prove a proposition formula of the form `P ∧ Q`. 
 
+    P   Q
+   -------- ∧-intro
+    P ∧ Q 
+
 We use the tactic __cases__ in order to use a proof of `P ∧ Q` to prove some other proposition. The tactic `cases` replaces `h : P ∧ Q` by a pair of assumptions, `hp : P` and `hq : Q`. 
+
+    P ∧ Q
+   -------- ∧-elim_left
+      P 
+
+    P ∧ Q
+   -------- ∧-elim_right
+      Q 
+
+
 -/
 
 -- introduction example 
@@ -284,6 +298,15 @@ The implication `P → Q` is a new proposition built from P and Q and we read it
 Implicaiton __introduction__:
 If under the assumption that `P` is true we can derive that `Q` is true, then we know that `P → Q` is true. Note that, in this process, we actually do not know whether P is true or not; all we know is that in case `P` holds, then so does `Q`. To assume `P` first we introduce a hypothetical proof `hp` of `P`, and we use `hp` to construct a proof of `Q`, and thereby show that `Q` holds under the assumption that `P` holds. 
 
+    P
+    .
+    .
+    .
+    Q
+--------- (→ intro)
+  P → Q
+
+
 Implication __elimination__: 
 Application of a proof 
 `h : P → Q`
@@ -294,6 +317,13 @@ is achieved by the expression
 that is `h` followed by `p`.
 
 This is (like) function application.
+
+
+  P → Q   P 
+------------- (→ elim)
+      Q
+
+
 
 If `h` and `p` are compound expressions, we put brackets around them to make it clear where each one begins and ends. 
 e.g. `h₁ h₂ h₃` is interpreted by Lean as `(h₁ h₂) h₃`.
@@ -431,6 +461,20 @@ begin
   rw ← h₄ at h₂,  
   show 0 = n, from h₂, 
 end 
+
+
+
+example (n : ℕ) : 
+  (0 = 1) → (0 = n) := 
+begin
+  intro h, 
+  simp at *, 
+  exfalso, 
+  assumption,
+end 
+
+
+
 
 
 
@@ -810,7 +854,8 @@ begin
 end 
 
 
-/- A __contradiction__ is a collection of propositions which together lead an absuridty, i.e. a proof of `false`. For instance if we have a proof of a proposition `P` and a proof of `¬ P` then we can prove `false`. Hence `¬ P` contradicts `P`. 
+/- 
+A __contradiction__ is a collection of propositions which together lead an absuridty, i.e. a proof of `false`. For instance if we have a proof of a proposition `P` and a proof of `¬ P` then we can prove `false`. Hence `¬ P` contradicts `P`. 
 Tactic __contradiction__: The `contradiction` tactic searches for a contradiction among the hypotheses of the current goal. 
 -/
 
@@ -830,9 +875,33 @@ end
 
 
 /-! ### Disjunction (or) 
--- Tactic for `∨` introduction:  We use the tactic __left__ or __right__ in order to prove a propositional formula of the form `P ∨ Q`. 
+- Tactic for disjunction introduction:  We use the tactic __left__ or __right__ in order to prove a propositional formula of the form `P ∨ Q`. 
+
+
+      P
+   -------- ∨-intro-left 
+    P ∨ Q
  
--- We use the tactic __cases__ in order to use a proof of `P ∨ Q` to prove some other proposition. 
+
+
+      Q
+   -------- ∨-intro-right
+     P ∨ Q
+
+
+ 
+- Tactic for disjunction elimination: We use the tactic __cases__ in order to use a proof of `P ∨ Q` to prove some other proposition. 
+
+
+
+  P ∨ Q     P        Q
+            .        .
+            .        .
+            .        . 
+            R        R
+----------------------------
+            R
+
 -/
 
 
@@ -874,6 +943,46 @@ end
 
 
 
+-- elimination example 
+lemma or_swap (h :  P ∨ Q) :
+  Q ∨ P :=
+begin
+  sorry, 
+end 
+
+/-
+The tactic `cases` can be used like `cases h with hp hq` to give customary name to the branches of a disjunction, using `hp` for the first branch and `hq` for the second. 
+-/
+
+example : P ∨ Q → Q ∨ P :=
+begin
+  sorry, 
+end
+
+
+
+theorem conjunction_distrib_disjunction (h : P ∧ (Q ∨ R) ) : 
+  (P ∧ Q) ∨ (P ∧ R) :=
+begin
+   cases h, -- eliminate ∧ in P ∧ (Q ∨ R)
+   cases h_right, -- eliminate ∨ in Q ∨ R
+     sorry, 
+end
+
+
+
+lemma mul_eq_zero_of_eq_zero_or_eq_zero (a b : ℝ) (h : a = 0 ∨ b = 0) : 
+  a * b = 0 := 
+begin
+  sorry, 
+end   
+
+#check eq_zero_or_eq_zero_of_mul_eq_zero
+
+example {x : ℝ} (h : x^2 = 1) : x = 1 ∨ x = -1 :=
+begin
+  sorry, 
+end
 
 
 end PROOFS
