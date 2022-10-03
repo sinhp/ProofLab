@@ -645,6 +645,51 @@ end
 
 
 
+
+
+/-! ### Falsity
+Sometimes we need to work with propositions which are always false such as “A bachelor is married”, or "0 = 1". In Lean, we denote the false proposition by `false`. The universal property of a false proposition is that any other proposition follows from the false proposition. We can prove any proposition from `false`. This is known as the __principle of explosion__ 🎆 aka ex falso. 
+-/
+
+example (P : Prop) (h : false) :
+  P :=
+begin
+  exfalso, 
+  exact h, 
+end   
+ 
+example : 
+  false → P := 
+begin
+  intro h,  
+  exfalso,
+  exact h, 
+end
+
+
+/-! ### True
+Sometimes we need to work with propositions which are always true such as “A bachelor is unmarried”, or "0 = 0". In Lean, we denote the false proposition by `true`. The universal property of a false proposition is that any other proposition entails the true proposition. In fact, `true` has a unique proof, namely `trivial`.  
+We can prove any proposition from `false`. This is known as the __principle of explosion__ 🎆 aka ex falso. 
+-/
+
+example : 
+  true := 
+begin
+  exact trivial,
+end   
+
+example : false → true → Q → P → Q   :=
+begin 
+intro u, 
+exfalso,
+exact u, 
+end
+
+
+
+
+
+
 /-! ### Negation  
 If we start with a propositon `P`, the negation `¬P` (aka "not P") is _defined_ by the formula `P → false`, which you can think of as saying that `P` implies something impossible (`false`). Therefore, if `¬ P` is the case, then `P` cannot be the case, since if `P` were the case, we would conclude that something false/impossible would be the case. The rules for negation are therefore similar to the rules for implication. To prove/introduce `¬P`, assume `P` and derive a contradiction `false` (i.e. construct a proof of proposition `false`).  An example of this is the proof of irrationality of root 2.
 To eliminate `¬P`, given a proof of `P` and a proof of `¬ P` we get `false`. 
@@ -671,6 +716,7 @@ intro hp,
 intro hnp, 
 exact hnp hp, -- the direct form of implication elimination
 end  
+
 
 
 
