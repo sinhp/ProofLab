@@ -856,6 +856,7 @@ end
 
 /- 
 A __contradiction__ is a collection of propositions which together lead an absuridty, i.e. a proof of `false`. For instance if we have a proof of a proposition `P` and a proof of `¬ P` then we can prove `false`. Hence `¬ P` contradicts `P`. 
+
 Tactic __contradiction__: The `contradiction` tactic searches for a contradiction among the hypotheses of the current goal. 
 -/
 
