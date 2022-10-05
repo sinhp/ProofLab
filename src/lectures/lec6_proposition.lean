@@ -464,6 +464,18 @@ end
 
 
 
+
+example (n : ℕ) : 
+  (0 = 1) → (0 = n) := 
+begin 
+intro h₁, 
+calc 0 = 0 * n : by rw zero_mul
+... = 1 * n : by rw h₁
+... = n : by rw one_mul,
+end 
+
+
+
 example (n : ℕ) : 
   (0 = 1) → (0 = n) := 
 begin
@@ -694,6 +706,32 @@ end
 The biimplication ` ↔ ` is a derived connective which is derived form `→` and `∧`. For propositions `P` and `Q`, we write `P ↔ Q` for `(P → Q) ∧ (Q → P)`. Therefore `P ↔ Q = (P → Q) ∧ (Q → P)` by definition. And, as such, we can apply the tactic `split` to introduce a proof of `P ↔ Q` and `cases` to eliminate proofs of `P ↔ Q`.
 -/
 
+/-
+**Note** The `constructor` tactic applies the unique constructor for conjunction, namely `and.intro`. 
+-/
+
+lemma conj_comm : P ∧ Q ↔ Q ∧ P :=
+begin
+  split, 
+  {
+    sorry, 
+  },
+  {
+    sorry, 
+  },
+end
+
+
+
+example : 
+P ∧ Q ∧ R → R ∧ Q ∧ P := 
+begin 
+    sorry, 
+end 
+
+
+
+
 
 lemma disj_comm {P Q : Prop} : 
   P ∨ Q ↔ Q ∨ P :=
@@ -702,8 +740,12 @@ begin
 end
 
 #check disj_comm
-#check disj_comm.mp
-#check disj_comm.mpr
+#check disj_comm.mp -- extract the forward direction implication `P ∨ Q → Q ∨ P` from the proof `disj_comm` by using `.mp` notation.  
+#check disj_comm.mpr -- extract the converse implication `Q ∨ P → P ∨ Q` from the proof `disj_comm` by using `.mpr` notation.  
+
+
+
+
 
 
 
@@ -728,27 +770,79 @@ begin
 end   
 
 
-/-
-**Note** The `constructor` tactic applies the unique constructor for conjunction, namely `and.intro`. 
+
+
+
+/- 
+We say two propositions `P` and `Q` are __equivalent__ if we can give a proof of `P ↔ Q`. 
 -/
 
-lemma conj_comm : P ∧ Q → Q ∧ P :=
+/-
+We prove that if propositions `P` and `Q` are equivalent then `A ∧ P` and `A ∧ Q` are equivalent for any proposition `A`. 
+-/ 
+
+
+lemma conj_respects_eqv {A P Q : Prop} : 
+  A ∧ P ↔ A ∧ Q := 
+begin
+  sorry, 
+end    
+
+-- Todo: prove similar lemmas for disjunction, implication, and negation 
+
+
+
+lemma disj_respects_eqv {A P Q : Prop} : 
+  A ∨ P ↔ A ∨ Q := 
 begin
   sorry, 
 end
 
-example : 
-P ∧ Q ∧ R → R ∧ Q ∧ P := 
-begin 
-    sorry, 
-end 
 
 
-/- We say two propositions `P` and `Q` are equivalent if we can give a proof of `P ↔ Q`. -/
 def is_eqv (P Q : Prop) := P ↔ Q 
 
 #check is_eqv
 
+
+example {A B : Prop} (hPQ : is_eqv P Q) :
+  A ∧ (P ∨ B) ↔ A ∧ (Q ∨ B) :=   
+begin
+  sorry, 
+end 
+-- What is the general statement here? 
+
+
+#check and
+#check and P Q 
+
+def and_curry : Prop × Prop → Prop := 
+λ α , (α.1 ∧ α.2)
+
+
+#check copy 
+#reduce copy 
+
+example : 
+  is_eqv (and_curry (copy P)) P := 
+begin
+unfold copy, 
+unfold and_curry,
+dsimp, 
+split, 
+  {
+    intro h, 
+    cases h with h₁ h₂, 
+    exact h₁,    
+  },
+  {
+    intro h, 
+    split, 
+    assumption',
+  },  
+end 
+
+#check is_eqv ∘ and_curry ∘ copy 
 
 
 
@@ -973,7 +1067,7 @@ end
 
 
 
-
+-- introduction example 
 example (hp : P) : 
   P ∨ Q ∨ ¬ P :=
 begin
@@ -985,7 +1079,7 @@ end
 
 
 
-
+-- introduction example 
 example (hq : Q) : 
   P ∨ Q ∨ ¬ P :=
 begin
@@ -997,7 +1091,7 @@ end
 
 
 
-
+-- introduction example 
 example (hq : Q) : 
   P ∨ Q ∨ ¬ P :=
 begin
@@ -1012,7 +1106,10 @@ end
 example (h : P ∧ Q) : 
   P ∨ Q :=
 begin
-  sorry, 
+  cases h with hp hq, -- we want to prove P ∨ Q. For this we want to use the elim rule for conjunction. 
+  -- we want to prove P ∨ Q. For this, we use the left/right intro rule for disjunction.
+  left, -- if we know P is true then by the intro rule of disjunction we are done. 
+  exact hp,
 end 
 
 
@@ -1023,7 +1120,15 @@ end
 lemma or_swap (h :  P ∨ Q) :
   Q ∨ P :=
 begin
-  sorry, 
+  cases h with hp hq, -- we want to prove P ∨ Q. For this we use the elim rule of disjunction. 
+  {
+    right, -- we want to prove Q ∨ P. For this we use the right intro rule of disjunction
+    assumption,
+  },
+  {
+    left, -- we want to prove Q ∨ P. For this we use the left intro rule of disjunction
+    assumption,
+  },
 end 
 
 
@@ -1036,9 +1141,18 @@ The tactic `cases` can be used like `cases h with hp hq` to give customary name 
 
 example : P ∨ Q → Q ∨ P :=
 begin
-  sorry, 
+  intro h, -- we want to prove an implication, so we use the intro rule of → 
+  apply or_swap, 
+  assumption, 
 end
 
+
+
+example : P ∨ Q → Q ∨ P :=
+begin
+  intro h, -- we want to prove an implication, so we use the intro rule of → 
+  exact or_swap P Q h,
+end
 
 
 
@@ -1047,17 +1161,78 @@ end
 theorem conjunction_distrib_disjunction (h : P ∧ (Q ∨ R) ) : 
   (P ∧ Q) ∨ (P ∧ R) :=
 begin
-   -- we want to eliminate ∧ in P ∧ (Q ∨ R)
-   -- we want to eliminate ∨ in Q ∨ R
-     sorry, 
+   cases h with hp hqr, -- we want to eliminate ∧ in P ∧ (Q ∨ R)
+   cases hqr, -- we want to eliminate ∨ in Q ∨ R
+   {
+    left, -- intro rule for ∨ 
+    split, -- intro rule for ∧ 
+    -- assumption',
+    {
+      assumption,
+    },
+    {
+      assumption,
+    },
+   },
+  {
+   sorry, 
+  },
 end
+
+
+
+
+
 
 
 
 theorem resolve_left : 
   P ∨ Q → ¬ Q → P := 
 begin
-  sorry,
+  intro hpq, 
+  intro hnq, -- the goal is an implication
+  cases hpq with hp hq, 
+  {
+    assumption,
+  },
+  {
+    have f : false, from hnq hq, 
+    exfalso, 
+    assumption,
+  },
+end 
+
+
+theorem resolve_left_alt : 
+  P ∨ Q → ¬ Q → P := 
+begin
+  intro hpq, 
+  intro hnq, -- the goal is an implication
+  cases hpq with hp hq, 
+  {
+    assumption,
+  },
+  {
+    exfalso, 
+    apply hnq, 
+    exact hq,
+  },
+end 
+
+
+
+theorem resolve_left_alt_alt : 
+  P ∨ Q → ¬ Q → P := 
+begin
+  intro hpq, 
+  intro hnq, -- the goal is an implication
+  cases hpq with hp hq, 
+  {
+    assumption,
+  },
+  {
+    contradiction, -- use it with care (this tactic is non-constructive!)
+  },
 end 
 
 
@@ -1080,11 +1255,24 @@ end
 #check eq_zero_or_eq_zero_of_mul_eq_zero
 
 
-
-
-example {x : ℝ} (h : x^2 = 1) : x = 1 ∨ x = -1 :=
+example (x : ℤ) (h : x = 1 ∨ x = -1) : 
+  x^2 = 1 := 
 begin
-  sorry, 
+  cases h with h₁ h₂, 
+  {
+    rw h₁,
+    ring,
+  },
+  {
+    rw h₂, 
+    ring,
+  },
+end 
+
+
+example {x : ℤ} (h : x^2 = 1) : x = 1 ∨ x = -1 :=
+begin
+  exact sq_eq_one_iff.mp h,
 end
 
 
