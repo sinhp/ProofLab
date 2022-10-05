@@ -690,6 +690,71 @@ end
 
 
 
+/-! ### Biimplication, or otherwise known as If and Only If 
+The biimplication ` ↔ ` is a derived connective which is derived form `→` and `∧`. For propositions `P` and `Q`, we write `P ↔ Q` for `(P → Q) ∧ (Q → P)`. Therefore `P ↔ Q = (P → Q) ∧ (Q → P)` by definition. And, as such, we can apply the tactic `split` to introduce a proof of `P ↔ Q` and `cases` to eliminate proofs of `P ↔ Q`.
+-/
+
+
+lemma disj_comm {P Q : Prop} : 
+  P ∨ Q ↔ Q ∨ P :=
+begin
+  sorry, 
+end
+
+#check disj_comm
+#check disj_comm.mp
+#check disj_comm.mpr
+
+
+
+theorem conjunction_distributes_over_disjunction : 
+  P ∧ (Q ∨ R) ↔ (P ∧ Q) ∨ (P ∧ R) :=
+begin
+  sorry, 
+end
+
+
+#check conjunction_distributes_over_disjunction
+#check (conjunction_distributes_over_disjunction P Q R).mp
+#check (conjunction_distributes_over_disjunction P Q R).mpr
+
+
+#check eq_zero_or_eq_zero_of_mul_eq_zero
+
+example (a b : ℝ) : 
+  a * b = 0 ↔ (a = 0) ∨ (b = 0) :=
+begin
+  sorry, 
+end   
+
+
+/-
+**Note** The `constructor` tactic applies the unique constructor for conjunction, namely `and.intro`. 
+-/
+
+lemma conj_comm : P ∧ Q → Q ∧ P :=
+begin
+  sorry, 
+end
+
+example : 
+P ∧ Q ∧ R → R ∧ Q ∧ P := 
+begin 
+    sorry, 
+end 
+
+
+/- We say two propositions `P` and `Q` are equivalent if we can give a proof of `P ↔ Q`. -/
+def is_eqv (P Q : Prop) := P ↔ Q 
+
+#check is_eqv
+
+
+
+
+
+
+
 
 /-! ### Falsity
 Sometimes we need to work with propositions which are always false such as “A bachelor is married”, or "0 = 1". In Lean, we denote the false proposition by `false`. The universal property of a false proposition is that any other proposition follows from the false proposition. We can prove any proposition from `false`. This is known as the __principle of explosion__ 🎆 aka ex falso. 
@@ -876,6 +941,7 @@ end
 
 
 /-! ### Disjunction (or) 
+
 - Tactic for disjunction introduction:  We use the tactic __left__ or __right__ in order to prove a propositional formula of the form `P ∨ Q`. 
 
 
@@ -907,12 +973,14 @@ end
 
 
 
+
 example (hp : P) : 
   P ∨ Q ∨ ¬ P :=
 begin
   left,
   assumption,
 end 
+
 
 
 
@@ -927,11 +995,16 @@ begin
 end
 
 
+
+
+
 example (hq : Q) : 
   P ∨ Q ∨ ¬ P :=
 begin
   itauto,
 end
+
+
 
 
 -- Challenge: fill in the `sorry` below. 
@@ -944,12 +1017,18 @@ end
 
 
 
+
+
 -- elimination example 
 lemma or_swap (h :  P ∨ Q) :
   Q ∨ P :=
 begin
   sorry, 
 end 
+
+
+
+
 
 /-
 The tactic `cases` can be used like `cases h with hp hq` to give customary name to the branches of a disjunction, using `hp` for the first branch and `hq` for the second. 
@@ -962,28 +1041,105 @@ end
 
 
 
+
+
+
 theorem conjunction_distrib_disjunction (h : P ∧ (Q ∨ R) ) : 
   (P ∧ Q) ∨ (P ∧ R) :=
 begin
-   cases h, -- eliminate ∧ in P ∧ (Q ∨ R)
-   cases h_right, -- eliminate ∨ in Q ∨ R
+   -- we want to eliminate ∧ in P ∧ (Q ∨ R)
+   -- we want to eliminate ∨ in Q ∨ R
      sorry, 
 end
 
 
 
-lemma mul_eq_zero_of_eq_zero_or_eq_zero (a b : ℝ) (h : a = 0 ∨ b = 0) : 
-  a * b = 0 := 
+theorem resolve_left : 
+  P ∨ Q → ¬ Q → P := 
+begin
+  sorry,
+end 
+
+
+theorem resolve_right : 
+  P ∨ Q → ¬ P → Q := 
+begin
+  sorry,  
+end 
+
+
+
+lemma mul_eq_zero_of_eq_zero_or_eq_zero (m n : ℕ) (h : m = 0 ∨ n = 0) : 
+  m * n = 0 := 
 begin
   sorry, 
 end   
 
+
+
 #check eq_zero_or_eq_zero_of_mul_eq_zero
+
+
+
 
 example {x : ℝ} (h : x^2 = 1) : x = 1 ∨ x = -1 :=
 begin
   sorry, 
 end
+
+
+
+
+
+
+section 
+variable x : ℝ 
+#check le_or_gt
+-- the following lemmas are immediate from the definition of `abs`.
+#check (abs_of_nonneg :  0 ≤ x → |x| = x)
+#check (abs_of_neg : x < 0 → |x| = -x)
+end 
+
+
+
+lemma lt_abs (x y : ℝ) : 
+  x < abs y → x < y ∨ x < -y :=
+begin
+-- Here's our proof strategy: 
+-- Either `y` is non-negative or it is negative. 
+--- If `y` is non-negative then `abs y = y` and therefore, our assumption `x < abs y` simplifies to `x < y`. 
+---- But if `x < y` then `x < y ∨ x < -y`
+--- If `y` is negative then `abs y = - y` and therefore, our assumption `x < abs y` simplifies to `x < - y`. 
+---- But if `x < - y` then `x < y ∨ x < -y`
+  cases le_or_gt 0 y, -- since the order ≤  ℝ, ≤) is a linear order 
+  { 
+    rw abs_of_nonneg h,
+    intro h₁, 
+    left, 
+    exact h₁, 
+  },
+  { 
+    rw abs_of_neg h,
+    intro h₂, 
+    right, 
+    exact h₂,
+  },
+end
+
+
+
+lemma abs_lt  (x y : ℝ ) : 
+  abs x < y ↔ - y < x ∧ x < y :=
+begin
+  sorry, 
+end
+
+
+
+
+
+
+
 
 
 end PROOFS
