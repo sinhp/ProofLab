@@ -13,7 +13,7 @@ You are allowed to use all the tactics we have learned so far.
 namespace PROOFS
 
 /-! ## Question 1 (20 points): 
-Give a proof of the following propositional formula. 
+(**Part I**) Give a proof of the following propositional formula. 
 -/
 
 
@@ -22,6 +22,20 @@ theorem  disj_conj {P Q R : Prop} :
 begin
   sorry,
 end 
+
+/-
+(**Part II**) In `lec6_proposition` we proved that 
+`P ∨ Q → ¬ P → Q`. The proof was `resolve_right`. 
+
+Use the previous theorem (`disj_conj`) to give a new proof of `P ∨ Q → ¬ P → Q`. 
+-/
+
+theorem resolve_right_alt {P Q : Prop} : 
+ P ∨ Q → ¬ P → Q :=
+begin
+  sorry,  
+end 
+
 
 
 
@@ -60,7 +74,10 @@ end
 
 
 
-/-! ## Question 3 (20 points): 
+
+
+
+/-! ## Question 4 (20 points): 
 Use the two lemmas `lt_rev_of_neg` and `le_rev_of_neg` above together with some/all of the following lemmas to prove the following statement. 
 -/
 
@@ -82,6 +99,30 @@ end
 
 
 
+
+
+
+/-! ## Question 5 (20 points): -/
+
+
+def EM (P : Prop) := 
+P ∨ ¬ P
+
+#check EM 
+
+def DN (P : Prop) :=
+(¬ P → false) → P 
+
+#check DN 
+
+
+
+theorem excluded_implies_double_negation  {P : Prop} : EM P → DN P := 
+begin 
+ unfold EM, 
+ unfold DN, 
+ sorry, 
+end 
 
 
 
