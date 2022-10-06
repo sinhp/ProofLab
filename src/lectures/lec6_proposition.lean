@@ -552,6 +552,13 @@ begin
 end 
 
 
+-- Depenedent Modus Ponens
+example : 
+  P → (P → P → Q) → Q :=
+λ h₁, λ h₂, (h₂ h₁) h₁  
+
+
+
 
 /-
 Transitivity of implications: If we know that  proposition P implies Q and Q implies R then we know that  P implies R. 
@@ -845,7 +852,13 @@ end
 #check is_eqv ∘ and_curry ∘ copy 
 
 
+-- We say that two functions `f: Prop → Prop` and `g: Prop → Prop` are pointwise equivalent if for any propostion `P`  
 
+
+def is_eqv_ptw (P : Prop) (f g : Prop → Prop) := 
+is_eqv (f P) (g P) 
+
+#check is_eqv_ptw
 
 
 
