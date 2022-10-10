@@ -18,7 +18,7 @@ variables {X Y Z : Type}
 
 
 /-! ## Question 1 (20 points): 
-The following question has five lemmas each worth 10 points. Refer to the lecture file for a review of concepts of __binary relation__ and __equivalence relation__.
+The following question has five lemmas each worth 4 points. Refer to the lecture file for a review of concepts of __binary relation__ and __equivalence relation__.
 -/
 
 -- let X be a type, and let R be a binary relation on R.
