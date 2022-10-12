@@ -204,7 +204,11 @@ Similarly, a complete formal sentence of the second sentence above is given by
 
 -/
 
-#check is_even
+
+#check is_even -- a predicate on natural numbers 
+
+#check is_even 3 -- the proposition `∃ k : ℕ, 3 = 2 * k` 
+#check is_even 4 -- the proposition `∃ k : ℕ, 4 = 2 * k`
 
 
 #check ∀ x : ℝ, 0 ≤ x → abs x = x --∀
@@ -709,12 +713,17 @@ def is_odd_alt (n : ℕ) := ¬ is_even n
 The canonical way to prove an existentially-quantified statement such as this one is to exhibit a natural number and show that it has the stated property. The number `3` has the required property, and the `refl` tactic can prove that it meets the stated property. 
 
 __How to prove an `∃`-statement__: In Lean, in order to prove a statement of the form `∃ x, P x`, we exhibit some `a` using the tactic `use a` and then prove `P a` by other means. Sometimes, this `a` can be an object from the local context or a more complicated expression built from the stuff of the context.
+
+t : X   ht : P (t)
+----------------- (intro rule for ∃)
+∃ x, P(x)
+
 -/
 
 example : 
   ∃ x : ℕ, x ^ 2 = 9 := 
 begin 
-  use 3, 
+  use 3, -- we want to prove `∃ x : ℕ, x ^ 2 = 9`. So, we use the intro rule of `∃`. Our candidate is 3.   
   refl,  
 end 
 
@@ -734,6 +743,7 @@ example :
 example :
   is_even 10 := 
 begin
+  unfold is_even,
   use 5, 
   refl,
 end   
@@ -746,6 +756,16 @@ begin
   use 4, -- picking `3` would be unwise, since `is_even 3` would be impossible to prove.
   use 2, -- This time we have no choice but to pick `2`.
   refl, -- refl is good enough for proving equalities in `ℕ`.
+end 
+
+
+
+example {X Y : Type} (f : X → Y) (t : X): 
+  ∃ y : Y, ∃ x : X, f x = y := 
+begin
+  use f t, -- we ae trying to prove `∃ y : Y, ∃ x : X, f x = y`, and for this we use the intro rule of existential quantifier. Our candidate for the intro rule is `t`. We now have to prove the property `∃ x : X, f x = y`  about `y := f t`
+  use t, -- we ae trying to prove `∃ (x : X), f x = f t` and for this we use the intro rule of existential quantifier. Our candidate for the intro rule is `t`. 
+  -- we need to prove f t = f t which is done by `refl`. 
 end 
 
 
@@ -770,8 +790,10 @@ end
                 .
                ---
 ∃ x, P(x)      R
----------------------- 1 , ∃-elim
+---------------------- 1 , ∃-elim  
           R
+
+
 
 When __using__ a proof of a statement of the form `∃ x : X, P x`, we can assume having `t : X` such that `P t` is true. If from a general `t` and a proof of `P t` we can prove `R` then we can prove `R` from `∃ x, P x`.
 
@@ -797,8 +819,8 @@ end
 example (x : ℕ) : 
   (∃ y : ℕ, y + 1 = x) → (x ≠ 0) :=
 begin
-  intro h, 
-  cases h with y hy, -- the first use of `cases`
+  intro h, -- intro rule for → 
+  cases h with y hy, -- the first use of `cases` for the elim rule of ∃
   intro hx, 
   have hy₁, from (nat.succ_pos y),  
   change 0 < y + 1 at hy₁, 
@@ -832,6 +854,7 @@ An example of binary predicates on `ℕ` built from `∃`
 `divides m n` states that the natural number `m` divides natural number `n`. For instance 
 -/
 
+@[simp]
 def divides (m n : ℕ) := ∃ k : ℕ, n = m * k
 #check divides 
 
@@ -843,8 +866,19 @@ Be careful: the divisibility symbol is not the ordinary bar on your keyboard. Ra
 example : 
   ∀ n : ℕ, divides 2 n ↔ is_even n := 
 begin
-  intro n, 
-  sorry
+  intro n, -- we want to prove the ∀ statement `∀ n : ℕ, divides 2 n ↔ is_even n`
+  split, 
+  {
+    simp at *, 
+    intro k, 
+    intro h, 
+    unfold is_even,
+    use k, 
+    exact h, 
+  },
+  {
+    sorry,
+  },
 end   
 
 
@@ -997,15 +1031,36 @@ end
 -- also, much better rewrites. 
 
 
+
+
+
+
+
 lemma surj_comp_alt (f : X → Y) (g : Y → Z)  (surj_f : is_surjective f) (surj_g : is_surjective g) : is_surjective (g ∘ f) :=
 begin
-  intro a, 
-  cases surj_g a with b hb, 
-  cases surj_f b with c hc,
-  rw ← hc at hb, 
-  exact ⟨c,hb⟩, 
+  unfold is_surjective at *, -- We want to prove that `∀ (y : Z), ∃ (x : X), (g ∘ f) x = y` 
+  intro z, -- We use the introduction rule of ∀ to fix `z : Z` and try to prove  `∃ (x : X), (g ∘ f) x = y` 
+  have h₁, from surj_g z, -- by the elimination rule of ∀ we get a proof of `∃ (x : Y), g x = z` by applying `surj_g` to `z`. 
+  cases h₁ with y hy, -- we use the elim rule of ∃ to get a term `y : Y` with the property `g y = z`
+  have h₂, from surj_f y, -- by the elimination rule of ∀ we get a proof of `∃ (x : X), f x = z` by applying `surj_f` to `y`. 
+  cases h₂ with x hx, -- we use the elim rule of ∃ to get a term `x : X` with the property `f x = y`
+  rw ← hx at hy, -- we use the elim rule of ∃ 
+  use x, -- we are trying to prove an ∃ statement 
+  exact hy,
 end
 
+
+-- We can shorten the proof above by omiting `have` statements. 
+example  (f : X → Y) (g : Y → Z)  (surj_f : is_surjective f) (surj_g : is_surjective g) : is_surjective (g ∘ f) :=
+begin
+  unfold is_surjective at *, -- We want to prove that `∀ (y : Z), ∃ (x : X), (g ∘ f) x = y` 
+  intro z, -- We use the introduction rule of ∀ to fix `z : Z` and try to prove  `∃ (x : X), (g ∘ f) x = y` 
+  cases surj_g z with y hy, 
+  cases surj_f y with x hx,
+  rw ← hx at hy, 
+  use x, -- we are trying to prove an ∃ statement 
+  exact hy,
+end
 
 
 
