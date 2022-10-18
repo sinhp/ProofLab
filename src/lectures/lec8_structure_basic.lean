@@ -428,23 +428,22 @@ def R2.xembed₃  (a : R2) : R3 :=
 
 
 
-
 /-! ### Algebraic Structures-/
 
 
-structure preorder := 
+structure preorder_unbundled := 
 (carrier : Type)
 (rel : carrier → carrier → Prop)
 (rflx : reflexive rel) 
 (trns : transitive rel)
 
 
-#check preorder.carrier -- the underlying type of preorder structure
-#check preorder.rflx
+#check preorder_unbundled.carrier -- the underlying type of preorder_unbundled structure
+#check preorder_unbundled.rflx
 
 
--- an instance of a preorder structure 
-def preorder_nat_eq : preorder := 
+-- an instance of a preorder_unbundled structure 
+def preorder_unbundled_nat_eq : preorder_unbundled := 
 {
   carrier := ℕ, 
   rel := λ m, λ n, m = n, 
@@ -453,23 +452,43 @@ def preorder_nat_eq : preorder :=
 }
 
 
-#check preorder_nat_eq
-#print preorder_nat_eq
 
-#reduce preorder.carrier preorder_nat_eq 
-#reduce preorder_nat_eq.carrier 
+#check preorder_unbundled_nat_eq
+#print preorder_unbundled_nat_eq
 
-#reduce preorder_nat_eq.rflx 
+#reduce preorder_unbundled.carrier preorder_unbundled_nat_eq 
+#reduce preorder_unbundled_nat_eq.carrier 
+
+#reduce preorder_unbundled_nat_eq.rflx 
 
 
 
-def preorder_nat_le : preorder := 
+def preorder_unbundled_nat_le : preorder_unbundled := 
 {
   carrier := ℕ, 
   rel := λ m, λ n, m ≤ n, 
   rflx := by {unfold reflexive,intro x, refl, },
   trns := by {unfold transitive, apply le_trans,}, 
 }
+
+
+
+/- Morphisms between preorders -/
+structure preorder_unbundled.morphism := 
+(dom cod : preorder_unbundled)
+(to_fun : dom.carrier → cod.carrier) 
+(respect_rel : ∀ {a b : dom.carrier}, dom.rel a b → cod.rel (to_fun a) (to_fun b))
+
+
+/- An instance of a morphism between two preorders on natural numbers-/
+def preorder_unbundled_nat_eq_to_nat_le : preorder_unbundled.morphism := 
+{
+  dom := preorder_unbundled_nat_eq, 
+  cod := preorder_unbundled_nat_le, 
+  to_fun := id, 
+  respect_rel := by {intros a b, simp, apply le_of_eq, }
+}
+
 
 
 
