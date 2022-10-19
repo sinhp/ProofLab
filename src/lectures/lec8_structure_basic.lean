@@ -455,7 +455,6 @@ def R2.xembed₃  (a : R2) : R3 :=
 
 
 
-
 /-! ### Algebraic Structures-/
 
 
@@ -475,9 +474,14 @@ structure preorder_unbundled:=
 #reduce @transitive
 
 
--- an instance of a preorder_unbundled structure 
 
-def preorder_unbundled_nat_eq : preorder_unbundled:= 
+#check preorder_unbundled.carrier -- the underlying type of preorder_unbundled structure
+#check preorder_unbundled.rflx
+
+
+
+-- an instance of a preorder_unbundled structure 
+def preorder_unbundled_nat_eq : preorder_unbundled := 
 {
   carrier := ℕ, 
   rel := λ m, λ n, m = n, 
@@ -486,17 +490,28 @@ def preorder_unbundled_nat_eq : preorder_unbundled:=
 }
 
 
+
 #check preorder_unbundled_nat_eq
 #print preorder_unbundled_nat_eq
 
 #reduce preorder_unbundled.carrier preorder_unbundled_nat_eq 
 #reduce preorder_unbundled_nat_eq.carrier 
 
+
+
+#check preorder_unbundled_nat_eq
+#print preorder_unbundled_nat_eq
+
+#reduce preorder_unbundled.carrier preorder_unbundled_nat_eq 
+#reduce preorder_unbundled_nat_eq.carrier 
+
+
 #reduce preorder_unbundled_nat_eq.rflx 
 
 
 
-def preorder_unbundled_nat_le : preorder_unbundled:= 
+
+def preorder_unbundled_nat_le : preorder_unbundled := 
 {
   carrier := ℕ, 
   rel := λ m, λ n, m ≤ n, 
@@ -512,39 +527,53 @@ variables b b' : bool
 #eval tt && tt 
 end 
 
---challenge it to something correct syntactically 
--- def bool_and : bool → bool → bool := 
--- | ff  ff := ff 
--- | _  ff    := ff 
--- | tt  tt := tt
+
+
+ 
+@[simp] 
+def bool_and : bool → bool → bool 
+| _  ff  := ff 
+| ff _ := ff
+| tt  tt := tt
+
+
+lemma bool_and_assoc {x y z : bool}  : 
+  x && y && z = x && (y && z) := 
+begin
+simp,  
+end 
+
+ 
 
 
 def preorder_unbundled_bool : preorder_unbundled := 
 {
   carrier := bool, 
-  rel := λ b, λ b', b && b' = b,
-  rflx := by { unfold reflexive, -- 
+  rel := λ b, λ b', b && b' = b, 
+  rflx := by { unfold reflexive, 
                intro x, --   
                cases x, 
                repeat {refl}, 
                },
   trns := by { unfold transitive, 
                intros x y z, 
-               intros h₁ h₂, rw ← h₁, rw ← h₂, sorry}, -- prove some associativity of && and use it here. 
+               intros h₁ h₂, rw ← h₁, rw bool_and_assoc, rw h₂}, 
 }
 
 
 
 
 
-/- The bundled definition of preorder -/
-structure preorder_bundled (X : Type) := 
+/- The bundled definition of preorder: this is the type of preorder structure on  a type `X`. Note that this structure depends on the parameter `X` in contrast with the unbundles version which does not have any parameters. -/
+
+structure preorder_bundled (X : Type) :=
 (rel : X → X → Prop)
 (rflx : reflexive rel) 
 (trns : transitive rel)
 
-#check rgb
 #check preorder_bundled
+#check preorder_unbundled
+
 
 #check preorder -- a function which assigns to every type `X` the type of preorder structures on `X` 
 
@@ -584,7 +613,7 @@ def preorder_bundled_bool_le : preorder_bundled bool :=
                },
   trns := by { unfold transitive, 
                intros x y z, 
-               intros h₁ h₂, rw ← h₁, rw ← h₂, sorry}, -- prove some associativity of && and use it here. 
+               intros h₁ h₂, rw ← h₁, rw bool_and_assoc, rw h₂}, -- prove some associativity of && and use it here. 
 }
 
 
@@ -705,6 +734,25 @@ def auto.mul {A : Type} : auto(A) → auto (A) → auto(A) :=
   right_inv := by {funext, simp [ptwise.left_inv (α.right_inv), ptwise.left_inv (β.right_inv)], }
   -- or, -- by {funext, dsimp, rw ptwise.left_inv (α.right_inv), rw ptwise.left_inv (β.right_inv),  },  
 } 
+
+/- Morphisms between preorders -/
+structure preorder_unbundled.morphism := 
+(dom cod : preorder_unbundled)
+(to_fun : dom.carrier → cod.carrier) 
+(respect_rel : ∀ {a b : dom.carrier}, dom.rel a b → cod.rel (to_fun a) (to_fun b))
+
+
+/- An instance of a morphism between two preorders on natural numbers-/
+def preorder_unbundled_nat_eq_to_nat_le : preorder_unbundled.morphism := 
+{
+  dom := preorder_unbundled_nat_eq, 
+  cod := preorder_unbundled_nat_le, 
+  to_fun := id, 
+  respect_rel := by {intros a b, simp, apply le_of_eq, }
+}
+
+
+
 
 
 
