@@ -96,6 +96,9 @@ end
 @[ext] 
 structure R1 := (x : ℝ)  
 
+def folding : ℝ → R1 := 
+λ a, 
+
 @[ext] 
 structure R2 := (x : ℝ) (y : ℝ)
 
@@ -174,17 +177,32 @@ We can define points by specifying their coordinates. Lean provides multiple way
 
 section some_affine_points
 -- the first way: 
+
+def Pt_0 : R1 := 
+{
+  x := 0,
+} 
+
+def vect_a (a: ℝ)  : R1 := 
+{
+  x:= a,
+}
+
+#reduce vect_a -- takes r : ℝ to <r>
+#check vect_a 2 -- 
+
 def Pt_0p1 : R2 :=
 { 
   x := 0,
   y := 1, 
 }
 
+def Pt_0p1_alt  : R2 := 
+⟨0 , 1⟩ 
+
+
 #check Pt_0p1 -- an instance of R2 which is to say a point on the 2-dim plane 
 
--- the second way: 
-def Pt_0p1_alt : R2 := 
-⟨0, 1⟩ 
 
 def Pt_0n1 : R2 :=
 { 
@@ -229,6 +247,13 @@ def R2.proj₂ (a : R2) : R1 :=
 def R3.proj₁ (a : R3) : R1 := ⟨ a.x ⟩  
 def R3.proj₂ (a : R3) : R1 := ⟨ a.y ⟩ 
 def R3.proj₃ (a : R3) : R1 := ⟨ a.z ⟩ 
+
+def sum_of_components (a : R3) : ℝ := 
+a.x + a.y + a.z 
+
+#check sum_of_components
+
+#eval sum_of_components Pt_n1p1n1
 
 
 example : R2.proj₁ Pt_0n1 = ⟨ 0 ⟩ := 
@@ -296,6 +321,8 @@ Similar to the addition of real numbers, we can add affine points. You know this
 
 def R1.add (a b : R1) : R1 := ⟨a.x + b.x⟩ 
 
+def R1_add_alt (a b : ℝ) : ℝ := a + b 
+
 def R2.add (a b : R2) : R2 := ⟨a.x + b.x, a.y + b.y⟩
 
 def R3.add (a b : R3) : R3 := ⟨a.x + b.x, a.y + b.y, a.z + b.z⟩
@@ -344,7 +371,7 @@ begin
   unfold R2.add, 
   ext, 
   dsimp,
-  repeat { apply add_comm },
+  repeat {apply add_comm},
 end 
 
 
@@ -432,19 +459,25 @@ def R2.xembed₃  (a : R2) : R3 :=
 /-! ### Algebraic Structures-/
 
 
-structure preorder := 
-(carrier : Type)
-(rel : carrier → carrier → Prop)
-(rflx : reflexive rel) 
-(trns : transitive rel)
+structure preorder_unbundled:= 
+(carrier : Type) -- a type of carrier (as underlying type)
+(rel : carrier → carrier → Prop) -- a binary relation saying when two elements of the carrier are related to each to other
+(rflx : reflexive rel) -- this is an axiom/propety of relation `rel` saying that any term/element is related to itself. 
+(trns : transitive rel) -- this is an axiom/propety of relation `rel` saying that if we have three terms and the first two of which are related to each other through the relation `rel` and the last two of which are related to each other through the relation `rel`, then the first and the third are related to each other through the relation `rel` 
 
 
-#check preorder.carrier -- the underlying type of preorder structure
-#check preorder.rflx
+#check preorder_unbundled.carrier -- the underlying type of preorder_unbundled_unbundledstructure
+#check preorder_unbundled.rflx
+#check preorder_unbundled.trns
+#reduce preorder_unbundled.trns 
+
+#check transitive 
+#reduce @transitive
 
 
--- an instance of a preorder structure 
-def preorder_nat_eq : preorder := 
+-- an instance of a preorder_unbundled structure 
+
+def preorder_unbundled_nat_eq : preorder_unbundled:= 
 {
   carrier := ℕ, 
   rel := λ m, λ n, m = n, 
@@ -453,17 +486,17 @@ def preorder_nat_eq : preorder :=
 }
 
 
-#check preorder_nat_eq
-#print preorder_nat_eq
+#check preorder_unbundled_nat_eq
+#print preorder_unbundled_nat_eq
 
-#reduce preorder.carrier preorder_nat_eq 
-#reduce preorder_nat_eq.carrier 
+#reduce preorder_unbundled.carrier preorder_unbundled_nat_eq 
+#reduce preorder_unbundled_nat_eq.carrier 
 
-#reduce preorder_nat_eq.rflx 
+#reduce preorder_unbundled_nat_eq.rflx 
 
 
 
-def preorder_nat_le : preorder := 
+def preorder_unbundled_nat_le : preorder_unbundled:= 
 {
   carrier := ℕ, 
   rel := λ m, λ n, m ≤ n, 
@@ -472,6 +505,206 @@ def preorder_nat_le : preorder :=
 }
 
 
+section
+variables b b' : bool 
+#check b && b'  
+#eval ff && tt
+#eval tt && tt 
+end 
+
+--challenge it to something correct syntactically 
+-- def bool_and : bool → bool → bool := 
+-- | ff  ff := ff 
+-- | _  ff    := ff 
+-- | tt  tt := tt
+
+
+def preorder_unbundled_bool : preorder_unbundled := 
+{
+  carrier := bool, 
+  rel := λ b, λ b', b && b' = b,
+  rflx := by { unfold reflexive, -- 
+               intro x, --   
+               cases x, 
+               repeat {refl}, 
+               },
+  trns := by { unfold transitive, 
+               intros x y z, 
+               intros h₁ h₂, rw ← h₁, rw ← h₂, sorry}, -- prove some associativity of && and use it here. 
+}
+
+
+
+
+
+/- The bundled definition of preorder -/
+structure preorder_bundled (X : Type) := 
+(rel : X → X → Prop)
+(rflx : reflexive rel) 
+(trns : transitive rel)
+
+#check rgb
+#check preorder_bundled
+
+#check preorder -- a function which assigns to every type `X` the type of preorder structures on `X` 
+
+
+def preorder_bundled_nat_eq : preorder_bundled ℕ := 
+{
+  rel := λ m, λ n, m = n, 
+  rflx := by {unfold reflexive,intro x, refl, },
+  trns := by {unfold transitive, apply eq.trans,}, 
+}
+
+#check preorder_bundled_nat_eq 
+#print preorder_bundled_nat_eq
+
+#reduce preorder_bundled_nat_eq.rel 
+#reduce preorder_unbundled_nat_eq.rel 
+
+
+
+def preorder_bundled_nat_le : preorder_bundled ℕ := 
+{
+  rel := λ m, λ n, m ≤ n, 
+  rflx := by {unfold reflexive,intro x, refl, },
+  trns := by {unfold transitive, apply le_trans,}, 
+}
+
+
+
+
+def preorder_bundled_bool_le : preorder_bundled bool := 
+{
+  rel := λ b, λ b', b && b' = b,
+  rflx := by { unfold reflexive, -- 
+               intro x, --   
+               cases x, 
+               repeat {refl}, 
+               },
+  trns := by { unfold transitive, 
+               intros x y z, 
+               intros h₁ h₂, rw ← h₁, rw ← h₂, sorry}, -- prove some associativity of && and use it here. 
+}
+
+
+
+structure preorder_bundled.morphism {X : Type} {Y : Type} (P : preorder_bundled X) (Q : preorder_bundled Y) := 
+( to_fun :  X → Y ) -- a function between the carrier types
+( respect_rel : ∀ {x₁ x₂ : X}, P.rel x₁ x₂ → Q.rel (to_fun x₁) (to_fun x₂) ) -- property which says that the relations between elements of X are respected by the function `f`
+
+#check @preorder_bundled.morphism
+
+
+def preorder_bundled.morphism.nat_eq_to_nat_le : preorder_bundled.morphism  preorder_bundled_nat_eq preorder_bundled_nat_le := 
+{
+  to_fun := id, 
+  respect_rel := by {
+                      intros a b, 
+                      intro h, 
+                      dsimp, 
+                      apply le_of_eq h, 
+                    },
+}
+
+
+
+
+
+
+
+
+
+namespace ptwise
+lemma left_inv {g : Y → X} {f : X → Y} (h : g ∘ f = id) :
+  ∀ x : X, g (f x) = x :=
+begin
+  intro x, 
+  apply congr_fun h, 
+end 
+end ptwise 
+
+
+#check ptwise.left_inv
+
+
+
+
+
+
+
+/-! ## Equivalence of types -/
+
+-- the type of endomorphisms of `A`
+def endo (A : Type)  := A → A  
+
+#check endo
+
+
+def id_A {A : Type} : endo A := id
+
+/- `fun_equiv` (function equivalence) is the type of functions from `X → Y` with a two-sided inverse -/ 
+structure fun_equiv (X : Type) (Y : Type) :=
+(to_fun    : X → Y)
+(inv_fun   : Y → X)
+(left_inv  : inv_fun ∘ to_fun = id) -- i.e. inv_fun ∘ to_fun = id_X
+(right_inv : to_fun ∘ inv_fun = id) -- i.e. to_fun ∘ inv_fun = id_Y
+
+-- infix ` ≃ `:15 := fun_equiv
+
+/-- 
+`X ≃ Y` is the type of functions from `X → Y` with a two-sided inverse. 
+or just the type of all equivalences between X and Y
+-/
+
+
+-- the type of automorphisms of `A`
+def auto (A : Type)  := fun_equiv A A 
+
+/-
+Every automorphism is an endomorphism. 
+-/
+
+def endo_of_auto {A : Type} (α : auto A) : 
+  endo A := 
+α.to_fun
+
+
+
+#check @endo_of_auto
+
+
+def auto.action {A : Type} : auto(A) × A → A := 
+uncurry endo_of_auto 
+
+
+def auto.id {A : Type} : auto(A) := 
+{
+  to_fun := id, 
+  inv_fun := id, 
+  left_inv := by {refl,}, -- id ∘ id = id
+  right_inv := by {refl,}, -- id ∘ id = id
+}
+
+def auto.inv {A : Type} : auto(A) → auto(A) := 
+λ α, 
+{
+  to_fun := α.inv_fun,  
+  inv_fun := α.to_fun, 
+  left_inv := α.right_inv, 
+  right_inv := α.left_inv, 
+}
+
+
+def auto.mul {A : Type} : auto(A) → auto (A) → auto(A) := 
+λ α, λ β, 
+{
+  to_fun := β.to_fun ∘ α.to_fun, 
+  inv_fun := α.inv_fun ∘ β.inv_fun,  
+  left_inv := by {rw ← comp_assoc, nth_rewrite 1 comp_assoc, rw β.left_inv, simp, rw α.left_inv,},
+  right_inv := by {funext, simp [ptwise.left_inv (α.right_inv), ptwise.left_inv (β.right_inv)], }
+  -- or, -- by {funext, dsimp, rw ptwise.left_inv (α.right_inv), rw ptwise.left_inv (β.right_inv),  },  
+} 
 
 
 
