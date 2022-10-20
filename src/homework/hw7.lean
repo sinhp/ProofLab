@@ -22,13 +22,12 @@ open PROOFS
 open PROOFS.STR
 
 
-#check preorder
 
 variables {X Y Z : Type}
 
 
 
-/-! ## Question 1: 
+/-! ## Question 1 (20 pts): 
 The following question has two parts. 
 -/
 
@@ -81,7 +80,7 @@ def Q2.midpoint (p q : Q2) : Q2 := sorry
 
 
 /-!
-## Question 2 : 
+## Question 2 (20 pts) : 
 We define the structure `bijection` in below. Show that every equivalence gives rise to a bijection by filling in `sorry` placeholders. 
 -/
 
@@ -108,7 +107,7 @@ def bijection_of_equiv (f : fun_equiv X Y) : bijection X Y :=
 
 
 
-/-!  ## Question 3 : 
+/-!  ## Question 3 (30 pts): 
 __Matrices__ in Lean are encoded as list of lists. Consider the 2x2 matrix with entries in ℝ whose first row is `[(1/2:ℚ), 0]` and whose second row is `[0, (1/2:ℚ)]`.  This matrix is encoded in Lean as follows: 
 -/
 
@@ -270,7 +269,7 @@ variables (a : ℕ → ℝ) (M : upper_bound a)
 end 
 
 
-/-! ## Question 4 :  
+/-! ## Question 4 (20 pts):  
  Construct an upper bound for the sequence given by numbers `n/n+1` for `n : ℕ` by supplying correct expressions for `sorry` placeholders. The following lemmas might be useful. Also, the tactic `norm_cast` is useful when you want to prove something about a natural number treated as an integer, rational, or real number (or more generally when you have coercion). Here is a minial example of `norm_cast`. -/
 
 
@@ -300,7 +299,8 @@ def upbound_n_over_succ_n :
 
 
 
-/-! ## Question 5 :  
+
+/-! ## Question 5 (20 pts) :  
 Construct an upper bound for the sum of two upper bounded sequences by completing the (instance) definition below. You might like to use the lemma `add_le_add`. -/ 
 
 def ub_sum_of_ub_seq (a b : ℕ → ℝ) (Ma : upper_bound a) (Mb : upper_bound b) :
@@ -314,6 +314,222 @@ upper_bound (a + b) :=
 
 
 
+
+
+
+/-! ## Question 6 (40 pts)
+In geometry, a simplex (plural: simplexes or simplices) is a generalization of the notion of a triangle or tetrahedron to arbitrary dimensions. 
+
+https://en.wikipedia.org/wiki/Simplex
+
+https://en.wikipedia.org/wiki/Simplex#/media/File:2D-simplex.svg
+
+We define the __standard geometric one-dimensional and two-dimensional simplices__ as the following structures. 
+
+
+-/
+
+@[ext]
+structure standard_one_simplex :=
+(x : ℝ)
+(y : ℝ)
+(x_nonneg : 0 ≤ x)
+(y_nonneg : 0 ≤ y)
+(sum_eq   : x + y = 1)
+
+
+@[ext]
+structure standard_two_simplex :=
+(x : ℝ)
+(y : ℝ)
+(z : ℝ)
+(x_nonneg : 0 ≤ x)
+(y_nonneg : 0 ≤ y)
+(z_nonneg : 0 ≤ z)
+(sum_eq   : (x + y) + z = 1)
+
+#check standard_two_simplex
+
+
+/- 
+We introduce the following _notations_ for the `standard_one_simplex` and `standard_two_simplex`
+ -/
+
+notation `Δ_1` := standard_one_simplex
+notation `Δ_2` := standard_two_simplex
+
+
+
+/- **Part I** : 
+Construct three distinct points (i.e. instances) of `Δ_1`  and two points (i.e. instances) of `Δ_2` with the given constraints. 
+-/
+
+
+
+def Δ_1.point1 : Δ_1 := 
+{
+  x := 1,
+  y := sorry,
+  x_nonneg := by {sorry}, 
+  y_nonneg := by {sorry}, 
+  sum_eq := by {sorry}, 
+}
+
+
+def Δ_1.point2 : Δ_1 := 
+{
+  x := sorry,
+  y := 1,
+  x_nonneg := by {sorry}, 
+  y_nonneg := by {sorry}, 
+  sum_eq := by {sorry}, 
+}
+
+
+noncomputable
+def Δ_1.point3 : Δ_1 := 
+{
+  x := 1/(2 : ℚ),
+  y := sorry,
+  x_nonneg := by {sorry}, 
+  y_nonneg := by {sorry}, 
+  sum_eq := by {sorry}, 
+}
+
+
+
+
+def Δ_2.point1 : Δ_2 := 
+{
+  x := 1,
+  y := 0,
+  z:= sorry,
+  x_nonneg := by {sorry}, 
+  y_nonneg := by {sorry},
+  z_nonneg := by {sorry},
+  sum_eq := by {sorry}, 
+}
+
+
+
+noncomputable
+def Δ_2.point2 : Δ_2 := 
+{
+  x := sorry,
+  y := sorry,
+  z:= 1/(2 : ℚ),
+  x_nonneg := by {sorry}, 
+  y_nonneg := by {sorry}, 
+  z_nonneg := by {sorry},
+  sum_eq := by {sorry}, 
+}
+
+
+
+
+
+
+
+
+----------------------------------------
+-- **Maps of standard n-simplices**
+----------------------------------------
+
+/-
+Maps of standard simplices are induced from functions of affine plane (i.e. point3d, point2d, and point1d) with the extra constraints that they map the points in one simplex into the points of the other. The constraints become part of the data of the map between simplices. 
+-/
+
+
+/-
+ There are two __degeneracy maps__ from the standard 2-simplex to the standard 1-simplex: try to understand the geometric idea begind these maps.
+-/
+
+/- 
+**Part II** : Fill in `sorry` placeholders in below so that `dg_2d_to_1d_fst` and `dg_2d_to_1d_snd` are functions from the type `Δ_2` to `Δ_1`. 
+-/
+
+def dg_2d_to_1d_fst  (a : Δ_2) : Δ_1 
+:= 
+{ x := a.x, 
+  y := a.y + a.z, 
+  x_nonneg := by {sorry}, 
+  y_nonneg := by {sorry},
+  sum_eq := by {sorry}, 
+}
+
+
+
+def dg_2d_to_1d_snd  (a : Δ_2) : Δ_1
+:= 
+{ x := a.x + a.y, 
+  y := a.z, 
+  x_nonneg := by {sorry}, 
+  y_nonneg := by {sorry}, 
+  sum_eq := by {sorry},
+}
+
+
+
+/- **Part III**: 
+Prove the following equality of points in `Δ_1`  (i.e. instance of structure `Δ_1`.) -/
+
+example : 
+  dg_2d_to_1d_fst Δ_2.point1 = Δ_1.point1 := 
+begin
+   sorry,
+end 
+
+
+example : 
+  dg_2d_to_1d_snd Δ_2.point2 = Δ_1.point3 := 
+begin
+   sorry, 
+end 
+
+
+
+
+
+
+
+
+
+
+
+
+
+/-! ## Question 7 (30 pts) 
+A __metric space__ is an abstraction of the notion of a collection of points with a way of measuring a __distance__ between each pair.
+-/
+
+
+/- metric space -/ 
+structure metric_space (X : Type) :=
+  (dist : X → X → ℝ)
+  (dist_eq_zero : ∀ x y, dist x y = 0 ↔ x = y)
+  (dist_symm : ∀ x y, dist x y = dist y x)
+  (triangle : ∀ x y z, dist x z ≤ dist x y + dist y z)
+
+
+
+lemma nonneg_of_double_nonneg {a : ℝ} (h : 0 ≤ a + a) : 
+  0 ≤ a := 
+begin
+  linarith,
+end   
+
+
+/- Prove that the distance between any two points in a metric space is nonnegative. You may use the lemma above. -/
+lemma dist_nonneg {X : Type} (μ : metric_space X) : 
+  ∀ x y : X,  0 ≤ μ.dist x y :=
+begin
+  intros x y,
+  have h : μ.dist x x ≤ μ.dist x y + μ.dist y x, from μ.triangle x y x, 
+  rw ((μ.dist_eq_zero x x).mpr rfl) at h,  
+  rw ← μ.dist_symm x y at h, 
+  apply nonneg_of_double_nonneg, 
+  apply h, 
+end 
 
 
 
