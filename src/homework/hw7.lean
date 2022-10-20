@@ -493,38 +493,53 @@ end
 
 
 
-
-
-
-
-
-/-! ## Question 7 (30 pts) 
-A __metric space__ is an abstraction of the notion of a collection of points with a way of measuring a __distance__ between each pair.
+/-  ## Question 7 (30 pts) 
+In below we define what it means for a sequence in `ℝ` to be positive. You are asked to prove the multiplication of two positive sequences is again positive. 
 -/
+structure pos_seq (a : ℕ → ℝ) :=
+(lb : ℝ) --  an explicit lower bound 
+(ge_lb : ∀ (n : ℕ), lb ≤ a n) -- lower bound condition: the values of the sequence `a` are greater than or equalto the lower bound. 
+(pos_lb : 0 < lb) -- the lower bound is positive
 
 
-/- metric space -/ 
-structure metric_space (X : Type) :=
-  (dist : X → X → ℝ)
-  (dist_eq_zero : ∀ x y, dist x y = 0 ↔ x = y)
-  (dist_symm : ∀ x y, dist x y = dist y x)
-  (triangle : ∀ x y z, dist x z ≤ dist x y + dist y z)
+#print pos_seq
+#check @pos_seq.lb
+
+
+def pos_seq.succ : pos_seq (λ n : ℕ, n+1) := 
+{ 
+ lb := 1, 
+ ge_lb := by {intro n, norm_cast, linarith,}, 
+ pos_lb := by {linarith,},
+}
+
+-- You may use the following lemma 
+#check mul_pos
+#check @mul_le_mul 
+#check @mul_lt_mul 
+#check @mul_le_mul_of_nonneg_left
+#check @mul_le_mul_of_nonneg_right
 
 
 
-lemma nonneg_of_double_nonneg {a : ℝ} (h : 0 ≤ a + a) : 
-  0 ≤ a := 
-begin
-  linarith,
-end   
+
+def pos_mul_of_pos_seq {a b : ℕ → ℝ} (Pa : pos_seq a) (Pb : pos_seq b):
+pos_seq (a * b) := 
+sorry
+
+            
 
 
-/- Prove that the distance between any two points in a metric space is nonnegative. You may use the lemma above. -/
-lemma dist_nonneg {X : Type} (μ : metric_space X) : 
-  ∀ x y : X,  0 ≤ μ.dist x y :=
-begin
-  sorry, 
-end 
+
+
+
+
+
+
+
+
+
+
 
 
 
