@@ -79,6 +79,7 @@ def Q2.midpoint (p q : Q2) : Q2 := sorry
 
 
 
+
 /-!
 ## Question 2 : 
 We define the structure `bijection` in below. Show that every equivalence gives rise to a bijection by filling in `sorry` placeholders. 
@@ -210,7 +211,7 @@ end
 
 
 
-/- **Questions 3 and 4 in below rely on the concept of sequences**.-/
+/- **Questions 4 and 5 in below rely on the concept of sequences**.-/
 
 
 /-
@@ -269,7 +270,7 @@ variables (a : ℕ → ℝ) (M : upper_bound a)
 end 
 
 
-/-! ## Question 3 :  
+/-! ## Question 4 :  
  Construct an upper bound for the sequence given by numbers `n/n+1` for `n : ℕ` by supplying correct expressions for `sorry` placeholders. The following lemmas might be useful. Also, the tactic `norm_cast` is useful when you want to prove something about a natural number treated as an integer, rational, or real number (or more generally when you have coercion). Here is a minial example of `norm_cast`. -/
 
 
@@ -299,7 +300,7 @@ def upbound_n_over_succ_n :
 
 
 
-/-! ## Question 4 :  
+/-! ## Question 5 :  
 Construct an upper bound for the sum of two upper bounded sequences by completing the (instance) definition below. You might like to use the lemma `add_le_add`. -/ 
 
 def ub_sum_of_ub_seq (a b : ℕ → ℝ) (Ma : upper_bound a) (Mb : upper_bound b) :
