@@ -523,12 +523,7 @@ end
 lemma dist_nonneg {X : Type} (μ : metric_space X) : 
   ∀ x y : X,  0 ≤ μ.dist x y :=
 begin
-  intros x y,
-  have h : μ.dist x x ≤ μ.dist x y + μ.dist y x, from μ.triangle x y x, 
-  rw ((μ.dist_eq_zero x x).mpr rfl) at h,  
-  rw ← μ.dist_symm x y at h, 
-  apply nonneg_of_double_nonneg, 
-  apply h, 
+  sorry, 
 end 
 
 
