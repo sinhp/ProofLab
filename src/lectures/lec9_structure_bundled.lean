@@ -194,9 +194,6 @@ def auto.mul {A : Type} : auto(A) → auto (A) → auto(A) :=
 
 
 
+end STR 
 
-
-
-namespace STR 
-
-namespace PROOFS
+end PROOFS
