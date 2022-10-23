@@ -185,7 +185,7 @@ end
 
 
 lemma M₁_mid (v : Q2) :  
-  M₁_transform (v : Q2) = Q2.midpoint v v := 
+  M₁_transform (v : Q2) = Q2.midpoint v ⟨0,0⟩ := 
 begin
   sorry, 
 end  
