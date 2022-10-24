@@ -1,6 +1,6 @@
 import ..prooflab
-import lectures.lec8_structure_unbundled
-import lectures.lec9_structure_bundled
+import lectures.lec8_structure_bundled
+import lectures.lec9_structure_unbundled
 import data.matrix.notation
 import linear_algebra.matrix.determinant
 import data.real.basic
@@ -40,6 +40,17 @@ structure Q1 := (x : ℚ)
 @[ext] 
 structure Q2 := (x : ℚ) (y : ℚ)
 
+
+@[ext] 
+lemma Q2_ext {a b : Q2} (h₁ : a.1 = b.1) (h₂ : a.2 = b.2) : 
+  a = b :=
+begin
+  rcases a with ⟨a_x,a_y⟩,
+  rcases b with ⟨b_x,b_y⟩,
+  simp at *, 
+  split, 
+  repeat{ assumption },
+end
 
 /-
 Define the operations of addition and multiplication on `Q1` and `Q2` and prove that they are associative and commutative. 
