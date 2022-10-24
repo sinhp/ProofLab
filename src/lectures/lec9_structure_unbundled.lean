@@ -1,12 +1,12 @@
 /- 
-Bundled Structures 
+unbundled Structures 
 Sina Hazratpour
 Introduction to Proof  
 MATH 301, Johns Hopkins University, Fall 2022   
 -/
 
 import ..prooflab
-import .lec8_structure_unbundled
+import .lec8_structure_bundled
 
 
 
@@ -19,36 +19,36 @@ variables {X Y Z : Type}
 variable {f : X → Y}
 
 
-/- The bundled definition of preorder: this is the type of preorder structure on  a type `X`. Note that this structure depends on the parameter `X` in contrast with the unbundles version which does not have any parameters. -/
+/- The unbundled definition of preorder: this is the type of preorder structure on  a type `X`. Note that this structure depends on the parameter `X` in contrast with the bundles version which does not have any parameters. -/
 
-structure preorder_bundled (X : Type) :=
+structure preorder_unbundled (X : Type) :=
 (rel : X → X → Prop)
 (rflx : reflexive rel) 
 (trns : transitive rel)
 
-#check preorder_bundled
 #check preorder_unbundled
+#check preorder_bundled
 
 
 #check preorder -- a function which assigns to every type `X` the type of preorder structures on `X` 
 
 
-def preorder_bundled_nat_eq : preorder_bundled ℕ := 
+def preorder_unbundled_nat_eq : preorder_unbundled ℕ := 
 {
   rel := λ m, λ n, m = n, 
   rflx := by {unfold reflexive,intro x, refl, },
   trns := by {unfold transitive, apply eq.trans,}, 
 }
 
-#check preorder_bundled_nat_eq 
-#print preorder_bundled_nat_eq
+#check preorder_unbundled_nat_eq 
+#print preorder_unbundled_nat_eq
 
-#reduce preorder_bundled_nat_eq.rel 
 #reduce preorder_unbundled_nat_eq.rel 
+#reduce preorder_bundled_nat_eq.rel 
 
 
 
-def preorder_bundled_nat_le : preorder_bundled ℕ := 
+def preorder_unbundled_nat_le : preorder_unbundled ℕ := 
 {
   rel := λ m, λ n, m ≤ n, 
   rflx := by {unfold reflexive,intro x, refl, },
@@ -58,7 +58,7 @@ def preorder_bundled_nat_le : preorder_bundled ℕ :=
 
 
 
-def preorder_bundled_bool_le : preorder_bundled bool := 
+def preorder_unbundled_bool_le : preorder_unbundled bool := 
 {
   rel := λ b, λ b', b && b' = b,
   rflx := by { unfold reflexive, -- 
@@ -73,14 +73,14 @@ def preorder_bundled_bool_le : preorder_bundled bool :=
 
 
 
-structure preorder_bundled.morphism {X : Type} {Y : Type} (P : preorder_bundled X) (Q : preorder_bundled Y) := 
+structure preorder_unbundled.morphism {X : Type} {Y : Type} (P : preorder_unbundled X) (Q : preorder_unbundled Y) := 
 ( to_fun :  X → Y ) -- a function between the carrier types
 ( respect_rel : ∀ {x₁ x₂ : X}, P.rel x₁ x₂ → Q.rel (to_fun x₁) (to_fun x₂) ) -- property which says that the relations between elements of X are respected by the function `f`
 
-#check @preorder_bundled.morphism
+#check @preorder_unbundled.morphism
 
 
-def preorder_bundled.morphism.nat_eq_to_nat_le : preorder_bundled.morphism  preorder_bundled_nat_eq preorder_bundled_nat_le := 
+def preorder_unbundled.morphism.nat_eq_to_nat_le : preorder_unbundled.morphism  preorder_unbundled_nat_eq preorder_unbundled_nat_le := 
 {
   to_fun := id, 
   respect_rel := by {

@@ -1,5 +1,5 @@
 /- 
-Structures (Unbundled)
+Structures (bundled)
 Sina Hazratpour
 Introduction to Proof  
 MATH 301, Johns Hopkins University, Fall 2022   
@@ -458,30 +458,30 @@ def R2.xembed₃  (a : R2) : R3 :=
 /-! ### Algebraic Structures-/
 
 
-structure preorder_unbundled:= 
+structure preorder_bundled:= 
 (carrier : Type) -- a type of carrier (as underlying type)
 (rel : carrier → carrier → Prop) -- a binary relation saying when two elements of the carrier are related to each to other
 (rflx : reflexive rel) -- this is an axiom/propety of relation `rel` saying that any term/element is related to itself. 
 (trns : transitive rel) -- this is an axiom/propety of relation `rel` saying that if we have three terms and the first two of which are related to each other through the relation `rel` and the last two of which are related to each other through the relation `rel`, then the first and the third are related to each other through the relation `rel` 
 
 
-#check preorder_unbundled.carrier -- the underlying type of preorder_unbundled_unbundledstructure
-#check preorder_unbundled.rflx
-#check preorder_unbundled.trns
-#reduce preorder_unbundled.trns 
+#check preorder_bundled.carrier -- the underlying type of preorder_bundled_bundledstructure
+#check preorder_bundled.rflx
+#check preorder_bundled.trns
+#reduce preorder_bundled.trns 
 
 #check transitive 
 #reduce @transitive
 
 
 
-#check preorder_unbundled.carrier -- the underlying type of preorder_unbundled structure
-#check preorder_unbundled.rflx
+#check preorder_bundled.carrier -- the underlying type of preorder_bundled structure
+#check preorder_bundled.rflx
 
 
 
--- an instance of a preorder_unbundled structure 
-def preorder_unbundled_nat_eq : preorder_unbundled := 
+-- an instance of a preorder_bundled structure 
+def preorder_bundled_nat_eq : preorder_bundled := 
 {
   carrier := ℕ, 
   rel := λ m, λ n, m = n, 
@@ -491,27 +491,27 @@ def preorder_unbundled_nat_eq : preorder_unbundled :=
 
 
 
-#check preorder_unbundled_nat_eq
-#print preorder_unbundled_nat_eq
+#check preorder_bundled_nat_eq
+#print preorder_bundled_nat_eq
 
-#reduce preorder_unbundled.carrier preorder_unbundled_nat_eq 
-#reduce preorder_unbundled_nat_eq.carrier 
-
-
-
-#check preorder_unbundled_nat_eq
-#print preorder_unbundled_nat_eq
-
-#reduce preorder_unbundled.carrier preorder_unbundled_nat_eq 
-#reduce preorder_unbundled_nat_eq.carrier 
-
-
-#reduce preorder_unbundled_nat_eq.rflx 
+#reduce preorder_bundled.carrier preorder_bundled_nat_eq 
+#reduce preorder_bundled_nat_eq.carrier 
 
 
 
+#check preorder_bundled_nat_eq
+#print preorder_bundled_nat_eq
 
-def preorder_unbundled_nat_le : preorder_unbundled := 
+#reduce preorder_bundled.carrier preorder_bundled_nat_eq 
+#reduce preorder_bundled_nat_eq.carrier 
+
+
+#reduce preorder_bundled_nat_eq.rflx 
+
+
+
+
+def preorder_bundled_nat_le : preorder_bundled := 
 {
   carrier := ℕ, 
   rel := λ m, λ n, m ≤ n, 
@@ -546,7 +546,7 @@ end
  
 
 
-def preorder_unbundled_bool : preorder_unbundled := 
+def preorder_bundled_bool : preorder_bundled := 
 {
   carrier := bool, 
   rel := λ b, λ b', b && b' = b, 
@@ -563,17 +563,17 @@ def preorder_unbundled_bool : preorder_unbundled :=
 
 
 /- Morphisms between preorders -/
-structure preorder_unbundled.morphism := 
-(dom cod : preorder_unbundled)
+structure preorder_bundled.morphism := 
+(dom cod : preorder_bundled)
 (to_fun : dom.carrier → cod.carrier) 
 (respect_rel : ∀ {a b : dom.carrier}, dom.rel a b → cod.rel (to_fun a) (to_fun b))
 
 
 /- An instance of a morphism between two preorders on natural numbers-/
-def preorder_unbundled_nat_eq_to_nat_le : preorder_unbundled.morphism := 
+def preorder_bundled_nat_eq_to_nat_le : preorder_bundled.morphism := 
 {
-  dom := preorder_unbundled_nat_eq, 
-  cod := preorder_unbundled_nat_le, 
+  dom := preorder_bundled_nat_eq, 
+  cod := preorder_bundled_nat_le, 
   to_fun := id, 
   respect_rel := by {intros a b, simp, apply le_of_eq, }
 }
