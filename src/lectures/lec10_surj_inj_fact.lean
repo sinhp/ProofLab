@@ -176,7 +176,7 @@ structure fun_fact {X Y : Type} (f : X → Y) :=
 (node : Type) -- the node through which `f` factors 
 (left_fun : X → node) -- the left factor 
 (right_fun : node → Y) -- the right factor 
-
+(fun_eq : right_fun ∘ left_fun = f)
 
 #print fun_fact
 #check @fun_fact.node
@@ -242,6 +242,7 @@ def canonical_surj_inj_fact {X Y : Type} (f : X → Y) : surj_inj_fact f :=
   node := fun_image f, 
   left_fun := fun_image.cover f, 
   right_fun := fun_image.embedding f, 
+  fun_eq := by {funext x, simp, refl},
   surj := by {exact surj_of_fun_image f,}, 
   inj := by {exact inj_of_fun_image f,}, 
 }
