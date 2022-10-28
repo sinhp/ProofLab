@@ -60,15 +60,7 @@ variables {V : Type} (G : simple_graph_str V)
 /-! ## Challenge
 Define the __empty graph__ on a vertex type `V`, i.e. the graph with no edges on a given vertex type `V`.
  -/
-def empty_graph_str (V : Type) : simple_graph_str V := 
-{ 
-  adj := sorry, 
-  symm := by {sorry,}, 
-  noloop := by {sorry,}, 
-}
-
-
-def empty_graph_str_alt (V : Type) : simple_graph_str V :=
+def empty_graph_str (V : Type) : simple_graph_str V :=
 {
   adj := λ v1 v2, false,
   symm := by
@@ -88,7 +80,6 @@ def empty_graph_str_alt (V : Type) : simple_graph_str V :=
 }
 
 
-#check empty_graph_str_alt
 
 /- 
 ### Challenge : 
@@ -139,9 +130,7 @@ def preorder_bool : preorder_str bool :=
 ### Challenge : 
 Construct for any preorder a graph where there is an edge between any two points of the preorder if they are related to each other. 
 -/
-def graph_of_preorder_str  (X : Type) (ρ : preorder_str X) : simple_graph_str (X) := sorry 
-
-def graph_of_preorder_str_  (X : Type) (ρ : preorder_str X) : simple_graph_str (X) :=
+def graph_of_preorder_str (X : Type) (ρ : preorder_str X) : simple_graph_str (X) :=
 {
   adj := λ x₁, λ x₂, (¬ ρ.rel x₁ x₂ ∧ ρ.rel x₂ x₁) ∨ (ρ.rel x₁ x₂ ∧ ¬ ρ.rel x₂ x₁),
   symm := by {
@@ -188,16 +177,15 @@ def graph_of_preorder_str_  (X : Type) (ρ : preorder_str X) : simple_graph_str 
 
 
 
-#check 
+
 
 /- 
 ### Challenge  : 
 Construct the prodcut of two preorders. 
 -/
 
-def preorder_str.prod {X Y : Type} (P : preorder_str X) (Q : preorder_str Y) : 
-preorder_str (X × Y) := 
-def preorder_str.prod_LJ {X Y : Type} (P : preorder_str X) (Q : preorder_str Y) :
+
+def preorder_str.prod {X Y : Type} (P : preorder_str X) (Q : preorder_str Y) :
 preorder_str (X × Y) :=
 {
   rel := λ a, λ b, (P.rel a.1 b.1) ∧ (Q.rel a.2 b.2),
@@ -234,11 +222,7 @@ Construct the graph associated to the pointwise preorder on `bool × bool`. How 
 -/
 
 def graph_of_boolxbool_ptwise : simple_graph_str (bool × bool) := 
-{ 
-  adj := sorry,
-  symm := sorry,
-  noloop := sorry 
-}
+graph_of_preorder_str (bool × bool) (preorder_str.prod preorder_bool preorder_bool)
 
 
 
@@ -250,11 +234,20 @@ Develope an API for simple graphs.
 -/
 
 
-lemma adj_comm (u v : V) : 
-  G.adj u v ↔ G.adj v u := 
+lemma adj_comm (u v : V) :
+  G.adj u v ↔ G.adj v u :=
 begin
-  sorry, 
-end    
+  split,
+  {
+    intro h₁,
+    exact G.symm h₁,
+  },
+  {
+    intro h₁,
+    exact G.symm h₁,
+  },
+end
+  
 
 
 
@@ -267,8 +260,25 @@ The __complete graph__ on a type `V` is the simple graph with all pairs of disti
 
 
 
-def complete_graph_str (V : Type) : simple_graph_str V := 
-sorry 
+def complete_graph_str (V : Type) : simple_graph_str V :=
+{
+  adj := λ x₁, λ x₂, ¬ (x₁ = x₂),
+  symm := by {
+    unfold symmetric,
+    intros x₁ x₂,
+    intro h₁,
+    intro h₂,
+    apply h₁,
+    rw h₂,
+  },
+  noloop := by {
+    unfold irreflexive,
+    intro x,
+    intro h₁,
+    apply h₁,
+    refl,
+  },
+}
 
 
 
@@ -279,8 +289,7 @@ Define subgraphs. Suppose we have two graphs `G` and `H` on the same vertex type
 whenever any two vertex are connected by an edge in `G` they are connected by an edge in `H`. 
 -/
 
-def is_subgraph (G H : simple_graph_str V) : Prop := sorry 
-
+def is_subgraph (G H : simple_graph_str V) : Prop := ∀ {x₁ x₂ : V}, (G.adj x₁ x₂ → H.adj x₁ x₂)
 
 
 
@@ -289,7 +298,13 @@ def is_subgraph (G H : simple_graph_str V) : Prop := sorry
 Show that the empty graph is a subgraph of any other graph. 
 -/
 
-
+example (H : simple_graph_str V) : is_subgraph (empty_graph_str V) H :=
+begin
+unfold is_subgraph,
+intros x₁ x₂ h₁,
+exfalso,
+exact h₁,
+end
 
 
 
@@ -299,7 +314,19 @@ Show that every graph is a subgraph of the complete graph on the same vertex typ
 -/ 
 
 
-
+lemma all_sub_of_comp (V : Type) (C G : simple_graph_str V) (h₁ : C = complete_graph_str V):
+  is_subgraph G C :=
+begin
+  unfold is_subgraph,
+  intros x₁ x₂,
+  intro hg,
+  rw h₁,
+  intro hn,
+  have hi : irreflexive G.adj, from G.noloop,
+  rw hn at hg,
+  unfold irreflexive at hi,
+  exact (hi x₂) hg,
+end
 
 
 
@@ -311,12 +338,32 @@ Show that every graph is a subgraph of the complete graph on the same vertex typ
 Construct the sum of two graphs on the same type. The sum of two graphs `G` and `H` has an edge between two vertices if and only if either there is an edge between the same vertices in `G` or there is an edge between the same vertices in `H`. 
 -/
 
-
-def sum_of_graphs (G H : simple_graph_str V) : simple_graph_str V := 
+@[simp]
+def sum_of_graphs (G H : simple_graph_str V) : simple_graph_str V :=
 { adj := λ i j, G.adj i j ∨ H.adj i j,
-  symm := sorry,
-  noloop := sorry, }
-
+  symm := by {unfold symmetric, intros x y, intro hGH, cases hGH,
+              {
+                left,
+                apply G.symm hGH,
+              },
+              {
+                right,
+                apply H.symm hGH,
+              },
+            },
+  noloop := by {unfold irreflexive, intros x h₁, cases h₁,
+                {
+                  have h₂: ¬G.adj x x, from G.noloop x,
+                  apply h₂,
+                  exact h₁,
+                },
+                {
+                  have h₂: ¬H.adj x x, from H.noloop x,
+                  apply h₂,
+                  exact h₁,
+                },
+              },
+}
 
 
 
@@ -325,17 +372,10 @@ def sum_of_graphs (G H : simple_graph_str V) : simple_graph_str V :=
 ### Challenge : 
 Define the __complement__ of a graph. The complement of a graph `G` is a graph `Gᶜ` on the same set of vertices as of G such that there will be an edge between two vertices `v₁` and `v₂` in G’, if and only if there is no edge in between `v₁` and `v₂` in `Gᶜ`.
 -/
-
-def complement (G : simple_graph_str V) : simple_graph_str V := 
-{ adj := _,
-  symm := _,
-  noloop := _ }
-
-
-
-def complement_alt (G : simple_graph_str V) : simple_graph_str V :=
+@[simp]
+def complement (G : simple_graph_str V) : simple_graph_str V :=
 {
-  adj := λ v1, λ v2, ¬ G.adj v1 v2 ∧ v1 ≠ v2,
+  adj := λ v1, λ v2, (¬ G.adj v1 v2) ∧ v1 ≠ v2,
 
   symm := by
   {
@@ -369,10 +409,9 @@ def complement_alt (G : simple_graph_str V) : simple_graph_str V :=
 }
 
 
-/-
-### Challenge : 
-What is the sum of a graph of its complement. Prove it in Lean. 
--/
+
+
+
 
 
 
@@ -395,16 +434,52 @@ Show that an embedding with the identity function induces a subgraph.
 -/ 
 
 
-
-
-/- ### Challenge : 
-A (proper) coloring of a graph G with color set C is a function f : V → C assigning colors to each vertex such that adjacent vertices have different colors. 
-
-
-
-/- ### Challenge : 
-A bipartition of a graph G is a coloring of G with color set {1,2}. Let V₁ and V₂ respectively denote the color classes for colors 1 and 2. If a bipartition exists, the graph is called bipartite.
+/-
+### Challenge : 
+What is the sum of a graph of its complement. Prove it in Lean. 
 -/
+
+#check graph_embedding.to_fun
+
+structure graph_isomorphism {V W : Type} (G : simple_graph_str V) (H : simple_graph_str W) extends graph_embedding G H := 
+(surj : is_surjective to_fun)
+
+#check graph_embedding
+#check is_surjective
+
+
+
+
+#check sum_of_graphs
+#check complement
+
+infix ` ≅ `:35 := graph_isomorphism 
+def self_of_sum_complement_self {V : Type} {G : simple_graph_str V} : (sum_of_graphs G (complement G)) ≅ complete_graph_str V := 
+{ to_fun := id,
+  to_fun_inj := by {intros x y, simp,},
+  embed := by {intros x y, simp, split, intro h, sorry, },
+  surj := sorry, }
+
+
+/- ### Challenge : 
+A (proper) coloring of a graph `G` with color set `C` is a function `f : V → C` assigning colors to each vertex such that adjacent vertices have different colors. -/
+
+structure colored_graph :=
+(G : simple_graph_str V)
+(C : Type)
+(color : V → C)
+(adj_diff_color : ∀ {v1 v2 : V}, G.adj v1 v2 → color v1 ≠ color v2)
+
+
+/- ### Challenge : 
+A bipartition of a graph `G` is a coloring of `G` with color set `{1,2}`. Let `V₁` and `V₂` respectively denote the color classes for colors 1 and 2. If a bipartition exists, the graph is called bipartite.
+-/
+
+structure bipartite_graph :=
+(cgraph : colored_graph)
+(color_1 : cgraph.C)
+(color_2 : cgraph.C)
+(two_colors : ∀ x : V, cgraph.color x = color_1 ∨ cgraph.color x = color_2)
 
 
 
