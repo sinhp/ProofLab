@@ -50,12 +50,14 @@ structure simple_graph_str (V : Type) :=
 (noloop : irreflexive adj)
 
 
+#check simple_graph_str
+
 variable {X : Type}
 variables {V : Type} (G : simple_graph_str V)
 
 
 
-/- 
+/-! ## Challenge
 Define the __empty graph__ on a vertex type `V`, i.e. the graph with no edges on a given vertex type `V`.
  -/
 def empty_graph_str (V : Type) : simple_graph_str V := 
@@ -66,14 +68,46 @@ def empty_graph_str (V : Type) : simple_graph_str V :=
 }
 
 
+def empty_graph_str_alt (V : Type) : simple_graph_str V :=
+{
+  adj := λ v1 v2, false,
+  symm := by
+    {
+      unfold symmetric,
+      intros v1 v2,
+      intro h,
+      exact h,
+    },
+  noloop := by
+    {
+      unfold irreflexive,
+      intro v1,
+      intro h,
+      exact h,
+    },
+}
 
+
+#check empty_graph_str_alt
 
 /- 
 ### Challenge : 
 Define a graph structure on the type `bool` where the only edge is between `ff` and `tt`. 
 -/
 
-
+def bool_graph_str : simple_graph_str bool :=
+{
+  adj := λ v1, λ v2, v1 ≠ v2,
+  symm := by {rw symmetric,
+              intros x y h₁,
+              apply neq.symm,
+              exact h₁},
+  noloop := by {rw irreflexive,
+                intros x h₁,
+                have h₂ : x = x, by refl,
+                exact neq.elim h₁ h₂,
+                },
+}
 
 
 
@@ -107,8 +141,54 @@ Construct for any preorder a graph where there is an edge between any two points
 -/
 def graph_of_preorder_str  (X : Type) (ρ : preorder_str X) : simple_graph_str (X) := sorry 
 
+def graph_of_preorder_str_  (X : Type) (ρ : preorder_str X) : simple_graph_str (X) :=
+{
+  adj := λ x₁, λ x₂, (¬ ρ.rel x₁ x₂ ∧ ρ.rel x₂ x₁) ∨ (ρ.rel x₁ x₂ ∧ ¬ ρ.rel x₂ x₁),
+  symm := by {
+    unfold symmetric,
+    intros x₁ x₂,
+    intro h₁,
+    cases h₁,
+    {
+      right,
+      split,
+      {
+        exact h₁.2,
+      },
+      {
+        exact h₁.1,
+      },
+    },
+    {
+      left,
+      split,
+      {
+        exact h₁.2,
+      },
+      {
+        exact h₁.1,
+      }
+    },
+   },
+  noloop := by {
+    unfold irreflexive,
+    intro x,
+    intro h₁,
+    cases h₁,
+    {
+      cases h₁ with hnr hr,
+      exact hnr hr,
+    },
+    {
+      cases h₁ with hr hnr,
+      exact hnr hr,
+    },
+  }
+}
 
 
+
+#check 
 
 /- 
 ### Challenge  : 
@@ -117,14 +197,36 @@ Construct the prodcut of two preorders.
 
 def preorder_str.prod {X Y : Type} (P : preorder_str X) (Q : preorder_str Y) : 
 preorder_str (X × Y) := 
+def preorder_str.prod_LJ {X Y : Type} (P : preorder_str X) (Q : preorder_str Y) :
+preorder_str (X × Y) :=
 {
-  rel := λ a, λ b, (P.rel a.1 b.1) ∧ (Q.rel a.2 b.2), 
-  rflx := by { sorry, },
-  trns := by { sorry, },
+  rel := λ a, λ b, (P.rel a.1 b.1) ∧ (Q.rel a.2 b.2),
+  rflx := by {unfold reflexive,
+              intro q,
+              split,
+              {
+                exact P.rflx q.fst,
+              },
+              {
+                exact Q.rflx q.snd,
+              },
+              },
+  trns := by {  unfold transitive,
+                intros x y z,
+                intro hpqx,
+                intro hpqy,
+                split,
+                {
+                  cases hpqx,
+                  cases hpqy,
+                  exact P.trns hpqx_left hpqy_left,
+                },
+                {
+                  cases hpqx,
+                  cases hpqy,
+                  exact Q.trns hpqx_right hpqy_right,
+                },},
 }
-
-
-
 
 /- 
 ### Challenge  : 
@@ -231,6 +333,40 @@ def complement (G : simple_graph_str V) : simple_graph_str V :=
 
 
 
+def complement_alt (G : simple_graph_str V) : simple_graph_str V :=
+{
+  adj := λ v1, λ v2, ¬ G.adj v1 v2 ∧ v1 ≠ v2,
+
+  symm := by
+  {
+    unfold symmetric,
+    intros x y,
+    intro h,
+    split,
+    {
+      intro h1,
+      have h2 := G.symm,
+      have h3 := h2 h1,
+      cases h,
+      exact h_left h3,
+    },
+    {
+      intro h1,
+      cases h,
+      have h2 : x = y := by rw h1,
+      exact h_right h2,
+      },
+  },
+
+  noloop := by
+  {
+    unfold irreflexive,
+    intro v1,
+    intro h,
+    simp at *,
+    exact h,
+  },
+}
 
 
 /-
@@ -255,11 +391,20 @@ structure graph_embedding {V W : Type} (G : simple_graph_str V) (H : simple_grap
 
 
 /- ### Challenge :
-Show that the relation `is_subgraph` defines an embedding structure. 
+Show that an embedding with the identity function induces a subgraph. 
 -/ 
 
 
 
+
+/- ### Challenge : 
+A (proper) coloring of a graph G with color set C is a function f : V → C assigning colors to each vertex such that adjacent vertices have different colors. 
+
+
+
+/- ### Challenge : 
+A bipartition of a graph G is a coloring of G with color set {1,2}. Let V₁ and V₂ respectively denote the color classes for colors 1 and 2. If a bipartition exists, the graph is called bipartite.
+-/
 
 
 
