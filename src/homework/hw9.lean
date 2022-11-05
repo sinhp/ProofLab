@@ -273,7 +273,7 @@ sorry
 
 
 
-#check monoid_hom
+
 
 
 /-! ## Question 8 (20 pts): 
