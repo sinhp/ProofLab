@@ -1,9 +1,9 @@
-/- 
-Surjective Injective Factorization 
-Sina Hazratpour
-Introduction to Proof  
-MATH 301, Johns Hopkins University, Fall 2022   
--/
+  /- 
+  Surjective Injective Factorization 
+  Sina Hazratpour
+  Introduction to Proof  
+  MATH 301, Johns Hopkins University, Fall 2022   
+  -/
 
 import ..prooflab
 import .lec9_structure_unbundled
@@ -144,6 +144,13 @@ begin
 end 
 
 
+example (e e': Even_Num) (h : e = e') :
+  e.val = e'.val := 
+begin
+  rw h, 
+end 
+
+
 
 -- two terms of `{ x : X // P x }` are equal if their corresponding values are equal. 
 example (e e': Even_Num) (h : e.val = e'.val) :
@@ -176,7 +183,7 @@ structure fun_fact {X Y : Type} (f : X → Y) :=
 (node : Type) -- the node through which `f` factors 
 (left_fun : X → node) -- the left factor 
 (right_fun : node → Y) -- the right factor 
-(fun_eq : right_fun ∘ left_fun = f)
+(fun_eq : right_fun ∘ left_fun = f) 
 
 #print fun_fact
 #check @fun_fact.node
@@ -219,14 +226,14 @@ Recall that in order to extract a witness `x` and proof `hx : P x` from a hypoth
 lemma surj_of_fun_image  (f : X → Y) : 
   is_surjective (fun_image.cover f) := 
 begin
-  unfold is_surjective, 
-  intro y, 
-  cases y, 
-  cases y_property with x h, 
-  unfold fun_image.cover, 
-  use x, 
-  simp, 
-  rw h,  
+  unfold is_surjective, -- our goal is to prove that the function `fun_image.cover f` is surjective. We unfold the definition of surjectivity. 
+  intro y, -- We have to show for every `y` in  `fun_image.cover f` there is some `x` in `X` such that `cover f x = y`
+  cases y, -- an element `y` in  `fun_image.cover f` is some `y_val` in `Y` and a proof  `y_prop` of the fact that `∃ (x : X), y_val = f x`. 
+  cases y_property with x h, -- from `y_prop`, by existentional elimination, we can find some `x : X` and a proof `h : y_val = f x`.   
+  unfold fun_image.cover, -- simplifying definition of fun_image.cover. 
+  use x, -- we find our desired `x`, from one before last step. 
+  simp, -- simplifying the goal 
+  rw h,  -- 
 end 
 
 

@@ -11,6 +11,7 @@ import .lec10_surj_inj_fact
 
 namespace PROOFS
 
+
 namespace STR
 
 -- the bundled structure of types with a point in them 
@@ -19,10 +20,14 @@ structure pointed_type :=
 (point : type)
 
 
+
+
 #check unit 
 #check unit.star
 #check @unit.ext
 
+local notation `†` := unit 
+local notation `` := unit 
 
 local notation `𝟙` := unit -- type as \b1
 local notation `⋆` := unit.star
@@ -81,6 +86,11 @@ namespace pointed_type
 variables {A B : pointed_type}
 
 
+/- The __product__ of two pointed types is a pointed type.
+
+  The attribute `@[simps point]` in below  is a hint to `simp` that it can unfold the point of this definition. -/
+
+@[simps point]
 def product (A B : pointed_type) : pointed_type := 
 {
   type := A.type × B.type,
@@ -260,6 +270,7 @@ instance bool_to_nat : morphism bool nat :=
 
 
 end has_element
+
 
 
 end type_classes

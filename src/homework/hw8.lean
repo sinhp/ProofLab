@@ -116,6 +116,14 @@ end
 
 
 
+#check classical.some
+noncomputable
+def is_pointed_of_surj {X : Type} {h : is_surjective (! X)} : pointed_type :=
+{
+   type := X,
+   point := let h' : (∃ x : X, true) := by {unfold is_surjective at h,
+      simp at *, assumption} in classical.some h' , 
+}
 
 
 

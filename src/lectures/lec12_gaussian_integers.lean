@@ -399,6 +399,55 @@ instance : additive_monoid_str ℤ[i] :=
 
 
 
+@[protect_proj]
+class has_nat_cast (R : Type) :=
+(nat_cast : ℕ → R)
+
+
+instance : has_nat_cast ℤ[i] := ⟨λ n,  ⟨n , 0⟩⟩
+
+instance : has_int_cast ℤ[i] := ⟨λ n, ⟨n ,0⟩ ⟩ 
+
+
+#check 2 + 3
+#eval 2 + 3 
+
+#check (2 : ℤ[i]) + 3 
+
+
+
+@[simp] instance : has_coe_to_sort ℤ (ℤ[i])  := ⟨has_int_cast.int_cast⟩ 
+
+
+
+
+
+#check ring
+
+
+
+
+instance : comm_ring ℤ[i]  :=
+{ zero := 0,
+  one := 1,
+  add := (+),
+  neg := λ x, -x,
+  mul := (*),
+
+  add_assoc := gaussian_int.add_assoc,
+  zero_add := by { intros, ext; simp },
+  add_zero := by { intros, ext; simp },
+  add_left_neg := by { intros, ext; simp },
+  add_comm := by { intros, ext; simp; ring },
+  mul_assoc := by { intros, ext; simp; ring },
+  one_mul := by { intros, ext; simp },
+  mul_one := by { intros, ext; simp },
+  left_distrib := by { intros, ext; simp; ring },
+  right_distrib := by { intros, ext; simp; ring },
+  mul_comm := by { intros, ext; simp; ring }
+   }
+
+
 
 
 
