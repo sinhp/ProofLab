@@ -124,9 +124,11 @@ end pointed_type
 
 
 
+
 infix ` →• `:25 := pointed_type.morphism
 
 
+namespace pointed_type
 variables {A B C D : pointed_type}
 
 
@@ -151,7 +153,10 @@ begin
   simp, 
 end 
 
+end pointed_type
 end STR 
+
+
 
 
 
