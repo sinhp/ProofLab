@@ -112,6 +112,24 @@ end
 
 #check has_zero.zero
 
+@[simp]
+lemma zero_re_def :
+  (0 :ℤ[i]).re = 0 :=
+begin
+  refl,
+end
+
+
+@[simp]
+lemma zero_im_def :
+  (0 :ℤ[i]).im = 0 :=
+begin
+  refl,
+end
+
+
+
+
 lemma one_def :
   (1 :ℤ[i]) = ⟨1, 0⟩ :=
 begin
@@ -146,6 +164,7 @@ begin
   refl,
 end
 
+@[simp]
 theorem mul_def (x y : ℤ[i]) :
   x * y = ⟨x.re * y.re - x.im * y.im, x.re * y.im + x.im * y.re⟩ :=
 begin
@@ -340,15 +359,18 @@ instance : additive_semigroup_str ℕ :=
 #eval 10 * 2
 #eval (⟨1,2⟩ : ℤ[i] ) * ⟨3,4⟩
 
+instance : mult_semigroup_str ℤ  :=
+{
+  mul := has_mul.mul, -- we retrieve the defintion of multiplication of ℤ[i] from the instance of the class `has_mul`.
+  mul_assoc := by {intros x y z, rw int.mul_assoc},
+}
+
+
 instance : mult_semigroup_str ℤ[i]  :=
 {
   mul := has_mul.mul, -- we retrieve the defintion of multiplication of ℤ[i] from the instance of the class `has_mul`.
   mul_assoc := by {intros x y z, rw gaussian_int.mul_assoc},
 }
-
-
-
-
 
 
 instance : additive_semigroup_str ℤ[i]  :=
@@ -377,6 +399,14 @@ def npower {M : Type} [mult_monoid_str M] : ℕ → M → M
   | (n + 1) m := m * (npower n m)
 
 
+instance : mult_monoid_str ℤ  :=
+{
+  mul_one :=  by { intro a, rw int.mul_one, },
+  one_mul :=  by { intro a, rw int.one_mul, },
+}
+
+
+
 instance : mult_monoid_str ℤ[i]  :=
 {
   mul_one :=  by { intro a, rw gaussian_int.mul_one, },
@@ -394,60 +424,6 @@ instance : additive_monoid_str ℤ[i] :=
 -/
 
 #eval npower 2 (⟨1, 1⟩ : ℤ[i])
-
-
-
-
-
-@[protect_proj]
-class has_nat_cast (R : Type) :=
-(nat_cast : ℕ → R)
-
-
-instance : has_nat_cast ℤ[i] := ⟨λ n,  ⟨n , 0⟩⟩
-
-instance : has_int_cast ℤ[i] := ⟨λ n, ⟨n ,0⟩ ⟩ 
-
-
-#check 2 + 3
-#eval 2 + 3 
-
-#check (2 : ℤ[i]) + 3 
-
-
-
-@[simp] instance : has_coe_to_sort ℤ (ℤ[i])  := ⟨has_int_cast.int_cast⟩ 
-
-
-
-
-
-#check ring
-
-
-
-
-instance : comm_ring ℤ[i]  :=
-{ zero := 0,
-  one := 1,
-  add := (+),
-  neg := λ x, -x,
-  mul := (*),
-
-  add_assoc := gaussian_int.add_assoc,
-  zero_add := by { intros, ext; simp },
-  add_zero := by { intros, ext; simp },
-  add_left_neg := by { intros, ext; simp },
-  add_comm := by { intros, ext; simp; ring },
-  mul_assoc := by { intros, ext; simp; ring },
-  one_mul := by { intros, ext; simp },
-  mul_one := by { intros, ext; simp },
-  left_distrib := by { intros, ext; simp; ring },
-  right_distrib := by { intros, ext; simp; ring },
-  mul_comm := by { intros, ext; simp; ring }
-   }
-
-
 
 
 
