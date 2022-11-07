@@ -13,6 +13,7 @@ import .lec11_type_classes
 import data.int.basic
 
 
+
 namespace PROOFS
 namespace STR
 
@@ -57,6 +58,7 @@ structure gaussian_int :=
 notation ` ℤ[i] ` := gaussian_int
 
 
+
 instance : has_repr ℤ[i] :=
 { repr := λ x,  repr x.re ++ "+" ++ "i" ++  repr x.im}
 
@@ -64,6 +66,11 @@ instance : has_repr ℤ[i] :=
 
 /- We prove some basic facts about Gaussian integers in the following namespace
 -/
+
+
+
+
+
 namespace gaussian_int
 
 def zero : ℤ[i]  :=
@@ -76,13 +83,22 @@ def zero : ℤ[i]  :=
 #check zero -- ⟨0,0⟩
 
 
-instance : has_zero ℤ[i]  := ⟨ ⟨0 ,0 ⟩  ⟩
+instance : has_zero ℤ[i]  := ⟨ ⟨0 ,0 ⟩  ⟩ -- we show that the Gaussian integers have zero by providing an instance of type class `has_zero`
+
+
+
+#check zero -- Lean automatically understands this as `gaussian_int.zero`. 
+#check nat.zero
+ 
+#check mul_zero -- this takes advantage zero as an instance of has_zero ℤ[i]  rather than `zero` defined at the top of the namespace. 
+
 
 instance : has_one ℤ[i]  :=  ⟨ ⟨1, 0⟩  ⟩
 
 
 instance : has_mul ℤ[i]  := ⟨ λ x, λ y, ⟨x.re * y.re - x.im * y.im, x.re * y.im + x.im * y.re⟩  ⟩
 
+#eval zero * zero -- this works because we have instances of `has_zero` and `mul_zero`. 
 #eval (⟨1, 0⟩ : ℤ[i]) * ⟨0 , 1⟩
 #eval (⟨1, 0⟩ : ℤ[i]) * ⟨0 , 2⟩
 #eval (⟨1, 0⟩ : ℤ[i]) * ⟨0 , 3⟩
@@ -129,7 +145,7 @@ end
 
 
 
-
+@[simp]
 lemma one_def :
   (1 :ℤ[i]) = ⟨1, 0⟩ :=
 begin
@@ -288,7 +304,6 @@ begin
   ext,
   {
     simp,
-    refl,
   },
   {
     apply add_zero,
@@ -327,7 +342,7 @@ end gaussian_int
 
 #check add_semigroup
 
--- the structure of multiplicative semigroup
+-- the structure of multiplicative semigroup: A semigroup structure consists of a binary operation (called multiplication) such that the operation is __associative__. 
 class mult_semigroup_str (S : Type) extends has_mul S :=
 (mul_assoc : ∀ a b c : S, (a * b) * c = a * (b * c))
 
@@ -399,6 +414,15 @@ def npower {M : Type} [mult_monoid_str M] : ℕ → M → M
   | (n + 1) m := m * (npower n m)
 
 
+
+instance : mult_monoid_str ℕ  :=
+{
+  mul_one :=  by { intro a, rw nat.mul_one, },
+  one_mul :=  by { intro a, rw nat.one_mul, },
+}
+
+
+
 instance : mult_monoid_str ℤ  :=
 {
   mul_one :=  by { intro a, rw int.mul_one, },
@@ -406,6 +430,14 @@ instance : mult_monoid_str ℤ  :=
 }
 
 
+-- instance : mult_monoid_str ℤ[i] := 
+-- { mul := _,
+--   mul_assoc := _,
+--   one := _,
+--   mul_one := _,
+--   one_mul := _ }
+
+/- We don't have to provide instances of `mul`, `mul_assoc` and `one` becasue they have been provided before as instances of `mult_semigroup ℤ[i]` and `has_one ℤ[i]` respectively. -/
 
 instance : mult_monoid_str ℤ[i]  :=
 {
