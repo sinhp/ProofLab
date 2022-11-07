@@ -1,8 +1,6 @@
 /-
 Gaussian Integers
 Sina Hazratpour
-Adopted from Mathematics in Lean (by Avigad et al)
-https://leanprover-community.github.io/mathematics_in_lean/06_Abstract_Algebra.html#building-the-gaussian-integers
 Introduction to Proof
 MATH 301, Johns Hopkins University, Fall 2022
 -/
