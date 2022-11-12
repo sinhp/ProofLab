@@ -125,6 +125,68 @@ class mult_monoid.morphism (M : Type) (N : Type) [mult_monoid_str M] [mult_monoi
 infixr ` →ₘ* `:25 := mult_monoid.morphism
 
 
+
+
+#check has_coe_to_fun
+
+variables {M N : Type} [mult_monoid_str M] [mult_monoid_str N]
+
+instance : has_coe_to_fun  (M →ₘ* N)  (λ _, M → N) := 
+⟨λ f, f.to_fun ⟩  --defined based on the projection `.to_fun` of monoid morphism to function 
+
+
+-- if we have a function between the underlying types of two multiplicative monoids and a proof that the function preserves `1` and `*` , then applying the coercion of the promotion is identity (i.e. it does nothing). 
+@[simp] lemma coe_mk_mul_mor {f : M → N} {h_one : f 1 = 1} {h_mul: ∀ x y : M, f (x * y) = f x * f y} {x : M} :
+  { mult_monoid.morphism . to_fun := f, resp_one := h_one, resp_mul := h_mul } x = f x := 
+begin
+  refl, 
+end
+
+@[simp] 
+lemma coe_mul_resp (f : M →ₘ* N) (x y : M) :
+  f (x *  y) = f x * f y := 
+begin
+  apply mult_monoid.morphism.resp_mul, 
+end   
+
+
+@[simp] 
+lemma coe_mul_one (f : M →ₘ* N) :
+  f 1 = 1 := 
+begin
+  apply mult_monoid.morphism.resp_one, 
+end  
+
+
+
+
+
+
+
+@[ext]
+class additive_monoid.morphism (M : Type) (N : Type) [additive_monoid_str M] [additive_monoid_str N] :=
+(to_fun : M → N) -- f : M → N -- the underlying function of morphism
+(resp_zero : to_fun 0 = 0) -- f (1_M ) = 1_N
+(resp_add : ∀ x y : M, to_fun (x + y) = to_fun x + to_fun y) -- f(x *_M y) = (f x) *_N (f y)
+
+
+infixr ` →ₘ+ `:25 := additive_monoid.morphism
+variables {A B : Type} [additive_monoid_str A] [additive_monoid_str B]
+
+
+
+instance : has_coe_to_fun  (A →ₘ+ B)  (λ _, A → B) := 
+⟨λ f, f.to_fun ⟩  --defined based on the projection `.to_fun` of monoid morphism to function 
+
+@[simp] 
+lemma coe_mk_add_mor {f : A → B} {h_zero : f 0 = 0} {h_add : ∀ x y : A, f (x + y) = f x + f y} {x : A} :
+  { additive_monoid.morphism . to_fun := f, resp_zero := h_zero, resp_add := h_add } x = f x := 
+begin 
+  refl,
+end 
+
+
+
 -- instance : ℤ →ₘ* ℤ[i] := -- a monoid morphism from integers to gaussian integers 
 -- { 
 --   to_fun := has_int_cast.int_cast,
@@ -196,7 +258,13 @@ def conj_mon_map : ℤ[i] →ₘ* ℤ[i] :=
 }
 
 
+#eval conj_mon_map.to_fun ⟨2,1⟩
+#eval conj_mon_map ⟨2,1⟩ -- eval works only for functions.  -- this works now due to coercion `has_coe_to_fun` for the type `M →ₘ* N` declared above. 
+
+
 end gaussian_int
+
+
 
 /- Two monoids `M` and `N` are __isomorphic__ if there is a monoid morphism `f : M →ₘ* N` whose undelying function is a bijection (or equivalently, an equivalence) -/
 
@@ -221,7 +289,7 @@ namespace gaussian_int
 
 
 @[simp]
-def idempotent {X : Type} (f : X → X) := f ∘ f = id
+def idempotent {X : Type} (f : X → X) := (f ∘ f = id)
 
 
 lemma conj_conj : 
@@ -254,10 +322,35 @@ def conj_mon_map_iso {M : Type} :
 }  
 
 
-
-
 end gaussian_int
 
+
+
+
+/-!  In below we define the __group__ structure. A group structure on a type `X` consists of a binary operation (e.g. multiplication, addition) and a unary operation of taking __inverse__.  
+-/
+
+class additive_group_str (X : Type) extends additive_monoid_str X := 
+(inv : X → X) 
+(left_inv : ∀ x : X,  (inv x) + x =  0)
+(right_inv : ∀ x : X,  x + (inv x) = 0)
+
+
+
+class mult_group_str (X : Type) extends mult_monoid_str X := 
+(inv : X → X) 
+(left_inv : ∀ x : X,  (inv x) * x =  1)
+(right_inv : ∀ x : X,  x * (inv x) = 1)
+
+-- our notation for inverse of an element. 
+postfix `ⁱ` :std.prec.max_plus := mult_group_str.inv  
+
+
+section
+variables (G : Type) [mult_group_str G] (x : G)
+#check x
+#check xⁱ
+end 
 
 
 
