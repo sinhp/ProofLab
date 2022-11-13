@@ -26,6 +26,9 @@ instance : comm_mult_monoid_str ℤ :=
 } 
 
 
+class comm_additive_monoid_str (M : Type) extends additive_monoid_str M := 
+(add_comm : ∀ x y : M, x + y = y + x)
+
 
 
 namespace gaussian_int 

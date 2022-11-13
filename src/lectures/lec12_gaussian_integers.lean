@@ -174,6 +174,8 @@ theorem add_def (x y : ℤ[i]) :
 begin
  refl,
 end
+
+
 theorem neg_def (x : ℤ[i]) :
   -x = ⟨-x.re, -x.im⟩ :=
 begin
@@ -428,6 +430,32 @@ instance : mult_monoid_str ℤ  :=
   mul_one :=  by { intro a, rw int.mul_one, },
   one_mul :=  by { intro a, rw int.one_mul, },
 }
+
+
+
+-- __API__ for mul_monoid_str (capturing the core properties of the structure, but specification independent-- however you define monoid structure the following statements must be true about it)
+@[simp]
+lemma mult_mon_assoc {M : Type} [mult_monoid_str M] (x y z : M) : 
+  x * y * z = x * (y * z) := 
+begin
+  apply mult_monoid_str.to_mult_semigroup_str.mul_assoc,
+end 
+
+@[simp]
+lemma mult_mon_mul_one {M : Type} [mult_monoid_str M] (x : M) : 
+  x * 1 = x  := 
+begin
+  apply mult_monoid_str.mul_one,
+end 
+
+
+@[simp]
+lemma mult_mon_one_mul {M : Type} [mult_monoid_str M] (x : M) : 
+  1 * x = x  := 
+begin
+  apply mult_monoid_str.one_mul,
+end 
+
 
 
 -- instance : mult_monoid_str ℤ[i] := 
