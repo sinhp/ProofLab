@@ -566,7 +566,11 @@ end
 example (f : X → Y) (g : Y → Z) (inj_f : is_injective f) (inj_g : is_injective g) : 
   is_injective (g ∘ f) :=
 begin
-  sorry,
+  unfold is_injective at *, -- `at *` tells to unfold everywhere
+  intros a b he, 
+  apply inj_f, 
+  apply inj_g, 
+  exact he, 
 end
 
 /-
