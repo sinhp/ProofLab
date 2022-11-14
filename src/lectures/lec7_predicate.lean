@@ -557,7 +557,15 @@ end
 lemma injective_comp {X Y Z : Type} (f : X → Y) (g : Y → Z) (inj_f : is_injective f) (inj_g : is_injective g): 
   is_injective (g ∘ f) := 
 begin
-  sorry,
+  unfold is_injective,
+  -- since we are proving a ∀ sentence we need to use `intros`
+  intros x x' h, 
+  -- simplify the definition of composition in `h`
+  dsimp at h, 
+  -- we deduce f x = f x' from g(f x) = g(f x') since g is injective. 
+  have h₂ : f x = f x', from inj_g h,  
+  -- we deduce x = x' from f x = f x' since f in injective.
+  exact inj_f h₂, 
 end 
 
 #check injective_comp
