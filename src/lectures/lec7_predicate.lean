@@ -547,7 +547,9 @@ end
 -- Let's prove that the **identity function is injective**: 
 lemma injective_id : is_injective (id : X → X) :=
 begin
-  sorry, 
+   intros x₁ x₂, -- introduce variables for two inputs of x by the introduction rule of for all
+  intro hid, -- introduce a proof of `id x₁ = id x₂` by the introduction rule of elimination
+  exact hid, -- `id x₁` is definitionally identical to `x₁`, so `hid : id x₁ = id x₂` is identical to the goal `x₁ = x₂`
 end
 
 
