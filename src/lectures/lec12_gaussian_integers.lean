@@ -458,6 +458,15 @@ end
 
 
 
+@[simp]
+lemma add_mon_zero_add {M : Type} [additive_monoid_str M] (x : M) : 
+  0 + x = x  := 
+begin
+  apply additive_monoid_str.zero_add,
+end 
+
+
+
 -- instance : mult_monoid_str ℤ[i] := 
 -- { mul := _,
 --   mul_assoc := _,
