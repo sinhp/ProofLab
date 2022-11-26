@@ -530,12 +530,6 @@ end
 
 
 end mat 
-
-
-
-
-
-
 end PROOFS
 
 
