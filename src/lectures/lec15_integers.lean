@@ -14,7 +14,7 @@ import lectures.lec14_inductive_naturals
 import homework.hw11
 
 /-
-We will learn about the construction of __quotient by equivalence relation__. Your mission is to use this construction to develop integers from natural numbers. You do this by replacing the `sorry` placeholders in **challenges** below with your own solutions. 
+We will learn about the construction of __quotient by equivalence relation__. Your mission is to use this construction to develop (fake) integers from (fake) natural numbers. You do this by replacing the `sorry` placeholders in **challenges** below with your own solutions. 
 -/
 
 
@@ -27,7 +27,7 @@ open PROOFS.STR
 
 
 
-namespace integers
+
 
 /- 
 Having constructed the type of integers `ℤ`, we can prove that there is  a surjection `mat × mat → ℤ` sending 
@@ -237,8 +237,6 @@ instance mat.setoid : setoid (mat × mat) :=
 ⟨same_diff, same_diff_equiv⟩
  
 
-
-
 /- 
 We can use `≈` notation. This notation is inherited from 
 class has_equiv X := (equiv : X → X → Prop) and 
@@ -246,8 +244,6 @@ class has_equiv X := (equiv : X → X → Prop) and
 instance {X : Type} [setoid X] : has_equiv X :=
 ⟨setoid.r⟩
 -/ 
-
-
 example (x y : mat × mat) : x ≈ y ↔ same_diff x y :=
 begin
   -- true by definition of instance `mat.setoid`
@@ -294,11 +290,130 @@ We can define integers out of natural numbers by the operation of taking the __q
 
 Let `X` be any type, and let `r` be an equivalence relation on `X`. It is mathematically common to form the __quotient__  `X/r`, that is, the type of elements of `X` "modulo" `r`. A term of `X/r` is called an __equivalence class__ and is denoted by `⟦x⟧` where `x : X`.  
 
-The __universal property__ of quotients which is key to their use is the following: 
+
+In general, there is a function `X → X/r` given by `quotient.mk` which maps `x : X` to the equivalence class 
+`⟦x⟧`. Our notation for `quotient.mk x` is `⟦x⟧`. 
+
+
+The __universal property__ of quotient which is key to their use is as follows: 
 
 If `f : X → Y` is any function that __respects the equivalence relation__ in the sense that for every `x y : X`, the proposition `r x y` implies `f x = f y`, then the function `f : X → Y` __lifts__ to a function 
-`g : X/r → Y ` defined on each equivalence class `⟦x⟧` by `g ⟦x⟧ = f x`. 
+`f_q : X/r → Y ` defined on each equivalence class `⟦x⟧` by `f_q ⟦x⟧ = f x`. 
 -/
+
+/-
+The API for such lifts is given by `quotient.lift`. 
+-/
+
+#check @quotient.lift
+
+
+
+/- Moreover, such a lift is __uniquely__ determined: -/
+
+
+lemma quotient.lift_unique  
+{X Y : Type} [s : setoid X] (f : X → Y) 
+(hfs : ∀ (a b : X), a ≈ b → f a = f b) (g : quotient s → Y) : 
+  (∀ x : X, g ⟦x⟧  = f x) → g = (quotient.lift f hfs) := 
+begin
+  intro h₁, 
+  funext q,
+  have h₂ : ∀ x : X, g ⟦x⟧ = quotient.lift f hfs ⟦x⟧, by {intro x, rw h₁ x, sorry,} 
+  sorry, 
+  --have : g q = quotient.lift f hfs q,  from quot.induction_on q,
+end 
+
+
+
+
+
+/- In what follows, we give two trivial examples of quotient in a general setting. -/ 
+
+/- 
+The __least equivalence relation__ on a type is the so-called __diagonal__ relation: suppose `X` is a type and `r` is an equivalence relation on `X`. By reflexivity of `r` we must have `r x x` for all `x : X`. You can prove that the relation `Δ` which relates every `x : X` to itself but nothing else is in fact an equivalence relation and in a precise sense the least equivalence relation on `X`. 
+-/
+
+@[simp]
+def diagonal_rel (X : Type) [decidable_eq X] (x y : X) : Prop := 
+(x = y) 
+
+
+local notation  ` Δ ` : 15 := diagonal_rel
+
+
+
+/-! ## Challenge  
+Complete the proof below which shows that the diagonal relation on any type is an equivalence relation. 
+-/
+
+lemma diag_rel_equiv {X : Type} [decidable_eq X] : 
+  equivalence (Δ X) := 
+begin
+  unfold equivalence, 
+  repeat{split}, 
+  {
+    unfold reflexive, 
+    intro x, 
+    simp, 
+  },
+  {
+    unfold symmetric, 
+    intros x y , 
+    simp, 
+    exact eq.symm, 
+  },
+  {
+    sorry, 
+  },
+end 
+
+@[simp]
+instance minimal_setoid (X : Type) [decidable_eq X] : setoid X := 
+⟨diagonal_rel X, diag_rel_equiv⟩ 
+
+
+/- 
+We claim that if we take the quotient of a type `X` (with decidable equality) with respect to the diagonal equivalence relation on `X`, the quotient type is equivalent to `X`.
+-/
+
+def quot_by_diag (X : Type) [decidable_eq X] := quotient  (minimal_setoid X)
+
+
+/-
+We prove that the identity function `id : X → X` respects the relation `Δ` and therefore, we can lift `id : X → X` to a unique function `id_q : X/r → X` 
+-/
+
+/-! ## Challenge  
+Complete the proof below
+-/
+@[simp]
+lemma id_resp_diag {X : Type} [decidable_eq X] : 
+  ∀ (a b : X), a ≈ b → id a = id b := 
+begin
+  intros a b,
+  intro h, 
+  simp, 
+  have : (a = b) ∨ ¬ (a = b), from decidable.eq_or_ne a b,
+  cases this, 
+  {
+    exact this, 
+  },
+  { 
+    sorry,
+  }, 
+end   
+
+
+
+def quot_by_diag_eqv {X : Type}[decidable_eq X]:
+  X ≃ quot_by_diag X  := 
+{ 
+  to_fun := λ x, ⟦ x ⟧,
+  inv_fun := quotient.lift id (id_resp_diag),
+  left_inv := by {unfold function.left_inverse, intro x, simp  },
+  right_inv := by {unfold function.right_inverse, unfold function.left_inverse, intro q, have : ∃ x : X, ⟦x⟧ = q, from quotient.exists_rep q,    },
+}
 
 
 
@@ -309,11 +424,27 @@ def Int := quotient mat.setoid
 
 
 
+instance : has_zero Int := ⟨⟦(0,0)⟧⟩ 
+
+def zero : Int := has_zero.zero
+
+
+@[simp]
+lemma zero_defn : 
+  zero = ⟦(0,0)⟧ := 
+begin
+  refl, 
+end 
+
 
 /- 
 There is a function `mat × mat → Int` given by `quotient.mk` which maps a pair `(m, n) : mat × mat` to the equivalence class 
 `⟦ (m, n) ⟧`. Our notation for `quotient.mk x` is `⟦x⟧`. 
 -/
+
+
+namespace integers
+
 def one_two_pair : mat × mat := (1,2)
 
 def one_two_int : Int := quotient.mk one_two_pair -- `one_two_integer` is morally "-1".
@@ -344,7 +475,18 @@ begin
 end
 
 
-/-
+-- every (fake) natural number is a (fake) integer.
+instance : has_coe mat Int := ⟨λ n, ⟦(n, 0) ⟧⟩
+
+
+
+
+
+
+
+
+
+/-! ### Addition of Integers 
 We define an auxiliary addition function on integers. 
 -/
 def add_aux (x y : mat × mat) : Int := ⟦(x.1 + y.1, x.2 + y.2)⟧
@@ -352,11 +494,27 @@ def add_aux (x y : mat × mat) : Int := ⟦(x.1 + y.1, x.2 + y.2)⟧
 /- Note that this is not the final addition function we would like to have, since the output type is different than inputs type.-/
 #check add_aux 
 
+
+
+example : 
+  add_aux (1, 0) (0, 1) = ⟦ (0, 0) ⟧ := 
+begin
+  unfold add_aux, 
+  dsimp, 
+  apply quotient.sound, 
+  simp, 
+  refl, 
+end 
+
+
 @[simp]
-lemma add_aux_def (i j k l : mat) : add_aux (i, j) (k, l) = ⟦(i + k, j + l)⟧ :=
+lemma add_aux_defn (i j k l : mat) : add_aux (i, j) (k, l) = ⟦(i + k, j + l)⟧ :=
 begin
   refl,
 end
+
+
+
 
 
 
@@ -371,6 +529,65 @@ begin
   ...                        = (m + j) + (p + l) : sorry
   ...                        = m + p + (j + l) : sorry
 end
+
+
+@[simp]
+def add : Int → Int → Int :=
+quotient.lift₂ add_aux add_aux_lemma
+
+
+#check integers.add
+
+
+example :  
+  add ⟦(0,1)⟧ ⟦(1,0)⟧ = ⟦ (0,0) ⟧ := 
+begin
+ simp,  
+end   
+
+
+
+
+
+/-! ## Challenge  
+Show that type `Int` of fake integers admit a commutative monoid structure with respect to the addition operation we defined above. As usual, you need to prove several lemmas and then you fill in the `sorry` placeholders using those lemmas. See `comm_additive_monoid_str mat` for a comparison.  
+ -/
+
+
+instance : comm_additive_monoid_str Int := 
+{ add := sorry,
+  add_assoc := sorry,
+  zero := sorry,
+  add_zero := sorry,
+  zero_add := sorry,
+  add_comm := sorry, 
+}
+
+
+/- ## Challenge 
+Show that the function `λ x : mat, x : mat → Int` can be promoted to an additive monoid morphism. 
+-/
+
+#check additive_monoid.morphism
+
+
+
+
+
+
+/-! ## Challenge  
+Show that type `Int` of fake integers admit an additive group structure with respect to the addition operation we defined above. As usual, you need to prove several lemmas and then you fill in the `sorry` placeholders using those lemmas. See `comm_additive_monoid_str mat` for a comparison.  
+ -/
+
+
+instance : additive_group_str Int := 
+{ 
+  inv := sorry,
+  left_inv := sorry,
+  right_inv := sorry,
+}
+
+
 
 
 
