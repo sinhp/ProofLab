@@ -224,8 +224,16 @@ begin
 end  
 
 
--- use induction on natural numbers and the previous lemma (`positive_of_square_of_positive`) to prove that
-lemma pos_of_power_of_pos (a : mat) : 
+@[simp]
+lemma power_succ {a n : mat} : 
+  a ^^  n.succ = (a ^^ n)  * a := 
+begin
+  refl, 
+end   
+ 
+
+-- Use induction on natural numbers to prove the following theorem. You may need to prove an extra lemma before that which states that the multiplication of two positive numbers  `a b : mat` is again positive (`a` is positive here means that `0 < a` which is inherited from the type class `preorder` and the fact that we gave an instance of preorder structure for type `mat`. ). 
+theorem pos_of_power_of_pos (a : mat) : 
   ∀ n : mat, (0 < a) → (0 < (a^^n)) :=
 begin
   sorry, 
