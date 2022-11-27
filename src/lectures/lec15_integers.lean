@@ -86,7 +86,7 @@ by
 lemma mat.add_left_cancel : 
   ∀ a b c : mat, a + b = a + c → b = c := 
 begin
-  exact mat.left_cancel_additive_monoid_str.left_cancel, 
+  exact left_cancel_additive_monoid_str.left_cancel, 
 end 
 
 
@@ -290,15 +290,28 @@ We can define integers out of natural numbers by the operation of taking the __q
 
 Let `X` be any type, and let `r` be an equivalence relation on `X`. It is mathematically common to form the __quotient__  `X/r`, that is, the type of elements of `X` "modulo" `r`. A term of `X/r` is called an __equivalence class__ and is denoted by `⟦x⟧` where `x : X`.  
 
+Note that `X/r` is not a syntax reconnizable by Lean, it is just our informal notation for the type which is the quotient of `X` by the relation `r`. 
 
 In general, there is a function `X → X/r` given by `quotient.mk` which maps `x : X` to the equivalence class 
 `⟦x⟧`. Our notation for `quotient.mk x` is `⟦x⟧`. 
+-/
 
+#check @quotient.mk 
+
+
+
+
+def qmk {X : Type} [s : setoid X] : X → quotient s  := 
+quotient.mk 
+
+#check @qmk
+
+/-
 
 The __universal property__ of quotient which is key to their use is as follows: 
 
 If `f : X → Y` is any function that __respects the equivalence relation__ in the sense that for every `x y : X`, the proposition `r x y` implies `f x = f y`, then the function `f : X → Y` __lifts__ to a function 
-`f_q : X/r → Y ` defined on each equivalence class `⟦x⟧` by `f_q ⟦x⟧ = f x`. 
+`f_q : X/r → Y ` defined on each equivalence class `⟦x⟧` by `f_q ⟦x⟧ = f x`. Moreover, `f_q ∘ quotient.mk = f`. 
 -/
 
 /-
@@ -308,24 +321,97 @@ The API for such lifts is given by `quotient.lift`.
 #check @quotient.lift
 
 
+section 
+variables {X Y : Type}
 
-/- Moreover, such a lift is __uniquely__ determined: -/
+
+class resp_rel (f : X → Y) [s : setoid X]  : Prop := 
+(rel_eq : ∀ (a b : X), a ≈ b → f a = f b)
 
 
-lemma quotient.lift_unique  
-{X Y : Type} [s : setoid X] (f : X → Y) 
-(hfs : ∀ (a b : X), a ≈ b → f a = f b) (g : quotient s → Y) : 
-  (∀ x : X, g ⟦x⟧  = f x) → g = (quotient.lift f hfs) := 
-begin
-  intro h₁, 
-  funext q,
-  have h₂ : ∀ x : X, g ⟦x⟧ = quotient.lift f hfs ⟦x⟧, by {intro x, rw h₁ x, sorry,} 
-  sorry, 
-  --have : g q = quotient.lift f hfs q,  from quot.induction_on q,
+-- The quotient map `qmk : X → quotient s` maps any two `s`-related elements of `X` to the same element in `quotient s`. 
+instance resp_rel_qmk {X : Type} [s : setoid X] : 
+  resp_rel (qmk : X → quotient s) := 
+{
+  rel_eq := by {intros a b, intro h, apply quot.sound h, },
+}  
+
+
+instance resp_rel_comp {Z : Type} (f : X → Y) (g : Y → Z) [s : setoid X]
+[resp_rel f] : resp_rel (g ∘ f) := 
+{
+  rel_eq := by {
+                  intros a b h, 
+                  dsimp, 
+                  simp [congr_arg g (resp_rel.rel_eq a b h)]
+               }
+}
+
+
+@[simp]
+def qlift (f : X → Y) [s : setoid X] [resp_rel f] : quotient s → Y := 
+quotient.lift f resp_rel.rel_eq 
+
 end 
 
 
 
+/-
+Here's a diagram which helps you imagine the quotient construction and the universal property. 
+See 
+![](images/quotient_lift.png)
+-/
+
+@[simp]
+lemma qmk_comp_lift {X Y : Type} [s : setoid X] (f : X → Y) 
+[resp_rel f] : 
+  (qlift f) ∘ qmk = f := 
+begin
+  funext x, 
+  dsimp, 
+  refl, 
+end 
+
+
+/- Furthermore, such a lift is __uniquely__ determined: -/
+
+
+lemma quotient.lift_unique {X Y : Type} [s : setoid X] (f : X → Y) 
+[resp_rel f] (g : quotient s → Y) : 
+  (∀ x : X, g ⟦x⟧  = f x) → (g = qlift f) := 
+begin
+  intro h₁, -- suppose that `∀ x : X, g ⟦x⟧  = f x`. 
+  funext q, -- let `q : X/s` be given 
+  -- Our goal is to prove that `g q = quotient.lift f hfs q`. To this end, by the induction property of quotient we only need to prove a similar statement but only for when q is an equivalence class, i.e. it suffices to prove `∀ x : X, g ⟦x⟧ = quotient.lift f hfs ⟦x⟧,`
+  apply quotient.induction_on q,
+  simp, 
+  exact h₁, 
+end 
+
+
+
+/-! ## Challenge  
+Give a proof of the following fact. 
+-/
+
+lemma qlift_qmk {X : Type} [s : setoid X]  : 
+  qlift (qmk :  X → quotient s) = id := 
+begin
+  sorry,  
+end   
+
+
+
+
+
+lemma quotient.comp_lift_unique {X Y Z : Type} [s : setoid X] (f : X → Y) (g : Y → Z) [resp_rel f] : 
+  qlift (g ∘ f) = g ∘ (qlift f) := 
+begin
+  apply eq.symm, 
+  apply quotient.lift_unique, 
+  intro x, 
+  simp, 
+end 
 
 
 /- In what follows, we give two trivial examples of quotient in a general setting. -/ 
@@ -374,8 +460,9 @@ instance minimal_setoid (X : Type) [decidable_eq X] : setoid X :=
 
 
 /- 
-We claim that if we take the quotient of a type `X` (with decidable equality) with respect to the diagonal equivalence relation on `X`, the quotient type is equivalent to `X`.
+We claim that if we take the quotient of a type `X` (with decidable equality) with respect to the diagonal equivalence relation on `X`, the quotient type is equivalent to `X`. To prove this we first define the quotient type `quot_by_diag`. We also need to prove that the identity function `id : X → X` respects the diagonal relation `Δ`.
 -/
+
 
 def quot_by_diag (X : Type) [decidable_eq X] := quotient  (minimal_setoid X)
 
@@ -384,40 +471,48 @@ def quot_by_diag (X : Type) [decidable_eq X] := quotient  (minimal_setoid X)
 We prove that the identity function `id : X → X` respects the relation `Δ` and therefore, we can lift `id : X → X` to a unique function `id_q : X/r → X` 
 -/
 
+
 /-! ## Challenge  
 Complete the proof below
 -/
 @[simp]
-lemma id_resp_diag {X : Type} [decidable_eq X] : 
-  ∀ (a b : X), a ≈ b → id a = id b := 
-begin
-  intros a b,
-  intro h, 
-  simp, 
-  have : (a = b) ∨ ¬ (a = b), from decidable.eq_or_ne a b,
-  cases this, 
-  {
-    exact this, 
-  },
-  { 
-    sorry,
-  }, 
-end   
-
-
-
-def quot_by_diag_eqv {X : Type}[decidable_eq X]:
-  X ≃ quot_by_diag X  := 
-{ 
-  to_fun := λ x, ⟦ x ⟧,
-  inv_fun := quotient.lift id (id_resp_diag),
-  left_inv := by {unfold function.left_inverse, intro x, simp  },
-  right_inv := by {unfold function.right_inverse, unfold function.left_inverse, intro q, have : ∃ x : X, ⟦x⟧ = q, from quotient.exists_rep q,    },
+instance id_resp_diag {X : Type} [decidable_eq X] : resp_rel (id : X → X) := 
+{ rel_eq := by {  intros a b,
+                  intro h, 
+                  simp, 
+                  have : (a = b) ∨ ¬ (a = b), from decidable.eq_or_ne a b,
+                  cases this, 
+                  {
+                    exact this, 
+                  },
+                  { 
+                    sorry,
+                  }, 
+                } 
 }
 
 
 
--- Now we can take the quotient of the setoid `mat × mat` by the equivalence relation `same_diff`. 
+/- We show that, for any type `X`, the types `X` and `X/Δ` are equivalent, i.e. nothing is changed by quotienting `X` with the least equivalence relation on `X`. 
+
+See ![](images/quotient_diagonal.png)
+-/
+def quot_by_diag_eqv {X : Type}[decidable_eq X]:
+  X ≅ quot_by_diag X  := 
+{ 
+  to_fun := λ x, ⟦ x ⟧, -- the function `X → quot_by_diag X` takes x to the equivalence class `⟦x⟧`.  
+  inv_fun := qlift (id), -- the inverse function `X → quot_by_diag X` is defined using the universal property of quotient. 
+  left_inv := by {simp, },
+  right_inv := by { simp, 
+                    calc  qmk ∘ (qlift id) = qlift (qmk ∘ id) : 
+                    by {rw ← quotient.comp_lift_unique (@id X) qmk,}
+                    ... = id : by {change qlift (qmk) = id, apply qlift_qmk, },
+                  }
+}
+
+
+
+-- Now we can take the quotient of the setoid `mat × mat` by the equivalence relation `same_diff`. This the type of __fake integers__.
 def Int := quotient mat.setoid
 
 #check Int
@@ -477,8 +572,6 @@ end
 
 -- every (fake) natural number is a (fake) integer.
 instance : has_coe mat Int := ⟨λ n, ⟦(n, 0) ⟧⟩
-
-
 
 
 
