@@ -102,7 +102,9 @@ instance : right_cancel_additive_monoid_str mat :=
 sorry 
 
 
-
+/- ## Challenge 
+Use the instance above to prove the lemma below.
+-/
 
 lemma mat.add_right_cancel : 
   ∀ a b c : mat, b + a =  c + a → b = c := 
@@ -118,7 +120,7 @@ end
 def add_mon_add_left_comm (M : Type) [additive_monoid_str M] := ∀ m n k : M, m + (n + k) = n + (m + k)
 
 
-/-! ## Challenge
+/- ## Challenge
 Prove that the addition operation on mat is __left commutative__ in the sense that for all `m n k : mat` we have `m + (n + k) = n + (m + k)`.
 -/
 
@@ -190,7 +192,7 @@ end
 #check mat.add_assoc
 
 
-/-! ## Challenge  
+/- ## Challenge  
 Prove that `same_diff` is a transitive relation.
 -/
 
@@ -307,9 +309,6 @@ quotient.mk
 #check @qmk
 
 /-
-
-The __universal property__ of quotient which is key to their use is as follows: 
-
 If `f : X → Y` is any function that __respects the equivalence relation__ in the sense that for every `x y : X`, the proposition `r x y` implies `f x = f y`, then the function `f : X → Y` __lifts__ to a function 
 `f_q : X/r → Y ` defined on each equivalence class `⟦x⟧` by `f_q ⟦x⟧ = f x`. Moreover, `f_q ∘ quotient.mk = f`. 
 -/
@@ -373,7 +372,14 @@ begin
 end 
 
 
-/- Furthermore, such a lift is __uniquely__ determined: -/
+/- Furthermore, such a lift is __uniquely__ determined: any other function `g` with the property that ` g ∘ qmk = f` is necessarily equal to `qlift f`. This is the so-called __universal property__ of quotient construction which is key to their mathematical usage. 
+
+Let's recap: quotient construction has three essential components: 
+
+1. A __quotient function__ `qmk : X → quotient s`
+2. For any function `f : X → Y` which respects the relation of `s`, there **exists** a __lift__ function `qlift f : quotient s → Y` which has the additional property that  `(qlift f) ∘ qmk = f`. 
+3. `qlift f` with this property is **unique**: any other function `g : quotient s → Y` with the property that ` g ∘ qmk = f` is necessarily equal to `qlift f`. We prove the uniqueness property in below using induction on terms of `quotient s`.
+-/
 
 
 lemma quotient.lift_unique {X Y : Type} [s : setoid X] (f : X → Y) 
@@ -571,6 +577,7 @@ end
 
 
 -- every (fake) natural number is a (fake) integer.
+@[simp]
 instance : has_coe mat Int := ⟨λ n, ⟦(n, 0) ⟧⟩
 
 
@@ -609,7 +616,9 @@ end
 
 
 
-
+/- ## Challenge: 
+Complete the proof below. It shows that the function `add_aux`, which takes two inputs, respects the relation `≈` in both variables (inputs). We use this lemma to define the operation of addition on `Int` in below. 
+-/
 
 lemma add_aux_lemma : ∀ a b x y : mat × mat,
 (a ≈ x) → (b ≈ y) → add_aux a b = add_aux x y :=
@@ -642,7 +651,7 @@ end
 
 
 
-/-! ## Challenge  
+/- ## Challenge  
 Show that type `Int` of fake integers admit a commutative monoid structure with respect to the addition operation we defined above. As usual, you need to prove several lemmas and then you fill in the `sorry` placeholders using those lemmas. See `comm_additive_monoid_str mat` for a comparison.  
  -/
 
@@ -658,10 +667,17 @@ instance : comm_additive_monoid_str Int :=
 
 
 /- ## Challenge 
-Show that the function `λ x : mat, x : mat → Int` can be promoted to an additive monoid morphism. 
+Show that the function `λ x : mat, x : mat → Int` can be promoted to an additive monoid morphism. You might like to prove two additional lemmas to use in the definition below. Alternatively, you can have a longer proof inside the definition.
 -/
 
 #check additive_monoid.morphism
+
+
+
+def mat_to_int : additive_monoid.morphism mat Int := 
+{ to_fun := λ x : mat, x,
+  resp_zero := sorry,
+  resp_add := sorry, }
 
 
 
