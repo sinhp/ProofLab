@@ -1,9 +1,12 @@
-  /- 
-  Surjective Injective Factorization 
-  Sina Hazratpour
-  Introduction to Proof  
-  MATH 301, Johns Hopkins University, Fall 2022   
-  -/
+/- Copyright (c) 2022 Sina Hazratpour. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+----------------
+
+# Surjective Injective Factorization 
+Sina Hazratpour
+Introduction to Proof  
+MATH 301, Johns Hopkins University, Fall 2022   
+-/
 
 import ..prooflab
 import .lec9_structure_unbundled

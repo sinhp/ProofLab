@@ -1,5 +1,7 @@
-/-
-Gaussian Integers
+/- Copyright (c) 2022 Sina Hazratpour. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+----------------
+# Gaussian Integers
 Sina Hazratpour
 Adopted from Mathematics in Lean (by Avigad et al)
 https://leanprover-community.github.io/mathematics_in_lean/06_Abstract_Algebra.html#building-the-gaussian-integers
