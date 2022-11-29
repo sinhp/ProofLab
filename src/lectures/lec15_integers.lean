@@ -311,11 +311,17 @@ quotient.mk
 /-
 If `f : X → Y` is any function that __respects the equivalence relation__ in the sense that for every `x y : X`, the proposition `r x y` implies `f x = f y`, then the function `f : X → Y` __lifts__ to a function 
 `f_q : X/r → Y ` defined on each equivalence class `⟦x⟧` by `f_q ⟦x⟧ = f x`. Moreover, `f_q ∘ quotient.mk = f`. 
+
+The main use of `qlift` is to define functions out of a quotient type, say `X/≈`. To do this, we define a function out of `X` and prove that it respects the relation ~. 
+A function `g : X/≈  → Y` is equivalent to a function `f : X → Y` with the property that `f x = f y` for all `x y : X` with `x ∼ y`.  
+
+In particular, given such a function `f` and proof `hf : ∀ (a b : X), a ≈ b → f a = f b` we obtain `g` from `qlift f hf`. See below for more details.  
 -/
 
 /-
 The API for such lifts is given by `quotient.lift`. 
 -/
+ 
 
 #check @quotient.lift
 
@@ -350,6 +356,12 @@ instance resp_rel_comp {Z : Type} (f : X → Y) (g : Y → Z) [s : setoid X]
 @[simp]
 def qlift (f : X → Y) [s : setoid X] [resp_rel f] : quotient s → Y := 
 quotient.lift f resp_rel.rel_eq 
+
+/-
+qlift : Π {X Y : Type} (f : X → Y) [s : setoid X] [_inst_1 : resp_rel f], quotient s → Y
+-/
+
+#check @qlift
 
 end 
 
@@ -695,7 +707,6 @@ instance : additive_group_str Int :=
   left_inv := sorry,
   right_inv := sorry,
 }
-
 
 
 
