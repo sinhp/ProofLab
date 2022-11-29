@@ -1,5 +1,8 @@
-/-
-Gaussian Integers 
+/- Copyright (c) 2022 Sina Hazratpour. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+----------------
+
+# Algebraic Structures on Gaussian Integers 
 Sina Hazratpour
 Introduction to Proof
 MATH 301, Johns Hopkins University, Fall 2022
@@ -128,15 +131,59 @@ class mult_monoid.morphism (M : Type) (N : Type) [mult_monoid_str M] [mult_monoi
 infixr ` →ₘ* `:25 := mult_monoid.morphism
 
 
+#check has_coe_to_sort
+
+@[class]
+structure mult_monoid  := 
+(carrier : Type) 
+(str : mult_monoid_str carrier)
+
+
+def bundle_up (M : Type)[mult_monoid_str M] : mult_monoid := 
+{
+  carrier := M, 
+  str := by apply_instance, 
+}
+
+#check bundle_up
+
+
 
 
 #check has_coe_to_fun
 
 variables {M N : Type} [mult_monoid_str M] [mult_monoid_str N]
 
+
+-- At times, you may find that the type class inference fails to find an expected instance, or, worse, falls into an infinite loop and times out. To help debug in these situations, Lean enables you to request a trace of the search:
+-- try it!
+-- set_option trace.class_instances true
+
+def list.to_set {α : Type*} : list α → set α
+| []     := ∅
+| (h::t) := {h} ∪ list.to_set t
+
+instance list_to_set_coe (α : Type*) :
+  has_coe (list α) (set α) :=
+⟨list.to_set⟩
+
+def s : set nat  := {1, 2}
+def l : list nat := [3, 4]
+
+
+
+instance mult_monoid_to_sort_coe (M : Type) : 
+  has_coe (mult_monoid_str M) (Type)  :=
+⟨coe := M⟩
+
+
+instance list_to_set_coe (α : Type*) :
+  has_coe (list α) (set α) :=
+⟨list.to_set⟩
+
+
 instance : has_coe_to_fun  (M →ₘ* N)  (λ _, M → N) := 
 ⟨λ f, f.to_fun ⟩  --defined based on the projection `.to_fun` of monoid morphism to function 
-
 
 -- if we have a function between the underlying types of two multiplicative monoids and a proof that the function preserves `1` and `*` , then applying the coercion of the promotion is identity (i.e. it does nothing). 
 @[simp] lemma coe_mk_mul_mor {f : M → N} {h_one : f 1 = 1} {h_mul: ∀ x y : M, f (x * y) = f x * f y} {x : M} :
@@ -160,6 +207,27 @@ begin
   apply mult_monoid.morphism.resp_one, 
 end  
 
+
+
+/-
+⇑f and ↥M are notations for coe_fn f and coe_sort M. They are the coercion operators for the function and sort classes.
+
+We can instruct Lean’s pretty-printer to hide the operators ↑ and ⇑ with set_option.
+-/
+
+lemma test (f : M →ₘ* N) (a : M) :
+  f ((a * a) * a) = (f a * f a) * f a :=
+begin 
+calc
+  f ((a * a) * a) = f (a * a) * f a : by 
+  {rw [f.resp_mul (a * a) a], }
+            ... = (f a * f a) * f a : by {rw [f.resp_mul]},
+
+end 
+
+#check @test
+set_option pp.coercions false
+#check @test
 
 
 
@@ -187,6 +255,9 @@ lemma coe_mk_add_mor {f : A → B} {h_zero : f 0 = 0} {h_add : ∀ x y : A, f (x
 begin 
   refl,
 end 
+
+
+
 
 
 

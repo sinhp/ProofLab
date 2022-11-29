@@ -1,5 +1,8 @@
-/- 
-unbundled Structures 
+/-  Copyright (c) 2022 Sina Hazratpour. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+----------------
+
+# Unbundled Structures 
 Sina Hazratpour
 Introduction to Proof  
 MATH 301, Johns Hopkins University, Fall 2022   
@@ -57,6 +60,8 @@ def preorder_unbundled_nat_le : preorder_unbundled ℕ :=
 
 
 
+
+#check preorder
 
 def preorder_unbundled_bool_le : preorder_unbundled bool := 
 {
@@ -189,8 +194,6 @@ def auto.mul {A : Type} : auto(A) → auto (A) → auto(A) :=
   right_inv := by {funext, simp [ptwise.left_inv (α.right_inv), ptwise.left_inv (β.right_inv)], }
   -- or, -- by {funext, dsimp, rw ptwise.left_inv (α.right_inv), rw ptwise.left_inv (β.right_inv),  },  
 } 
-
-
 
 
 

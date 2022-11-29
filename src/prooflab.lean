@@ -16,10 +16,13 @@ import tactic.ring_exp
 import tactic.tidy
 import tactic.where
 import topology.basic
-import topology.category.Top
-import category_theory.category.basic
+--import topology.category.Top
+--import category_theory.category.basic
 import tactic.polyrith
 
 namespace PROOFS
+
 notation `fix ` binders `, ` r:(scoped f, f) := r
+
+
 end PROOFS

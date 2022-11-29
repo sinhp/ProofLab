@@ -1,5 +1,9 @@
 /-
-Algebra of Functions: Part I
+Copyright (c) 2022 Sina Hazratpour. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+----------------
+
+# Algebra of Functions: Part I
 Sina Hazratpour
 Introduction to Proof  
 MATH 301, Johns Hopkins University, Fall 2022   
