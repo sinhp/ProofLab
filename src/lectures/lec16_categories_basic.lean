@@ -304,6 +304,9 @@ instance small_category {X : Type} [preorder X] : small_category_str X :=
 
 + There are statements which are true in all these categories by virtue of  being a category. This is like saying for instance a city has a town-hall by virtue of being a city (that is, we don't know in which country that city is located, what is the population of that city, etc. we just know it is a city.) 
 
++ It is interesting to see which statements are true in an arbitrary category. If we construct something or prove a statement in an arbitrary category,then these constructions and statements and will be valid in every particular category, such as the category of types, groups, etc.  
+
++ In below, we shall introduce new definitions and prove statements which are valid in an arbitrary category. 
 -/
 
 
@@ -311,10 +314,6 @@ variables {𝓒 : Type} [category_str 𝓒] {W X Y Z : 𝓒} {A : Type}
 
 
 namespace category_str
-
-#check category_str
-
-
 
 
 lemma eq_comp {f g : X ⟶ Y} (e : f = g) (h : Y ⟶ Z) : 
