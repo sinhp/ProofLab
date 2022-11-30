@@ -157,6 +157,9 @@ structure positive_nat :=
 (num : ℕ)
 (pos : 0 < num)
 
+
+
+
 local notation ` ℕ₊ `: 15 := positive_nat
 
 /- Fill in `sorry` placeholder in below.-/
@@ -224,10 +227,38 @@ end
 Show that the Gaussian integers with the opeation of addition form an additive group. -/
 
 
+-- instance : additive_group_str ℤ[i] := 
+-- { inv := has_neg.neg,
+--   left_inv := by {intro x, ext; simp [gaussian_int.add_def]; simp [gaussian_int.neg_def],  },
+--   right_inv := by {intro x, ext; simp [gaussian_int.add_def]; simp [gaussian_int.neg_def],  }, }
+
+
+
+
+@[simp]
+theorem add_im_def (x y : ℤ[i]) :
+  (x + y).im = x.im + y.im :=
+begin
+  refl,
+end
+
+
+lemma gaussian_add_opposite {x : ℤ[i]} : -x + x = 0 :=
+begin
+ext,
+rw gaussian_int.add_re_def,
+rw gaussian_int.neg_def,
+ring_nf,
+rw gaussian_int.add_im_def,
+rw gaussian_int.neg_def,
+ring_nf,
+end
+
+
 instance : additive_group_str ℤ[i] := 
-sorry 
-
-
+{ inv := has_neg.neg,
+  left_inv := by { intro z,  rw gaussian_add_opposite,  },
+  right_inv := by {intro x, ext; simp [gaussian_int.add_def]; simp [gaussian_int.neg_def],  }, }
 
 
 
@@ -332,8 +363,8 @@ Given a monoid `M` and an action of `M` on a type `A` construct a monoid morphis
 
 def monoid_morphism_of_monoid_action  (M A : Type) [mult_monoid_str M] [mult_monoid_action M A] : 
 M →ₘ* (endo A) := 
-{ to_fun := sorry,
-  resp_one := sorry,
+{ to_fun := mult_monoid_action.smul ,
+  resp_one := by {funext, rw mult_monoid_action.one_smul,  },
   resp_mul := sorry, }
 
 

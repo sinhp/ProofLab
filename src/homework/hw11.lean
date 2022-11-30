@@ -163,7 +163,23 @@ Equip `mat` with the structure of a preorder by completing the following instanc
 
 def mat.le (m n : mat) : Prop := ∃ k, m + k = n
 
-#check mat.le
+--#check mat.le
+
+
+lemma add_cancel {k m n : mat} : 
+  (k + m = k + n) → m = n := 
+begin 
+  intro h, 
+  -- want to prove m = n, 
+  induction k with d ihd, 
+  {
+    sorry,
+  },
+  {
+    sorry, 
+  },
+  
+end 
 
 
 /-
@@ -193,6 +209,8 @@ instance additive_preorder_mat : preorder mat :=
   le_trans := sorry,
   lt_iff_le_not_le := sorry,   
 }
+
+#reduce additive_preorder_mat.le
 
 
 
