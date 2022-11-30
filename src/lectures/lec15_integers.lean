@@ -305,7 +305,7 @@ In general, there is a function `X → X/r` given by `quotient.mk` which maps `x
 
 
 
-
+/- We give a shorter name to `quotient.mk`-/
 def qmk {X : Type} [s : setoid X] : X → quotient s  := 
 quotient.mk 
 
@@ -657,6 +657,12 @@ end
 /- ## Challenge  
 Show that type `Int` of fake integers admit a commutative monoid structure with respect to the addition operation we defined above. As usual, you need to prove several lemmas and then you fill in the `sorry` placeholders using those lemmas. See `comm_additive_monoid_str mat` for a comparison.  
  -/
+
+
+/- 
+For proving `associativity`, `add_zero`, `zero_add` and `add_comm` you will need to use `quotient.induction_on`. More specifically, by quotient induction, to prove a statement of the form 
+`∀ a : Int, P a` where `P : Int → Prop` is a predicate on `Int`, it suffices to prove `∀ (m,n), P ⟦(m,n)⟧ `.
+-/
 
 
 instance : comm_additive_monoid_str Int := 

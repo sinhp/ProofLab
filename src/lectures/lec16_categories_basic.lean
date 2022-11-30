@@ -19,7 +19,8 @@ MATH 301, Johns Hopkins University, Fall 2022
 import ..prooflab
 import lectures.lec15_integers
 
-namespace PROOFS
+
+open PROOFS
 open PROOFS.STR
 
 
@@ -253,6 +254,9 @@ instance : large_category_str Type :=
 
 #check (𝟙 ℕ) ⊚ (𝟙 ℕ)
 
+
+
+
 example  : 
   bool_of_nat ⊚ (𝟙 ℕ) = bool_of_nat := 
 begin
@@ -408,7 +412,6 @@ Show that every isomorphism is a monomorphism.
 
 end category_str 
 
-end PROOFS
 
 
 
