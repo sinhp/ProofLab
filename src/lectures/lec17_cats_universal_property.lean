@@ -24,30 +24,6 @@ import lectures.lec16_categories_basic
 open PROOFS.STR
 
 
-/-
-Let's recall what categories are by giving some more examples of categories. 
--/
-
-
-/-! # Delooping of a monoid 
-Given a monoid `M` (i.e. a type equipped with a monoid structure), we construct a category which has only one object and `M` many morphisms. The composition of morphisms in this category is given by the monoid multiplication. 
--/
-
-
-
-instance delooping (M : Type)[mult_monoid_str M] : small_category_str unit := 
-{ 
-  hom := λ _, λ _, M ,
-  id := 1,
-  comp := λ {_ _ _}, (*) ,
-  id_comp' := by {intros _ _, intro f, simp [mult_mon_one_mul f],},
-  comp_id' := by {intros _ _, intro f, simp [mult_mon_mul_one f],},
-  comp_assoc' := sorry, 
-}  
-
-
-
-
 
 
 
