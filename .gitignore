@@ -2,3 +2,16 @@ _target/
 lean/*.olean
 leanpkg.path
 **/.DS_Store
+src/lectures/lec15_integers.lean
+*.olean
+src/lectures/lec12_alg_str.lean
+src/lectures/guassian_int_ring.lean
+src/lectures/graphathon_draft.lean
+src/lectures/Gaussian_integers.lean
+src/lectures/cats.lean
+src/homework/hw9.lean
+src/homework/hw10.lean
+src/homework/hw11.lean
+src/homework/hw13.lean
+src/lectures/categories_basic_demo_ER_group_meeting.lean
+dep_graph.png

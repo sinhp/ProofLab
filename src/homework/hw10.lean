@@ -164,14 +164,41 @@ instance or_additive : comm_additive_monoid_str Prop :=
 instance xor_additive : comm_additive_monoid_str Prop := 
 { 
   add := λ P Q, (P ∨ Q) ∧ ¬ (P ∧ Q),
-  add_assoc := sorry,
-  zero := sorry,
-  add_zero := by sorry,
-  zero_add := by sorry, 
-  add_comm := sorry,
+  add_assoc := by {intros P Q R, ext, split, intro h, simp, split, simp at h, cases h with h₁ h₂, cases h₁ with hpq hr,  sorry, sorry, sorry, sorry, },
+  zero := false,
+  add_zero := by {intro P, ext, split, intro h, cases h with h₁ h₂, simp at h₁, exact h₁, intro hp, split, left, exact hp, simp,  },
+  zero_add := by {intro P, ext, split, intro h, cases h with h₁ h₂, simp at h₁, exact h₁, intro hp, split, right, exact hp, simp,  }, 
+  add_comm := by {intros P Q, simp, rw or_comm P Q, congr',  ext, split, intro h, intro hq, intro hp, apply h, exact hp, exact hq, intro h, intro hp, intro hq, apply h, assumption', },
 }
 
+lemma xor_no_ident :
+¬(∃ b₁ : bool, ∀ b₂ : bool, (b₁ || b₂) && switch (b₁ && b₂) = b₁) :=
+begin
+  intro h₁,
+  cases h₁ with b₁ hb₁,
+  have h₂ : ¬(tt = ff), by {
+    simp,
+  },
+  cases b₁,
+  {
+    apply h₂,
+    rw ← hb₁ tt,
+    refl,
+  },
+  {
+    apply h₂,
+    rw ← hb₁ tt,
+    refl,
+  },
+end
 
+
+lemma xor_no_ident :
+(∃ b₁ : bool, ∀ b₂ : bool, (b₁ || b₂) && switch (b₁ && b₂) = b₂) :=
+begin
+  use ff, 
+  intro b, 
+end
 
 
 
@@ -235,10 +262,10 @@ Mathlib defines the notions of __preorder__ as a type class and it defined the s
 def preorder_of_jslat (X : Type) [jslat_str X] : 
 preorder X := 
 { le := λ x, λ y, (x * y = y),
-  lt := sorry,
-  le_refl := sorry,
-  le_trans := sorry,
-  lt_iff_le_not_le := sorry, }
+  lt := λ x, λ y, (x * y = y) ∧ ¬ (y * x = x),
+  le_refl := by {intro x, simp, exact (jslat_str.idemp x), },
+  le_trans := by {intros x y z, intros h h', simp at *, rw ← h', rw ← mult_mon_assoc, rw h,  },
+  lt_iff_le_not_le := by {intros a b, split; intro h; dsimp, exact h, split, exact h.1, exact h.2,  }, }
 
 
 
@@ -303,5 +330,7 @@ def canonical_mult_monoid_image_fact (f : M →ₘ* N) : mult_monoid_image_fact 
   right_mor := mon_mor_img_embedding f,
   fun_eq := sorry,
 }
+
+
 
 

@@ -18,8 +18,9 @@ import data.int.basic
 namespace PROOFS 
 namespace STR 
 
+universe u
 
-class comm_mult_monoid_str (M : Type) extends mult_monoid_str M := 
+class comm_mult_monoid_str (M : Type u) extends mult_monoid_str M := 
 (mul_comm : ∀ x y : M, x * y = y * x)
 
 
@@ -29,7 +30,7 @@ instance : comm_mult_monoid_str ℤ :=
 } 
 
 
-class comm_additive_monoid_str (M : Type) extends additive_monoid_str M := 
+class comm_additive_monoid_str (M : Type u) extends additive_monoid_str M := 
 (add_comm : ∀ x y : M, x + y = y + x)
 
 
@@ -44,7 +45,7 @@ instance : comm_mult_monoid_str ℤ[i] :=
 #check has_int_cast
 
 --Defined in mathlib
--- class has_int_cast (R : Type) :=
+-- class has_int_cast (R : Type u) :=
 -- (int_cast : ℤ → R)
 
 @[simp] 
@@ -52,7 +53,7 @@ instance : has_int_cast ℤ[i] := ⟨ λ n, ⟨n, 0⟩  ⟩
 
 
 -- @[protect_proj]
--- class has_nat_cast (R : Type) :=
+-- class has_nat_cast (R : Type u) :=
 -- (nat_cast : ℕ → R)
 @[simp]
 instance : has_nat_cast ℤ[i] := ⟨λ n,  ⟨n , 0⟩⟩ -- this works because of the coercion of nat to int
@@ -122,11 +123,12 @@ end gaussian_int
 
 
 @[ext]
-class mult_monoid.morphism (M : Type) (N : Type) [mult_monoid_str M] [mult_monoid_str N] :=
+class mult_monoid.morphism (M : Type u) (N : Type u) [mult_monoid_str M] [mult_monoid_str N] :=
 (to_fun : M → N) -- f : M → N -- the underlying function of morphism
 (resp_one : to_fun 1 = 1) -- f (1_M ) = 1_N
 (resp_mul : ∀ x y : M, to_fun (x * y) = to_fun x * to_fun y) -- f(x *_M y) = (f x) *_N (f y)
 
+#check mult_monoid.morphism
 
 infixr ` →ₘ* `:25 := mult_monoid.morphism
 
@@ -135,11 +137,11 @@ infixr ` →ₘ* `:25 := mult_monoid.morphism
 
 @[class]
 structure mult_monoid  := 
-(carrier : Type) 
+(carrier : Type u) 
 (str : mult_monoid_str carrier)
 
 
-def bundle_up (M : Type)[mult_monoid_str M] : mult_monoid := 
+def bundle_up (M : Type u)[mult_monoid_str M] : mult_monoid := 
 {
   carrier := M, 
   str := by apply_instance, 
@@ -152,34 +154,17 @@ def bundle_up (M : Type)[mult_monoid_str M] : mult_monoid :=
 
 #check has_coe_to_fun
 
-variables {M N : Type} [mult_monoid_str M] [mult_monoid_str N]
-
-
--- At times, you may find that the type class inference fails to find an expected instance, or, worse, falls into an infinite loop and times out. To help debug in these situations, Lean enables you to request a trace of the search:
--- try it!
--- set_option trace.class_instances true
-
-def list.to_set {α : Type*} : list α → set α
-| []     := ∅
-| (h::t) := {h} ∪ list.to_set t
-
-instance list_to_set_coe (α : Type*) :
-  has_coe (list α) (set α) :=
-⟨list.to_set⟩
-
-def s : set nat  := {1, 2}
-def l : list nat := [3, 4]
+variables {M N : Type u} [mult_monoid_str M] [mult_monoid_str N]
 
 
 
-instance mult_monoid_to_sort_coe (M : Type) : 
-  has_coe (mult_monoid_str M) (Type)  :=
+
+
+instance mult_monoid_to_sort_coe (M : Type u) : 
+  has_coe (mult_monoid_str M) (Type u)  :=
 ⟨coe := M⟩
 
 
-instance list_to_set_coe (α : Type*) :
-  has_coe (list α) (set α) :=
-⟨list.to_set⟩
 
 
 instance : has_coe_to_fun  (M →ₘ* N)  (λ _, M → N) := 
@@ -235,14 +220,14 @@ set_option pp.coercions false
 
 
 @[ext]
-class additive_monoid.morphism (M : Type) (N : Type) [additive_monoid_str M] [additive_monoid_str N] :=
+class additive_monoid.morphism (M : Type u) (N : Type u) [additive_monoid_str M] [additive_monoid_str N] :=
 (to_fun : M → N) -- f : M → N -- the underlying function of morphism
 (resp_zero : to_fun 0 = 0) -- f (1_M ) = 1_N
 (resp_add : ∀ x y : M, to_fun (x + y) = to_fun x + to_fun y) -- f(x *_M y) = (f x) *_N (f y)
 
 
 infixr ` →ₘ+ `:25 := additive_monoid.morphism
-variables {A B : Type} [additive_monoid_str A] [additive_monoid_str B]
+variables {A B : Type u} [additive_monoid_str A] [additive_monoid_str B]
 
 
 
@@ -290,7 +275,7 @@ def mult_monoid_morphism_int_constant : ℤ →ₘ* ℤ :=
 }
 -- Whereas we have ℤ-many constant functions ℤ → ℤ there is only one constant monoid morphism ℤ → ℤ, namely `mult_monoid_morphism_int_constant`. -- Challenge: let's prove there this claim. 
 
-def is_constant {X Y : Type} (f : X → Y) := 
+def is_constant {X Y : Type u} (f : X → Y) := 
 ∀ x x' : X, f x = f x'
 
 #check is_constant 
@@ -351,7 +336,7 @@ def is_bijective {X Y : Type} (f : X → Y) :=
 is_surjective f ∧ is_injective f
 
 
-structure mult_monoid.isomorphism (M : Type) (N : Type) [mult_monoid_str M] [mult_monoid_str N] := 
+structure mult_monoid.isomorphism (M : Type u) (N : Type u) [mult_monoid_str M] [mult_monoid_str N] := 
 (mor :  M →ₘ* N) 
 (bij : is_bijective mor.to_fun) 
 
@@ -363,7 +348,7 @@ namespace gaussian_int
 
 
 @[simp]
-def idempotent {X : Type} (f : X → X) := (f ∘ f = id)
+def idempotent {X : Type u} (f : X → X) := (f ∘ f = id)
 
 
 lemma conj_conj : 
@@ -388,7 +373,7 @@ def conj_auto : auto (ℤ[i]) :=
 
 
 
-def conj_mon_map_iso {M : Type} :  
+def conj_mon_map_iso {M : Type u} :  
   ℤ[i] ≅ₘ* ℤ[i] := 
 { 
   mor := conj_mon_map,
@@ -404,14 +389,14 @@ end gaussian_int
 /-!  In below we define the __group__ structure. A group structure on a type `X` consists of a binary operation (e.g. multiplication, addition) and a unary operation of taking __inverse__.  
 -/
 
-class additive_group_str (X : Type) extends additive_monoid_str X := 
+class additive_group_str (X : Type u) extends additive_monoid_str X := 
 (inv : X → X) 
 (left_inv : ∀ x : X,  (inv x) + x =  0)
 (right_inv : ∀ x : X,  x + (inv x) = 0)
 
 
 
-class mult_group_str (X : Type) extends mult_monoid_str X := 
+class mult_group_str (X : Type u) extends mult_monoid_str X := 
 (inv : X → X) 
 (left_inv : ∀ x : X,  (inv x) * x =  1)
 (right_inv : ∀ x : X,  x * (inv x) = 1)
@@ -421,7 +406,7 @@ postfix `ⁱ` :std.prec.max_plus := mult_group_str.inv
 
 
 section
-variables (G : Type) [mult_group_str G] (x : G)
+variables (G : Type u) [mult_group_str G] (x : G)
 #check x
 #check xⁱ
 end 

@@ -110,17 +110,21 @@ Later, we extend the structure of precategory_str to category_str.
 
 --library_note "category_str_theory universes"
 
-universes v u -- this handles the distinction between small and large categories 
+/-
+In the mathematical language Lean, types are organized into a hierarchy of universe levels, with each level representing a different __universe__ of types that are considered to be of a certain size or complexity. This hierarchy allows for a more structured and well-defined approach to working with types, while __avoiding the inconsistencies and paradoxes that can arise from allowing for the existence of a type of all types__.
+
+It is possible to define a type in Lean that represents the collection of all types, but this is done in a more carefully __controlled__ manner than simply allowing for the existence of a type of all types. Universe levels are consistency control parameters. 
+-/
+universes v u -- this handles the distinction between small and large categories -- universe variables are inserted in the order that they were declared.
 
 class precategory_str (obj : Type u) : Type (max u (v+1))  :=
-(hom : obj → obj → Type v) -- for any two objects `X` and `Y` we have the type of morphisms between `X` and `Y` 
+(hom : obj → obj → Type v) -- for any two objects `X : obj` and `Y : obj` we have the type `hom X Y` of morphisms between `X` and `Y` 
 (id       : Π X : obj, hom X X) -- specifies identity morphism for all types 
 (comp     : Π {X Y Z : obj}, (hom X Y) → (hom Y Z) → (hom X Z) )
 -- ( id       : Π X : obj, hom X X )
 -- ( comp     : Π {X Y Z : obj}, (hom Y Z) → (hom X Y) → (hom X Z) )
 
-
---#check precategory_str
+#check precategory_str
 --#print precategory_str
 
 
@@ -156,18 +160,14 @@ variables g₀ g₁ : Y ⟶ Z
 #check g₀ ⊚ f₀ 
 #check f₀ ⊚ g₁
 #check g₁ ⊚ f₀
+
 end 
-
-
-
 
 
 /-
 - Now, we add the axioms of __unitality__ and __associativity__ to extend the structure of a precategory_str to a category_str. 
 - The typeclass `category_str C` describes morphisms associated to objects of type `C`.
 -/
-
-
 
 class category_str (obj : Type u) extends precategory_str.{v} obj :=
 (id_comp' : ∀ {X Y : obj} (f : hom X Y), f ⊚ (𝟙 X)  = f . obviously) -- naming based diagrammatic order of composition
@@ -177,6 +177,18 @@ class category_str (obj : Type u) extends precategory_str.{v} obj :=
 
 
 #check category_str.id_comp'
+
+
+set_option trace.simp_lemmas true
+instance : category_str ℕ := 
+{ hom := λ x, λ y, plift (x ≤ y),
+  id := λ x, ⟨ le_refl x ⟩,
+  comp := λ x y z, λ f, λ g, ⟨le_trans f.down g.down ⟩,
+  id_comp' := by {intros X Y f, simp},
+  comp_id' := by {intros X Y f, simp},
+  comp_assoc' := by {intros W X Y Z f g h, simp}, }
+
+
 
 
 
@@ -217,7 +229,7 @@ attribute [trans] precategory_str.comp
 
 
 
-
+namespace category_str
 /--
 A `large_category_str` has objects in one universe level higher than the universe level of
 the morphisms. It is useful for examples such as the category_str of types, or the category_str
@@ -233,7 +245,7 @@ abbreviation small_category_str (C : Type u) : Type (u+1) := category_str.{u} C
 
 /-! ## Category of Types
 There is a large category of types where the objects are types and the morphisms are functions between types. -/
-instance : large_category_str Type :=
+instance cat_of_types : category_str Type* :=
 { 
   hom := λ X, λ Y, X → Y,
   id := λ X, id,
@@ -249,6 +261,25 @@ instance : large_category_str Type :=
                       --refl,} 
                     } 
 }
+
+
+
+#check category_str.cat_of_types.id_comp'
+
+#reduce category_str.cat_of_types.id_comp'
+
+#reduce category_str.cat_of_types.id_comp' (λ x, (x + 1))
+
+
+section 
+
+variables (𝓒 : Type u) [category_str.{v} 𝓒] (X Y : 𝓒) (f : X ⟶ Y) -- let 𝓒 be a category and `f : X ⟶ Y` a morphism in it . 
+
+#reduce category_str.id_comp' f
+
+end --section 
+
+
 
 /- Note that by the tactic `.obviously` we actually do not need to provide the proofs of three least fields `comp_id'` and  `comp_assoc'` and `comp_assoc'` since all of them follows simply from `refl`. -/ 
 
@@ -271,8 +302,8 @@ See lecture 11 for definitions of `→•` and pointed_type.id, or simply comman
 
 instance : large_category_str pointed_type :=
 { 
-  hom := λ X, λ Y, X →• Y,
-  id := λ X, pointed_type.id,
+  hom := λ X, λ Y, X →• Y, -- really X is (A, a)
+  id := λ X, pointed_type.id, -- id: (A,a) ⟶ (A,a)  
   comp := λ X Y Z, λ f, λ g, g ∘• f,
 }
 
@@ -290,16 +321,36 @@ Every preorder can be seen as a small category where the objects are the element
 
 
 /- We use `ulift` to lift a proposition to the type of its proofs -/
-#check ulift 
+#check ulift -- lifting types from one universe to a higher universe
+#check plift -- lifting propositions to types
 
 
 
-instance small_category {X : Type} [preorder X] : small_category_str X := 
+instance small_cat_of_preorder (X : Type) [preorder X] : small_category_str X := 
 {
   hom := λ x, λ y, (plift (x ≤ y) : Type), 
   id := λ x, ⟨ le_refl x ⟩, 
   comp := λ x y z, λ f, λ g, ⟨le_trans f.down g.down ⟩,
 }
+
+def two_to_three :  1 ⟶ 2 := 
+⟨one_le_two⟩ 
+
+#check two_to_three 
+
+#reduce category_str.comp_id' two_to_three 
+
+
+#check  category_str.small_category_of_preorder
+
+instance foo : small_category_str ℕ := 
+category_str.small_category_of_preorder ℕ 
+
+#check category_str.foo.hom 2 3
+
+#reduce category_str.foo.hom 2 3
+
+
 
 
 
@@ -317,7 +368,84 @@ instance small_category {X : Type} [preorder X] : small_category_str X :=
 variables {𝓒 : Type} [category_str 𝓒] {W X Y Z : 𝓒} {A : Type}
 
 
-namespace category_str
+
+/-! # Delooping of a monoid 
+Given a monoid `M` (i.e. a type equipped with a monoid structure), we construct a category which has only one object and `M` many morphisms. The composition of morphisms in this category is given by the monoid multiplication. 
+-/
+
+
+instance delooping (M : Type u)[mult_monoid_str M] : small_category_str.{u} (punit : Type u) := 
+{ 
+  hom := λ _, λ _, M,
+  id := 1,
+  comp := λ _ _ _, (*),
+  id_comp' := by {intros _ _ _, simp [mult_mon_one_mul], },
+  comp_id' := by {intros _ _ _, simp [mult_mon_mul_one],},
+  comp_assoc' := by {intros _ _ _ _ _ _ _,simp,}, 
+}  
+
+#check category_str.delooping
+#check category_str.comp
+
+
+
+
+-- A shorter proof
+-- instance delooping (M : Type)[mult_monoid_str M] : small_category_str unit := 
+-- { 
+--   hom := λ _, λ _, M,
+--   id := 1,
+--   comp := λ _ _ _, (*),
+--   id_comp' := by {simp},
+--   comp_id' := by {simp},
+--   comp_assoc' := by {intros _ _ _ ,simp}, 
+-- }  
+
+
+-- Even shorter using tactic `.obviously`
+
+instance delooping_alt (M : Type)[mult_monoid_str M] : small_category_str unit := 
+{ 
+  hom := λ _, λ _, M,
+  id := 1,
+  comp := λ _ _ _, (*),
+}  
+
+
+
+
+
+/-
+Conversely, in every category every object has, by virtue of being an object of a category, a monoid structure.  
+-/
+
+/- The type of __endomorphisms__ of an object X in category 𝓒 -/
+
+def End (X : 𝓒) := X ⟶ X  
+
+#check @End
+
+
+#check mult_monoid_str
+
+/- The __endomorphisms monoid__ of an object in a category-/
+def monoid_of_object {𝓒 : Type}[small_category_str 𝓒] (X : 𝓒) : mult_monoid_str (X ⟶ X) :=  
+sorry 
+
+
+
+
+
+/-! ## Challenge: 
+The endomorphisms monoid of the only object in `single_obj α` is equivalent to the original
+     monoid α. -/
+def to_End {M : Type} [mult_monoid_str M] : M ≃* End (_) :=
+sorry
+
+
+
+
+
 
 
 lemma eq_comp {f g : X ⟶ Y} (e : f = g) (h : Y ⟶ Z) : 
