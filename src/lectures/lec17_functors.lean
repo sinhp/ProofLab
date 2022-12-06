@@ -58,6 +58,8 @@ structure functor (𝓒 : Type u₁) [category_str.{v₁} 𝓒] (𝓓 : Type u�
 ∀ {X Y Z : 𝓒} (f : X ⟶ Y) (g : Y ⟶ Z), mor (g ⊚ f) = (mor g) ⊚  (mor f) )
 
 
+#print functor
+
 #check functor.obj -- the first function part of a  functor structure which maps objetcs to objects 
 #check functor.mor --  the second function part of a  functor structure which maps morphisms to morphisms
 
@@ -287,7 +289,7 @@ Similarly we can form the bundled type of all groups, rings, categories, etc. Ho
 
 
 
-structure bundled (C : Type v₁ → Type u₁) :=
+structure bundled (C : Type* → Type*) :=
 (carrier : Type*)
 (str : C carrier ) -- `C` is a type class specifying a structure. 
 
@@ -321,7 +323,9 @@ begin
 end   
 
 
-def mult_Monoid : Type (u₁+1) := bundled mult_monoid_str
+
+
+def mult_Monoid : Type* := bundled mult_monoid_str
 def additive_Monoid := bundled additive_monoid_str
 def additive_comm_Monoid := bundled comm_additive_monoid_str
 def mult_Group : Type (u₁+1):= bundled mult_group_str
@@ -365,7 +369,7 @@ def mult_monoid.morphism.comp {L M N : Type} [mult_monoid_str L] [mult_monoid_st
   resp_mul := by {simp,}, } 
 
 
-infixr  ` ∘* ` : 90  := mult_monoid.morphism.comp
+--infixr  ` ∘* ` : 90  := mult_monoid.morphism.comp
 
 local notation F ` ⊚⊚ `:80 G:80 := functor.comp G F 
 
@@ -406,7 +410,7 @@ instance cat_of_monoids : large_category_str (mult_Monoid) :=
 }
 
 
-#check category_str (mult_Monoid)
+#check large_category_str (mult_Monoid)
 
 #check category_str.cat_of_monoids
 #check category_str.cat_of_monoids.comp
@@ -416,7 +420,11 @@ instance cat_of_monoids : large_category_str (mult_Monoid) :=
 Challenge: do the same for groups. 
 -/
 
-#check tactic.is_def_eq
+
+#check mult_Monoid
+#check functor
+
+
 
 --set_option pp.instantiate_mvars false
 
@@ -457,6 +465,8 @@ instance cat_of_cat : large_category_str Cat  :=
   id_comp' := by {intros 𝓒 𝓓 F, apply functor.id_comp},
   comp_id' := by {intros 𝓒 𝓓 F, apply functor.id_comp, } 
  }
+
+#check Cat ⥤ Cat 
 
 #check Cat
 #check category_str Cat 
