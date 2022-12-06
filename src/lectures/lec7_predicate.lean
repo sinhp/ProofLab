@@ -53,6 +53,8 @@ let `P` be the predicate with the domain `ℕ` of natural numbers and let `P(n)`
 In Lean, we model predicates by functions into the type `Prop` of propositions. A __unary__ predicate `P` on a domain `X`, therefore, is a function `P : X → Prop` . Here `X` is said to be the __domain of discourse__ of `P` or simply the __domain__ of `P`. Note that `P`, upon taking a variables `x : X`, outputs a proposition `P(x)`. 
 -/
 
+universe u
+
 variables {X Y Z : Type}
 
 
@@ -512,7 +514,7 @@ A function f : A → B is __injective__ (also called __one-to-one__) whenever th
 An injective function is said to be an __injection__.
 -/
 
-@[simp] def is_injective {X Y : Type} (f : X → Y) :=
+@[simp] def is_injective {X Y : Type u} (f : X → Y) :=
 ∀ ⦃x₁ x₂⦄, f x₁ = f x₂ → x₁ = x₂
 
 -- what is @[simp]?

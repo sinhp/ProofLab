@@ -19,11 +19,12 @@ import data.int.basic
 namespace PROOFS
 namespace STR
 
+universe u
 
 #check has_zero
 
 
-class with_zero_str (X : Type) := (zero [] : X)
+class with_zero_str (X : Type u) := (zero [] : X)
 
 #check with_zero_str
 #check with_zero_str ℕ
@@ -34,7 +35,7 @@ instance : with_zero_str bool := ⟨ ff ⟩
 
 #check @with_zero_str.zero
 
-instance with_zero_product {A B : Type} [with_zero_str A] [with_zero_str B] :
+instance with_zero_product {A B : Type u} [with_zero_str A] [with_zero_str B] :
   with_zero_str (A × B) :=
 {
   zero := (with_zero_str.zero A, with_zero_str.zero B),
@@ -344,14 +345,16 @@ end
 end gaussian_int
 
 
-#check add_semigroup
+
 
 -- the structure of multiplicative semigroup: A semigroup structure consists of a binary operation (called multiplication) such that the operation is __associative__. 
-class mult_semigroup_str (S : Type) extends has_mul S :=
+
+
+class mult_semigroup_str (S : Type u) extends has_mul S :=
 (mul_assoc : ∀ a b c : S, (a * b) * c = a * (b * c))
 
 -- the structure of additive semigroup
-class additive_semigroup_str (S : Type) extends has_add S :=
+class additive_semigroup_str (S : Type u) extends has_add S :=
 (add_assoc : ∀ a b c : S, (a + b) + c = a + (b + c))
 
 
@@ -378,11 +381,15 @@ instance : additive_semigroup_str ℕ :=
 #eval 10 * 2
 #eval (⟨1,2⟩ : ℤ[i] ) * ⟨3,4⟩
 
+
+
 instance : mult_semigroup_str ℤ  :=
 {
   mul := has_mul.mul, -- we retrieve the defintion of multiplication of ℤ[i] from the instance of the class `has_mul`.
   mul_assoc := by {intros x y z, rw int.mul_assoc},
 }
+
+
 
 
 instance : mult_semigroup_str ℤ[i]  :=
@@ -404,16 +411,17 @@ instance : additive_semigroup_str ℤ[i]  :=
 
 /- A __monoid__ is a type equipped with an associative binary operation and an identity element. -/
 
-class mult_monoid_str  (M : Type) extends mult_semigroup_str M, has_one M :=
+
+class mult_monoid_str  (M : Type u) extends mult_semigroup_str M, has_one M :=
 (mul_one :  ∀ a : M, a * 1 = a )
 (one_mul : ∀ a : M, 1 * a = a )
 
-class additive_monoid_str  (M : Type) extends additive_semigroup_str M, has_zero M :=
+class additive_monoid_str  (M : Type u) extends additive_semigroup_str M, has_zero M :=
 (add_zero :  ∀ a : M, a + 0 = a )
 (zero_add : ∀ a : M, 0 + a = a )
 
 
-def npower {M : Type} [mult_monoid_str M] : ℕ → M → M
+def npower {M : Type u} [mult_monoid_str M] : ℕ → M → M
   | 0 m := 1
   | (n + 1) m := m * (npower n m)
 
@@ -435,16 +443,17 @@ instance : mult_monoid_str ℤ  :=
 
 
 
+
 -- __API__ for mul_monoid_str (capturing the core properties of the structure, but specification independent-- however you define monoid structure the following statements must be true about it)
 @[simp]
-lemma mult_mon_assoc {M : Type} [mult_monoid_str M] (x y z : M) : 
+lemma mult_mon_assoc {M : Type u} [mult_monoid_str M] (x y z : M) : 
   x * y * z = x * (y * z) := 
 begin
   apply mult_monoid_str.to_mult_semigroup_str.mul_assoc,
 end 
 
 @[simp]
-lemma mult_mon_mul_one {M : Type} [mult_monoid_str M] (x : M) : 
+lemma mult_mon_mul_one {M : Type u} [mult_monoid_str M] (x : M) : 
   x * 1 = x  := 
 begin
   apply mult_monoid_str.mul_one,
@@ -452,7 +461,7 @@ end
 
 
 @[simp]
-lemma mult_mon_one_mul {M : Type} [mult_monoid_str M] (x : M) : 
+lemma mult_mon_one_mul {M : Type u} [mult_monoid_str M] (x : M) : 
   1 * x = x  := 
 begin
   apply mult_monoid_str.one_mul,
@@ -461,7 +470,7 @@ end
 
 
 @[simp]
-lemma add_mon_zero_add {M : Type} [additive_monoid_str M] (x : M) : 
+lemma add_mon_zero_add {M : Type u} [additive_monoid_str M] (x : M) : 
   0 + x = x  := 
 begin
   apply additive_monoid_str.zero_add,
