@@ -47,8 +47,9 @@ in such a way that the operations of identity and compositions are preserved, i.
 - `F₁ (g ⊚ f) = F₁(g) ⊚ F₁(f)` -- compositions in `𝓒` go to compositions in `𝓓` 
 -/
 
+set_option old_structure_cmd true
 
-@[class, ext]
+
 structure functor (𝓒 : Type u₁) [category_str.{v₁} 𝓒] (𝓓 : Type u₂) [category_str.{v₂} 𝓓] : Type (max v₁ v₂ u₁ u₂) :=
 (obj [] : 𝓒 → 𝓓) -- the object function of functor structure
 (mor : Π {X Y : 𝓒}, (X ⟶ Y) → (obj X ⟶ obj Y)) -- the morphism function of functor structure
@@ -111,7 +112,7 @@ end
 example (F : 𝓒 ⥤ 𝓓) {X Y Z : 𝓒} (f : X ⟶ Y) (g : Y ⟶ Z) : 
   F.mor (g ⊚ f ) = (F.mor g) ⊚ (F.mor f) :=
 begin
-  simp, 
+  simp only [functor.resp_comp], 
 end 
 
 
@@ -154,7 +155,7 @@ def comp (F : 𝓒 ⥤ 𝓓) (G : 𝓓 ⥤ 𝓔) : 𝓒 ⥤ 𝓔 :=
   obj := G.obj ∘ F.obj, 
   mor := λ X, λ Y, λ f, G.mor (F.mor f), 
   resp_id' := by {intro X, simp },
-  resp_comp' := by {intros X Y Z f g, simp,}, 
+  resp_comp' := by {intros X Y Z f g, simp only [functor.resp_comp],},  
 }
 
 #check @functor.comp
@@ -228,7 +229,7 @@ end
 
 
 
-/-! ## Representable functors  
+/-! ## Representable Functors  
 To every object `X` of a category `𝓒` we can associate a functor `Ϳ X : 𝓒 ⥤ Type*` which maps an object `Y` in `𝓒` to the type `X ⟶ Y` of morphisms from `X` to `Y` in `𝓒`. 
 
 Recall that To build a functor `F : 𝓒 ⥤ 𝓓` we need to specify four fields
@@ -237,12 +238,13 @@ Recall that To build a functor `F : 𝓒 ⥤ 𝓓` we need to specify four field
 * `map_id'` and `map_comp'`, expressing the functor laws.
 -/
 
-set_option trace.simp_lemmas true
+--set_option trace.simp_lemmas true
+@[simp]
 def representable {𝓒 : Type*}[category_str 𝓒] (X : 𝓒) : 𝓒 ⥤ Type* :=
 { 
   obj := λ Y, X ⟶ Y,
-  mor := λ Y Z f g, f ⊚ g ,
-  resp_id' := by {intros X, funext, simp, refl, },
+  mor := λ Y Z f g, f ⊚ g,
+  resp_id' := by {intro Y, funext, simp, refl, },
   resp_comp' := by {intros X Y Z f g, funext, simp, refl}, 
 }
 
@@ -257,8 +259,14 @@ local notation ` Ϳ ` : 15 :=  functor.representable
 
 
 
-
-
+@[simp]
+def corepresentable {𝓒 : Type*}[category_str 𝓒] (X : 𝓒) : 𝓒ᵒᵖ ⥤ Type* :=
+{ 
+  obj := λ Y, unop Y ⟶ X, -- want 𝓒-morphisms from `Y` to `X`
+  mor := λ Y Z f g, g ⊚ (hom.unop f),
+  resp_id' := by {intro Y, funext, simp only [unop_id], simp, refl,  },
+  resp_comp' := by {intros U' V' W' f g, simp only [unop_comp], funext x, rw ← comp_assoc, refl, },
+}  
 
 
 end functor
@@ -298,7 +306,7 @@ structure bundled (C : Type* → Type*) :=
 
 /-- A generic function for lifting a type equipped with an instance of a type class to an instance of a bundled type. -/
 
-def bundled_of (C : Type* → Type*) (X : Type u₁) [str : C X] : bundled C := ⟨X, str⟩
+def bundled_of (C : Type* → Type*) (X : Type*) [str : C X] : bundled C := ⟨X, str⟩
 
 #check bundled_of
 
@@ -308,7 +316,7 @@ def bundled_of (C : Type* → Type*) (X : Type u₁) [str : C X] : bundled C := 
 
 variable {C : Type u₁ → Type v₁} 
 -- forgetting the structure `C` and returning the carrier type. 
-instance : has_coe_to_sort (bundled C) (Type u₁) := ⟨bundled.carrier⟩ -- an example would be to treat a group as its underlying type when needed. 
+instance : has_coe_to_sort (bundled C) (Type*) := ⟨bundled.carrier⟩ -- an example would be to treat a group as its underlying type when needed. 
 
 
 #check @bundled.mk -- Given a type class `C` and a `carrier X`, and an instance of `CX` the ouput is an instance of `bundled C`
@@ -369,7 +377,7 @@ def mult_monoid.morphism.comp {L M N : Type} [mult_monoid_str L] [mult_monoid_st
   resp_mul := by {simp,}, } 
 
 
---infixr  ` ∘* ` : 90  := mult_monoid.morphism.comp
+infixr  ` ∘* ` : 90  := mult_monoid.morphism.comp
 
 local notation F ` ⊚⊚ `:80 G:80 := functor.comp G F 
 
@@ -428,7 +436,7 @@ Challenge: do the same for groups.
 
 --set_option pp.instantiate_mvars false
 
-set_option trace.class_instances true
+--set_option trace.class_instances true
 def forgetful_functor : mult_Monoid ⥤ mult_Monoid := 
 sorry 
 
@@ -479,14 +487,22 @@ def delooping_cat (M : mult_Monoid) : Cat :=
 #check delooping_cat -- a function which sends a monoid to its deloopint category 
 
 
+
 @[simp]
-lemma deloop_type (M : mult_Monoid)  : (delooping_cat M).carrier = (punit : Type u₁) := 
+lemma deloop_type (M : mult_Monoid)  : 
+  (delooping_cat M).carrier = (punit : Type u₁) := 
 begin
   refl, 
 end 
 
 
-#check delooping_cat
+-- lemma deloop_mor (M : mult_Monoid) (X Y : (delooping_cat M).carrier) (m : X ⟶ Y) : (m : M.carrier) := 
+
+
+
+
+
+#check delooping_cat 
 
 
 #check category_str.delooping
@@ -497,10 +513,45 @@ end
 
 
 def delooping_functor : mult_Monoid ⥤ Cat := 
-{ obj := λ X, ⟨ punit, category_str.delooping X.carrier ⟩,
+{ 
+  obj := λ X, ⟨ punit, category_str.delooping X.carrier ⟩,
   mor := sorry,
   resp_id' := sorry,
-  resp_comp' := sorry, }
+  resp_comp' := sorry, 
+}
+
+
+/-
+Recall the definition of `mult_monoid_action` from HW10. 
+-/
+
+class mult_monoid_action (M A : Type) [mult_monoid_str M] :=
+(smul : M → A → A) -- the scalar multiplication of `M` on `A`.
+(one_smul' : ∀ (x : A), smul (1 : M) x = x)
+(mul_smul' : ∀ (r s : M) (x : A),
+smul (r * s)  x = smul r (smul s x))
+
+
+namespace mult_monoid_action
+
+restate_axiom one_smul' 
+restate_axiom mul_smul'
+
+#check one_smul
+
+def delooping_monoid_action (A : Type) [M : mult_Monoid] [mult_monoid_action M.carrier A] : (delooping_cat M).carrier ⥤  Type* := 
+{
+  obj := λ X, A,
+  mor := λ X Y (m : M.carrier), λ a, mult_monoid_action.smul m a,
+  resp_id' := by {intro X, funext, change (smul (1 : M.carrier) a = a), simp [one_smul], },
+  resp_comp' := by {sorry,},
+}
+
+end mult_monoid_action
+
+/-
+Let's show that a functor delooping ⥤ Type is the same  
+-/
 
 
 
