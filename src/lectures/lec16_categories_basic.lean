@@ -7,7 +7,7 @@ Introduction to Proof
 MATH 301, Johns Hopkins University, Fall 2022   
 -/
 
--- /-
+/-
 -- "_Category theory takes a bird’s eye view of mathematics. From high in the sky, details become invisible, but we can spot patterns that were impossible to de- tect from ground level._" 
 
 -- From "Basic Category Theory" by Tom Leinster
@@ -18,7 +18,7 @@ MATH 301, Johns Hopkins University, Fall 2022
 -- import tactic.basic
 import ..prooflab
 import lectures.lec15_integers
-
+import tactic.basic
 
 open PROOFS
 open PROOFS.STR
@@ -117,6 +117,9 @@ It is possible to define a type in Lean that represents the collection of all ty
 -/
 universes v u -- this handles the distinction between small and large categories -- universe variables are inserted in the order that they were declared.
 
+
+
+
 class precategory_str (obj : Type u) : Type (max u (v+1))  :=
 (hom : obj → obj → Type v) -- for any two objects `X : obj` and `Y : obj` we have the type `hom X Y` of morphisms between `X` and `Y` 
 (id       : Π X : obj, hom X X) -- specifies identity morphism for all types 
@@ -126,6 +129,7 @@ class precategory_str (obj : Type u) : Type (max u (v+1))  :=
 
 #check precategory_str
 --#print precategory_str
+
 
 
 /-! #### notation remarks
@@ -156,9 +160,9 @@ variables W X Y Z : 𝓒 -- terms of type C can be regarded as objects of precat
 variables f₀ f₁ : X ⟶ Y 
 variables g₀ g₁ : Y ⟶ Z
 #check 𝟙 X
-#check f₀ ⊚ g₀ -- this does not type check because the composition goes the other way round.
+--#check f₀ ⊚ g₀ -- this does not type check because the composition goes the other way round.
 #check g₀ ⊚ f₀ 
-#check f₀ ⊚ g₁
+--#check f₀ ⊚ g₁
 #check g₁ ⊚ f₀
 
 end 
@@ -169,7 +173,7 @@ end
 - The typeclass `category_str C` describes morphisms associated to objects of type `C`.
 -/
 
-class category_str (obj : Type u) extends precategory_str.{v} obj :=
+class category_str (obj : Type u) extends precategory_str.{v} obj : Type (max u (v+1)) :=
 (id_comp' : ∀ {X Y : obj} (f : hom X Y), f ⊚ (𝟙 X)  = f . obviously) -- naming based diagrammatic order of composition
 (comp_id' : ∀ {X Y : obj} (f : hom X Y), (𝟙 Y) ⊚ f = f . obviously)
 (comp_assoc'   : ∀ {W X Y Z : obj} (f : hom W X) (g : hom X Y) (h : hom Y Z),
@@ -180,6 +184,9 @@ class category_str (obj : Type u) extends precategory_str.{v} obj :=
 
 
 set_option trace.simp_lemmas true
+
+
+
 instance : category_str ℕ := 
 { hom := λ x, λ y, plift (x ≤ y),
   id := λ x, ⟨ le_refl x ⟩,
@@ -228,8 +235,13 @@ attribute [trans] precategory_str.comp
 
 
 
+initialize_simps_projections category_str (to_precategory_str_hom → hom,
+  to_precategory_str_comp → comp, to_precategory_str_id → id, -to_precategory_str)
 
-namespace category_str
+
+
+
+
 /--
 A `large_category_str` has objects in one universe level higher than the universe level of
 the morphisms. It is useful for examples such as the category_str of types, or the category_str
@@ -242,6 +254,7 @@ A `small_category_str` has objects and morphisms in the same universe level.
 abbreviation small_category_str (C : Type u) : Type (u+1) := category_str.{u} C
 
 
+namespace category_str
 
 /-! ## Category of Types
 There is a large category of types where the objects are types and the morphisms are functions between types. -/
@@ -266,7 +279,7 @@ instance cat_of_types : category_str Type* :=
 
 #check category_str.cat_of_types.id_comp'
 
-#reduce category_str.cat_of_types.id_comp'
+--#reduce category_str.cat_of_types.id_comp'
 
 #reduce category_str.cat_of_types.id_comp' (λ x, (x + 1))
 
@@ -341,16 +354,35 @@ def two_to_three :  1 ⟶ 2 :=
 #reduce category_str.comp_id' two_to_three 
 
 
-#check  category_str.small_category_of_preorder
+#check category_str.small_cat_of_preorder
 
 instance foo : small_category_str ℕ := 
-category_str.small_category_of_preorder ℕ 
+category_str.small_cat_of_preorder ℕ 
 
 #check category_str.foo.hom 2 3
 
 #reduce category_str.foo.hom 2 3
 
 
+
+
+section lifting_categories
+
+variable (𝓒 : Type u)
+variable [category_str.{v} 𝓒]
+
+universe u'
+-- we can lift 𝓒 from universe `u` to a higher universe `u'`. 
+instance ulift_cat : category_str.{v} (ulift.{u'} 𝓒) :=
+{ hom  := λ X Y, (X.down ⟶ Y.down),
+  id   := λ X, 𝟙 X.down,
+  comp := λ _ _ _ f g, g ⊚ f }
+
+-- We verify that this previous instance can lift small categories to large categories.
+example (𝓢 : Type u) [small_category_str 𝓢] : large_category_str (ulift.{u+1} 𝓢) := 
+by apply_instance
+
+end lifting_categories
 
 
 
@@ -365,7 +397,7 @@ category_str.small_category_of_preorder ℕ
 -/
 
 
-variables {𝓒 : Type} [category_str 𝓒] {W X Y Z : 𝓒} {A : Type}
+variables {𝓒 : Type u} [category_str 𝓒] {W X Y Z : 𝓒} {A : Type}
 
 
 
@@ -439,8 +471,8 @@ sorry
 /-! ## Challenge: 
 The endomorphisms monoid of the only object in `single_obj α` is equivalent to the original
      monoid α. -/
-def to_End {M : Type} [mult_monoid_str M] : M ≃* End (_) :=
-sorry
+-- def to_End {M : Type} [mult_monoid_str M] : M ≃* End (_) :=
+-- sorry
 
 
 
@@ -472,11 +504,15 @@ end
 
 
 
+
 structure equiv (X Y : 𝓒) :=
 (to_mor    : X ⟶ Y)
 (inv_mor   : Y ⟶ X)
 (left_inv  : to_mor ⊚  inv_mor = (𝟙 Y) ) 
-(right_inv : inv_mor ⊚ to_mor = (𝟙 X) )
+(right_inv : inv_mor ⊚ to_mor = (𝟙 X)  )
+
+
+infix ` ≅ `:85 := equiv
 
 
 
@@ -536,6 +572,104 @@ def is_epi (f : X ⟶ Y) :=
 /- ## Challenge 
 Show that every isomorphism is a monomorphism. 
 -/
+
+
+
+/-! ## Opposite Category 
+If `𝓒` is a category, then `𝓒ᵒᵖ` is the __opposite category__, with objects the same but all arrows reversed. `𝓒ᵒᵖ` is the mirror image of `𝓒`. If `X ⟶ Y ⟶ Z` are morphisms in `𝓒ᵒᵖ` then `Z ⟶ Y ⟶ X`  are maps in `𝓒`. 
+
+In below we give `𝓒ᵒᵖ` the structure of a category. See `opposite_cat`. 
+-/
+
+def opposite (𝓒 : Type u) : Type u := 𝓒
+
+
+notation X `ᵒᵖ`:std.prec.max_plus := opposite X
+
+
+/- The canonical map `𝓒 → 𝓒ᵒᵖ`. 
+We need to write `op X` to explicitly move `X` to the opposite category-/
+@[pp_nodot]
+def op : 𝓒 → 𝓒ᵒᵖ := id 
+
+
+/- The canonical map `𝓒ᵒᵖ → 𝓒`. -/
+@[pp_nodot]
+def unop : 𝓒ᵒᵖ → 𝓒 := id
+
+
+@[simp] 
+lemma op_unop (X : 𝓒ᵒᵖ) : op (unop X) = X := rfl
+
+@[simp] 
+lemma unop_op (x : 𝓒) : unop (op X) = X := rfl
+
+
+/- The type-level equivalence between a type and its opposite. -/
+def equiv_to_opposite : 𝓒 ≅ 𝓒ᵒᵖ :=
+{ 
+  to_mor := op,
+  inv_mor := unop,
+  left_inv := by {ext, refl, },
+  right_inv := by {ext, refl, }, 
+}
+
+
+instance opposite_cat {𝓒 : Type u} [category_str.{v} 𝓒] : category_str.{v} 𝓒ᵒᵖ :=
+{ 
+  hom := λ X, λ Y, (unop Y ⟶ unop X), -- informally, hom_{𝓒ᵒᵖ} X Y = hom_{𝓒} Y X
+  id := λ X, 𝟙 (unop X),
+  comp := λ X Y Z, λ f g, f ⊚ g,
+  id_comp' := by {intros X Y f, simp,},
+  comp_id' := by {intros X Y f, simp,},
+  comp_assoc' := by {intros W X Y Z f g h, rw [comp_assoc'],} 
+}
+
+
+
+
+/-
+The opposite of an arrow in `𝓒`.
+-/
+def hom.op  {X Y : 𝓒} (f : X ⟶ Y) : 
+op Y ⟶ op X := f
+
+/-
+Given an arrow in `𝓒ᵒᵖ`, we can take the "unopposite" back in `𝓒`.
+-/
+def hom.unop {X Y : 𝓒ᵒᵖ} (f : X ⟶ Y) : 
+unop Y ⟶ unop X := f
+
+
+@[simp] 
+lemma op_comp {X Y Z : 𝓒} {f : X ⟶ Y} {g : Y ⟶ Z} :
+  hom.op (g ⊚ f) = hom.op f ⊚ hom.op g := 
+begin 
+  refl, 
+end   
+
+@[simp] 
+lemma unop_comp {X Y Z : 𝓒ᵒᵖ} {f : X ⟶ Y} {g : Y ⟶ Z} :
+  hom.unop (g ⊚ f) = hom.unop f ⊚ hom.unop g := 
+begin 
+  refl, 
+end   
+
+
+
+@[simp] 
+lemma op_id {X : 𝓒} : hom.op (𝟙 X) = 𝟙 (op X) := 
+begin
+  refl, 
+end 
+
+@[simp] 
+lemma unop_id {X : 𝓒ᵒᵖ} : hom.unop (𝟙 X) = 𝟙 (unop X) := 
+begin
+  refl, 
+end 
+
+
 
 
 end category_str 
