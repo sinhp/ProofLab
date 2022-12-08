@@ -521,42 +521,4 @@ def delooping_functor : mult_Monoid ⥤ Cat :=
 }
 
 
-/-
-Recall the definition of `mult_monoid_action` from HW10. 
--/
-
-class mult_monoid_action (M A : Type) [mult_monoid_str M] :=
-(smul : M → A → A) -- the scalar multiplication of `M` on `A`.
-(one_smul' : ∀ (x : A), smul (1 : M) x = x)
-(mul_smul' : ∀ (r s : M) (x : A),
-smul (r * s)  x = smul r (smul s x))
-
-
-namespace mult_monoid_action
-
-restate_axiom one_smul' 
-restate_axiom mul_smul'
-
-#check one_smul
-
-def delooping_monoid_action (A : Type) [M : mult_Monoid] [mult_monoid_action M.carrier A] : (delooping_cat M).carrier ⥤  Type* := 
-{
-  obj := λ X, A,
-  mor := λ X Y (m : M.carrier), λ a, mult_monoid_action.smul m a,
-  resp_id' := by {intro X, funext, change (smul (1 : M.carrier) a = a), simp [one_smul], },
-  resp_comp' := by {sorry,},
-}
-
-end mult_monoid_action
-
-/-
-Let's show that a functor delooping ⥤ Type is the same  
--/
-
-
-
-
-
-
-
 end category_str 
