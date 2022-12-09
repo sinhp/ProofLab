@@ -47,18 +47,18 @@ in such a way that the operations of identity and compositions are preserved, i.
 - `F₁ (g ⊚ f) = F₁(g) ⊚ F₁(f)` -- compositions in `𝓒` go to compositions in `𝓓` 
 -/
 
-set_option old_structure_cmd true
-
+--set_option old_structure_cmd true
 
 structure functor (𝓒 : Type u₁) [category_str.{v₁} 𝓒] (𝓓 : Type u₂) [category_str.{v₂} 𝓓] : Type (max v₁ v₂ u₁ u₂) :=
 (obj [] : 𝓒 → 𝓓) -- the object function of functor structure
-(mor : Π {X Y : 𝓒}, (X ⟶ Y) → (obj X ⟶ obj Y)) -- the morphism function of functor structure
+(mor [] : Π {X Y : 𝓒}, (X ⟶ Y) → (obj X ⟶ obj Y)) -- the morphism function of functor structure
 (resp_id'   : 
 ∀ (X : 𝓒), mor (𝟙 X) = 𝟙 (obj X) )
 (resp_comp' : 
 ∀ {X Y Z : 𝓒} (f : X ⟶ Y) (g : Y ⟶ Z), mor (g ⊚ f) = (mor g) ⊚  (mor f) )
 
-
+-- attribute [class] functor
+ 
 #print functor
 
 #check functor.obj -- the first function part of a  functor structure which maps objetcs to objects 
@@ -150,13 +150,22 @@ end
 
 
 /- We can __compose__ functors. -/
-def comp (F : 𝓒 ⥤ 𝓓) (G : 𝓓 ⥤ 𝓔) : 𝓒 ⥤ 𝓔 :=
+def comp (F : functor 𝓒 𝓓) (G : functor 𝓓 𝓔) : functor 𝓒 𝓔 :=
 {
-  obj := G.obj ∘ F.obj, 
+  obj :=  λ X, G.obj (F.obj X), -- G.obj ∘ F.obj, 
   mor := λ X, λ Y, λ f, G.mor (F.mor f), 
-  resp_id' := by {intro X, simp },
+  resp_id' := by {intro X, simp only [functor.resp_id ], },
   resp_comp' := by {intros X Y Z f g, simp only [functor.resp_comp],},  
 }
+
+-- /- We can __compose__ functors. -/
+-- def comp (F : 𝓒 ⥤ 𝓓) (G : 𝓓 ⥤ 𝓔) : 𝓒 ⥤ 𝓔 :=
+-- {
+--   obj :=  λ X, let t := (F.obj X) in G.obj t, -- G.obj ∘ F.obj, 
+--   mor := λ X, λ Y, λ f, G.mor (F.mor f), 
+--   resp_id' := by {intro X, simp },
+--   resp_comp' := by {intros X Y Z f g, simp only [functor.resp_comp],},  
+-- }
 
 #check @functor.comp
 
@@ -257,10 +266,12 @@ local notation ` Ϳ ` : 15 :=  functor.representable
 #reduce (Ϳ ℕ).obj ℤ 
 
 
-
+#check 𝓒 
+#check 𝓒ᵒᵖ 
+#check @category_str.opposite_cat 𝓒ᵒᵖ 
 
 @[simp]
-def corepresentable {𝓒 : Type*}[category_str 𝓒] (X : 𝓒) : 𝓒ᵒᵖ ⥤ Type* :=
+def corepresentable {𝓒 : Type*}[category_str 𝓒] (X : 𝓒) : 𝓒ᵒᵖ ⥤ (Type*) :=
 { 
   obj := λ Y, unop Y ⟶ X, -- want 𝓒-morphisms from `Y` to `X`
   mor := λ Y Z f g, g ⊚ (hom.unop f),
@@ -365,6 +376,7 @@ Here we also prove the unitality and associativity of composition.
 
 def mult_monoid.morphism.id {M : Type}[mult_monoid_str M] : M →ₘ* M := 
 {
+
   to_fun := id, 
   resp_one := by {simp}, 
   resp_mul := by {simp},

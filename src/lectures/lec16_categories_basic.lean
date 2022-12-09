@@ -368,8 +368,8 @@ category_str.small_cat_of_preorder ℕ
 
 section lifting_categories
 
-variable (𝓒 : Type u)
-variable [category_str.{v} 𝓒]
+variables (𝓒 : Type u)[category_str.{v} 𝓒]
+
 
 universe u'
 -- we can lift 𝓒 from universe `u` to a higher universe `u'`. 
@@ -512,7 +512,7 @@ structure equiv (X Y : 𝓒) :=
 (right_inv : inv_mor ⊚ to_mor = (𝟙 X)  )
 
 
-infix ` ≅ `:85 := equiv
+local notation ` ≅ `:85 := equiv
 
 
 
@@ -593,10 +593,20 @@ We need to write `op X` to explicitly move `X` to the opposite category-/
 def op : 𝓒 → 𝓒ᵒᵖ := id 
 
 
+
 /- The canonical map `𝓒ᵒᵖ → 𝓒`. -/
 @[pp_nodot]
 def unop : 𝓒ᵒᵖ → 𝓒 := id
 
+section test 
+variable XX : 𝓒 
+#check op XX 
+#check unop (op XX)
+
+example  : 
+  unop (op XX) = XX := rfl 
+
+end  test
 
 @[simp] 
 lemma op_unop (X : 𝓒ᵒᵖ) : op (unop X) = X := rfl
@@ -608,8 +618,8 @@ lemma unop_op (x : 𝓒) : unop (op X) = X := rfl
 /- The type-level equivalence between a type and its opposite. -/
 def equiv_to_opposite : 𝓒 ≅ 𝓒ᵒᵖ :=
 { 
-  to_mor := op,
-  inv_mor := unop,
+  to_fun := op,
+  inv_fun := unop,
   left_inv := by {ext, refl, },
   right_inv := by {ext, refl, }, 
 }
