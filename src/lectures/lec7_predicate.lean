@@ -78,7 +78,7 @@ As before, the `variable` command does not create anything new. When we use vari
 -/
 
 
-
+#check set 
 /-
 A __binary predicate__/__relation__ has the type `X → X → Prop`. 
 -/

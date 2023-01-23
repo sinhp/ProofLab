@@ -350,6 +350,9 @@ def additive_comm_Monoid := bundled comm_additive_monoid_str
 def mult_Group : Type (u₁+1):= bundled mult_group_str
 def additive_Group := bundled additive_group_str
 
+
+
+
 /- Type of categories -/
 def Cat := bundled small_category_str -- The type of small categories (where the types of morphims live in the universe `v`)
 
@@ -389,7 +392,7 @@ def mult_monoid.morphism.comp {L M N : Type} [mult_monoid_str L] [mult_monoid_st
   resp_mul := by {simp,}, } 
 
 
-infixr  ` ∘* ` : 90  := mult_monoid.morphism.comp
+--infixr  ` ∘* ` : 90  := mult_monoid.morphism.comp
 
 local notation F ` ⊚⊚ `:80 G:80 := functor.comp G F 
 
@@ -419,7 +422,7 @@ begin
 end   
 
 
-instance cat_of_monoids : large_category_str (mult_Monoid) := 
+instance cat_of_monoids : category_str (mult_Monoid) := 
 { 
   hom := λ X Y, X.carrier →ₘ* Y.carrier, 
   id := λ X, mult_monoid.morphism.id,
@@ -430,7 +433,7 @@ instance cat_of_monoids : large_category_str (mult_Monoid) :=
 }
 
 
-#check large_category_str (mult_Monoid)
+#check category_str (mult_Monoid)
 
 #check category_str.cat_of_monoids
 #check category_str.cat_of_monoids.comp
@@ -446,10 +449,16 @@ Challenge: do the same for groups.
 
 
 
+universe u
+structure internal_monoid (𝓒 : Type u) [category_str 𝓒] : Type u := 
+(mon : 𝓒)
+(mon_mul : mon × mon ⟶ mon )
+
+
 --set_option pp.instantiate_mvars false
 
 --set_option trace.class_instances true
-def forgetful_functor : mult_Monoid ⥤ mult_Monoid := 
+def forgetful_functor : category_str.functor mult_Monoid  mult_Monoid := 
 sorry 
 
 /-! ## The Category of categories and functors 

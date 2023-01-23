@@ -616,7 +616,7 @@ lemma unop_op (x : 𝓒) : unop (op X) = X := rfl
 
 
 /- The type-level equivalence between a type and its opposite. -/
-def equiv_to_opposite : 𝓒 ≅ 𝓒ᵒᵖ :=
+def equiv_to_opposite :  𝓒 ≅ 𝓒ᵒᵖ :=
 { 
   to_fun := op,
   inv_fun := unop,
