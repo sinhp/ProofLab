@@ -1,26 +1,30 @@
 /- Copyright (c) 2022 Sina Hazratpour. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 ----------------
+
+
 # Basics of Categories
 ## Sina Hazratpour
 ## Introduction to Proof  
 ## MATH 301, Johns Hopkins University, Fall 2022   
 -/
 
+
+
+
+
 /-
  "_Category theory takes a bird’s eye view of mathematics. From high in the sky, details become invisible, but we can spot patterns that were impossible to de- tect from ground level._" 
 -- From "Basic Category Theory" by Tom Leinster
 -- 
 -/
--- import algebra
-import tactic.rewrite
-import tactic.tidy
-import tactic.explode
-import tactic.find
-import tactic.induction
 
--- import ..prooflab
--- import tactic.basic
+-- import tactic.rewrite
+import tactic.tidy -- for .obviously tactic which we actually do not use in below since explicitly give the proof of natuality conditions, etc.  Feel free to comment this out. 
+
+-- import tactic.find 
+import tactic.induction -- for variations on Lean's builtin induction and cases
+
 
 
 -- To handle the distinction between small and large categories we need variables for universe levels  (in the order that they were declared).
@@ -124,18 +128,7 @@ instance cat_of_types : locally_small_category Type* :=
 }
 
 
-/-! ### Small Category of a Preorder
-We can equipp a preorder with the structure of a category with at most one morphism between any two objects: there is a morphism `x ⟶ y` iff `x ≤ y`.   
--/
-instance small_cat_of_preorder (X : Type) [preorder X] : small_category X := 
-{
-  hom := λ x, λ y, (plift (x ≤ y) : Type), -- `plift` for parametric lifting of a proposition to the type of its proofs
-  id := λ x, ⟨ le_refl x ⟩, 
-  comp := λ x y z, λ f, λ g, ⟨le_trans f.down g.down ⟩,
-}
-
-
-/-! ## Opposite Category 
+/-! ## The Opposite Category 
 If `𝓒` is a category, then `𝓒ᵒᵖ` is the __opposite category__, with objects the same but all arrows reversed. `𝓒ᵒᵖ` is the mirror image of `𝓒`. If `X ⟶ Y ⟶ Z` are morphisms in `𝓒ᵒᵖ` then `Z ⟶ Y ⟶ X`  are maps in `𝓒`. 
 
 In below we give `𝓒ᵒᵖ` the structure of a category. See `opposite_cat`. 
@@ -330,6 +323,8 @@ begin
 end
 
 
+
+
 /-! ## The Category of Categories and Functors 
 (Small) categories and functors between them form a (large) category. To show this, we first need to have a (larger) type of all categories and then introduce morphisms (i.e. functors) as part of the would-be structure of large category of categories. 
 -/ 
@@ -350,8 +345,6 @@ instance cat_of_cat : locally_small_category Cat  :=
   comp_id' := by {intros 𝓒 𝓓 F, apply functor.id_comp, },
  }
 
-
-
 @[simp]
 lemma comp_assoc_obj (F : 𝓒 ⥤ 𝓓) (G : 𝓓 ⥤ 𝓔) (H : 𝓔 ⥤ 𝓕) 
 (X : 𝓒) : 
@@ -360,13 +353,13 @@ begin
   refl, 
 end 
 
-
 @[simp]
 lemma comp_assoc_mor (F : 𝓒 ⥤ 𝓓) (G : 𝓓 ⥤ 𝓔) (H : 𝓔 ⥤ 𝓕) (X Y: 𝓒) (f : X ⟶ Y): 
   ((H ⊚⊚ G) ⊚⊚ F).mor f = (H ⊚⊚ (G ⊚⊚ F)).mor f := 
 begin 
   refl, 
 end 
+
 
 
 /-! ## Natural transformations
@@ -408,11 +401,11 @@ restate_axiom nat_trans.naturality'
 /-
 Note that we make `nat_trans.naturality` a simp lemma, with the preferred simp normal form pushing the components of natural transformations to the left.
 -/ 
-
 attribute [simp] nat_trans.naturality
 
-namespace nat_trans
 
+
+namespace nat_trans
 
 /- If two natural transforamtions are equal then all of their components are equal. -/
 
@@ -540,7 +533,6 @@ def functor.representable {𝓒 : Type u₁}[category.{v₁} 𝓒] (X : 𝓒) : 
 
 local notation ` 𝕁 ` : 15 :=  functor.representable 
 
-
 @[simp]
 def functor.corepresentable {𝓒 : Type u₁}[category.{v₁} 𝓒] (X : 𝓒) : 𝓒ᵒᵖ ⥤ Type* :=
 { 
@@ -574,10 +566,6 @@ begin
   refl, 
 end
 
-
-
-
-
 @[simp]
 lemma corep_obj (A : 𝓒) (B : 𝓒ᵒᵖ) :  
   (𝕐 A).obj B =  (unop B ⟶ A) := 
@@ -592,18 +580,6 @@ begin
   refl, 
 end 
 
-
-
-
-
-
--- def yoneda (X Y : 𝓒) (α : ℍom.obj X ≃ ℍom.obj Y) : X ≃ Y :=
--- { 
---   to_mor := α.to_mor.cmpt (op X) (𝟙 X),
---   inv_mor := α.inv_mor.cmpt (op Y) (𝟙 Y),
---   left_inv := sorry,
---   right_inv := sorry, 
--- }
 
 lemma cov_naturality.fibrewise {𝓒 : Type*} [category 𝓒] {F : 𝓒 ⥤ Type* } (A : 𝓒) (θ : 𝕁 A ⟶  F) (X : 𝓒)  (a : A ⟶ X) : 
   (θ.cmpt X) a  = (F.mor a) (θ.cmpt A (𝟙 A)) := 
@@ -651,7 +627,6 @@ def yoneda_covariant {𝓒 : Type*} [category 𝓒] {F : 𝓒 ⥤ Type* } (A B :
 #check functor.comp.id_map
 
 
-
 def yoneda_contravariant {𝓒 : Type*} [category 𝓒] {F : 𝓒ᵒᵖ ⥤ Type* } (A B : 𝓒) : 
   (𝕐 A ⟶ F) ≅ F.obj A :=
 { to_fun := λ α, α.cmpt (op A) (𝟙 A),
@@ -675,7 +650,7 @@ def yoneda_contravariant {𝓒 : Type*} [category 𝓒] {F : 𝓒ᵒᵖ ⥤ Type
 
 
 
--- The hom bifunctor 
+-- The Hom bifunctor 
 def ℍom : 𝓒 ⥤ (𝓒ᵒᵖ ⥤ Type v₁) :=
 { 
   -- the action of ℍom on objects of 𝓒
@@ -708,56 +683,5 @@ begin
   refl, 
 end 
 
-
-def Yoneda {𝓒 : Type*} [category 𝓒] (A B : 𝓒) : 
-  ( (ℍom.obj A) ⟶ (ℍom.obj B)) ≅ (A ⟶ B) :=
-{ 
-  to_fun := λ α, α.cmpt (op A) (𝟙 A) ,
-  inv_fun := λf, 
-    { 
-      cmpt := λ Z, λ g, f ⊚ g ,
-      naturality' := by {
-        intros V W h, ext,  
-        conv 
-          begin
-          to_rhs,
-          funext,
-          dsimp,   
-          end 
-      sorry,
-          }, -- λ (g : (ℍom.obj X).obj V), f ⊚ g : (V ⟶ X) → (V ⟶ Y) 
-      -- x : V ⟶ X
-      -- (ℍom.obj Y).mor h  : (W ⟶ Y) → (V ⟶ Y)
-    }, 
-    left_inv := _,
-    right_inv := _, 
-  }
-
-
-
-
--- def Yoneda (X Y : 𝓒) (α : ℍom.obj X ≅  ℍom.obj Y) : 
---   X ≅ Y :=
--- { 
---   to_mor := α.to_mor.cmpt (op X) (𝟙 X),
---   inv_mor := α.inv_mor.cmpt (op Y) (𝟙 Y),
---   left_inv := by { have h₁, from α.inv_mor.naturality (α.to_mor.cmpt (op X) (𝟙 X)), simp at h₁,  
---   },
---   right_inv := sorry, 
--- }
-
-
-
-
-
 end nat_trans
-
-
-
-
-
-
-
-
-
 end category
