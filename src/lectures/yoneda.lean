@@ -173,7 +173,7 @@ structure cat_equiv (X Y : 𝓒) :=
 infix ` ≅ `:85 := type_equiv
 infix ` ≃ `:85 := cat_equiv
 
-set_option trace.simp_lemmas true
+
 /- The equivalence between a type and its opposite. -/
 def equiv_to_opposite : 𝓒 ≅ 𝓒ᵒᵖ :=
 { 
@@ -530,8 +530,8 @@ def functor.representable {𝓒 : Type u₁}[category.{v₁} 𝓒] (X : 𝓒) : 
   resp_id' := by {intro Y, funext, simp, refl, },
   resp_comp' := by {intros X Y Z f g, funext, simp, refl}, 
 }
-
 local notation ` 𝕁 ` : 15 :=  functor.representable 
+
 
 @[simp]
 def functor.corepresentable {𝓒 : Type u₁}[category.{v₁} 𝓒] (X : 𝓒) : 𝓒ᵒᵖ ⥤ Type* :=
@@ -541,8 +541,8 @@ def functor.corepresentable {𝓒 : Type u₁}[category.{v₁} 𝓒] (X : 𝓒) 
   resp_id' := by {intro Y, funext, simp only [unop_id], simp, refl,  },
   resp_comp' := by {intros U' V' W' f g, simp only [unop_comp], funext x, rw ← comp_assoc, refl, },
 }  
-
 local notation ` 𝕐 ` : 15 :=  functor.corepresentable 
+
 
 @[simp]
 lemma rep_obj (A : 𝓒) (B : 𝓒) :  
@@ -597,10 +597,12 @@ begin
 end 
 
 
-def yoneda_covariant {𝓒 : Type*} [category 𝓒] {F : 𝓒 ⥤ Type* } (A B : 𝓒) : 
+def yoneda_covariant {𝓒 : Type*} [category 𝓒] {F : 𝓒 ⥤ Type* } (A : 𝓒) : 
   (𝕁 A ⟶ F) ≅ F.obj A :=
-{ to_fun := λ α, α.cmpt A (𝟙 A),
-  inv_fun := λ a, { cmpt := λ X, λ f, (F.mor f) a,
+{ 
+  to_fun := λ α, α.cmpt A (𝟙 A),
+  inv_fun := λ a, { 
+                    cmpt := λ X, λ f, (F.mor f) a,
                     naturality' := 
                     by { 
                           intros X Y k, 
@@ -622,14 +624,22 @@ def yoneda_covariant {𝓒 : Type*} [category 𝓒] {F : 𝓒 ⥤ Type* } (A B :
                        }, 
                   },
   left_inv :=  by { funext α, dsimp, ext X a, simp, rw ← cov_naturality.fibrewise },
-  right_inv := by {funext, dsimp, rw functor.resp_id, refl}, }
+  right_inv := by {funext, dsimp, rw functor.resp_id, refl}, 
+}
 
-#check functor.comp.id_map
-
+def yoneda_covariant_to_rep (𝓒 : Type*) [category 𝓒] {F : 𝓒 ⥤ Type* } (A B : 𝓒) : 
+  (𝕁 A ⟶ 𝕁 B) ≅ (B ⟶ A) := 
+{ 
+    to_fun := λ α, (yoneda_covariant A).to_fun α,
+    inv_fun := λ f, (yoneda_covariant A).inv_fun f,
+    left_inv := (yoneda_covariant A).left_inv,
+    right_inv := (yoneda_covariant A).right_inv, 
+}  
 
 def yoneda_contravariant {𝓒 : Type*} [category 𝓒] {F : 𝓒ᵒᵖ ⥤ Type* } (A B : 𝓒) : 
   (𝕐 A ⟶ F) ≅ F.obj A :=
-{ to_fun := λ α, α.cmpt (op A) (𝟙 A),
+{ 
+  to_fun := λ α, α.cmpt (op A) (𝟙 A),
   inv_fun := λ x, { cmpt := λ C, λ f, (F.mor (hom.unop f)) x,
                     naturality' := 
                     by { intros D C k, dsimp, ext g,  
@@ -645,7 +655,8 @@ def yoneda_contravariant {𝓒 : Type*} [category 𝓒] {F : 𝓒ᵒᵖ ⥤ Type
                           end,    }, 
                   },
   left_inv := _,
-  right_inv := _ }
+  right_inv := _,
+}
 
 
 
