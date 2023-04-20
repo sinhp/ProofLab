@@ -552,6 +552,30 @@ def functor.corepresentable {𝓒 : Type u₁}[category.{v₁} 𝓒] (X : 𝓒) 
 
 local notation ` 𝕐 ` : 15 :=  functor.corepresentable 
 
+@[simp]
+lemma rep_obj (A : 𝓒) (B : 𝓒) :  
+  (𝕁 A).obj B =  (A ⟶ B) := 
+begin
+  refl, 
+end 
+
+@[simp]
+lemma rep_mor (A : 𝓒) {B C : 𝓒} (g : B ⟶ C)  :  
+   (𝕁 A).mor g = λ f,  g ⊚ f := 
+begin
+  refl, 
+end
+
+@[simp]
+lemma rep_mor_ptwise (A : 𝓒) {B C : 𝓒} (g : B ⟶ C) 
+(f : (𝕁 A).obj B) :  
+   (𝕁 A).mor g f =  g ⊚ f := 
+begin
+  refl, 
+end
+
+
+
 
 
 @[simp]
@@ -567,6 +591,87 @@ lemma corep_mor (A : 𝓒) (B C : 𝓒ᵒᵖ) (f : B ⟶ C) :
 begin
   refl, 
 end 
+
+
+
+
+
+
+-- def yoneda (X Y : 𝓒) (α : ℍom.obj X ≃ ℍom.obj Y) : X ≃ Y :=
+-- { 
+--   to_mor := α.to_mor.cmpt (op X) (𝟙 X),
+--   inv_mor := α.inv_mor.cmpt (op Y) (𝟙 Y),
+--   left_inv := sorry,
+--   right_inv := sorry, 
+-- }
+
+lemma cov_naturality.fibrewise {𝓒 : Type*} [category 𝓒] {F : 𝓒 ⥤ Type* } (A : 𝓒) (θ : 𝕁 A ⟶  F) (X : 𝓒)  (a : A ⟶ X) : 
+  (θ.cmpt X) a  = (F.mor a) (θ.cmpt A (𝟙 A)) := 
+begin
+  have this : (θ.cmpt X) a = (θ.cmpt X) (a ⊚ 𝟙 A), by {simp}, 
+  rw this,
+  rw ← (rep_mor_ptwise A a), 
+  conv 
+    begin
+    to_lhs, 
+    change ((θ.cmpt X) ⊚ (𝕁 A).mor a) (𝟙 A)
+    end,  
+  rw [nat_trans.naturality],    
+  refl, 
+end 
+
+
+def yoneda_covariant {𝓒 : Type*} [category 𝓒] {F : 𝓒 ⥤ Type* } (A B : 𝓒) : 
+  (𝕁 A ⟶ F) ≅ F.obj A :=
+{ to_fun := λ α, α.cmpt A (𝟙 A),
+  inv_fun := λ a, { cmpt := λ X, λ f, (F.mor f) a,
+                    naturality' := 
+                    by { 
+                          intros X Y k, 
+                          funext x,
+                          simp [rep_obj, rep_mor],
+                          dsimp, 
+                          conv 
+                            begin 
+                              to_lhs, 
+                              change (F.mor (k ⊚ x)) a, 
+                            end, 
+                          conv 
+                            begin
+                              to_rhs,
+                              change (F.mor k) (F.mor x  a), 
+                            end,   
+                          rw [functor.resp_comp], 
+                          refl,  
+                       }, 
+                  },
+  left_inv :=  by { funext α, dsimp, ext X a, simp, rw ← cov_naturality.fibrewise },
+  right_inv := by {}, }
+
+
+
+def yoneda_contravariant {𝓒 : Type*} [category 𝓒] {F : 𝓒ᵒᵖ ⥤ Type* } (A B : 𝓒) : 
+  (𝕐 A ⟶ F) ≅ F.obj A :=
+{ to_fun := λ α, α.cmpt (op A) (𝟙 A),
+  inv_fun := λ x, { cmpt := λ C, λ f, (F.mor (hom.unop f)) x,
+                    naturality' := 
+                    by { intros D C k, dsimp, ext g,  
+                    let k' := hom.unop k, 
+                    conv 
+                          begin 
+                          to_rhs, 
+                          change (F.mor k) ((F.mor g) x),   
+                          end, 
+                        conv 
+                          begin
+                             change F.mor (g ⊚  k' ) x,  
+                          end,    }, 
+                  },
+  left_inv := _,
+  right_inv := _ }
+
+
+
 
 -- The hom bifunctor 
 def ℍom : 𝓒 ⥤ (𝓒ᵒᵖ ⥤ Type v₁) :=
@@ -600,40 +705,6 @@ lemma hom_action (A : 𝓒) (W W' : 𝓒ᵒᵖ) (h : W' ⟶ W) (x : unop W' ⟶ 
 begin
   refl, 
 end 
-
-
-
--- def yoneda (X Y : 𝓒) (α : ℍom.obj X ≃ ℍom.obj Y) : X ≃ Y :=
--- { 
---   to_mor := α.to_mor.cmpt (op X) (𝟙 X),
---   inv_mor := α.inv_mor.cmpt (op Y) (𝟙 Y),
---   left_inv := sorry,
---   right_inv := sorry, 
--- }
-
-#check hom.unop
-
-
-def yoneda₁ {𝓒 : Type*} [category 𝓒] {F : 𝓒ᵒᵖ ⥤ Type* } (A B : 𝓒) : 
-  (𝕐 A ⟶ F) ≅ F.obj A :=
-{ to_fun := λ α, α.cmpt (op A) (𝟙 A),
-  inv_fun := λ x, { cmpt := λ C, λ f, (F.mor f) x,
-                    naturality' := 
-                    by { intros D C k, dsimp, ext g,  
-                    let k' := hom.unop k, 
-                    conv 
-                          begin 
-                          to_rhs, 
-                          change (F.mor k) ((F.mor g) x),   
-                          end, 
-                        conv 
-                          begin
-                             change F.mor (g ⊚  k' ) x,  
-                          end,    }, 
-                  },
-  left_inv := _,
-  right_inv := _ }
-
 
 
 def Yoneda {𝓒 : Type*} [category 𝓒] (A B : 𝓒) : 
