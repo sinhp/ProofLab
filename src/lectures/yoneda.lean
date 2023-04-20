@@ -646,7 +646,9 @@ def yoneda_covariant {𝓒 : Type*} [category 𝓒] {F : 𝓒 ⥤ Type* } (A B :
                        }, 
                   },
   left_inv :=  by { funext α, dsimp, ext X a, simp, rw ← cov_naturality.fibrewise },
-  right_inv := by {}, }
+  right_inv := by {funext, dsimp, rw functor.resp_id, refl}, }
+
+#check functor.comp.id_map
 
 
 
