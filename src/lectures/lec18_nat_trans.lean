@@ -380,7 +380,7 @@ def ℍom : 𝓒 ⥤ (𝓒ᵒᵖ ⥤ Type v₁) :=
                     }, 
   }
 
-notation ` ≅ ` : 90 := category_str.equiv
+-- notation ` ≅ ` : 90 := category_str.equiv
 
 def Yoneda (X Y : 𝓒) (α : category_str.equiv (ℍom.obj X)  (ℍom.obj Y) ): 
   category_str.equiv X Y :=
@@ -392,6 +392,29 @@ def Yoneda (X Y : 𝓒) (α : category_str.equiv (ℍom.obj X)  (ℍom.obj Y) ):
 }
 
 
+
+def Yoneda_alt (A B : 𝓒) : 
+  ( (ℍom.obj A) ⟶ (ℍom.obj B)) ≅ (A ⟶ B) :=
+{ 
+  to_fun := λ α, α.cmpt (op X) (𝟙 X) ,
+  inv_fun := λf, 
+    { cmpt := λ Z,  λ g, f ⊚ g ,
+      naturality' := by {
+        intros V W h, ext,  
+        conv 
+          begin
+          to_rhs,
+          funext,
+          dsimp,   
+          end 
+      sorry,
+          }, -- λ (g : (ℍom.obj X).obj V), f ⊚ g : (V ⟶ X) → (V ⟶ Y) 
+      -- x : V ⟶ X
+      -- (ℍom.obj Y).mor h  : (W ⟶ Y) → (V ⟶ Y)
+    }, 
+    left_inv := _,
+    right_inv := _, 
+  }
 
 
 

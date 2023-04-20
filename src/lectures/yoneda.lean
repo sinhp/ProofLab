@@ -369,41 +369,7 @@ begin
 end 
 
 
-/-! ## Representable Functors  
-To every object `X` of a category `𝓒` we can associate a functor `Ϳ X : 𝓒 ⥤ Type*` which maps an object `Y` in `𝓒` to the hom-type `X ⟶ Y`. 
--/ 
-
---set_option trace.simp_lemmas true
-@[simp]
-def functor.representable {𝓒 : Type u₁}[category.{v₁} 𝓒] (X : 𝓒) : 𝓒 ⥤ Type v₁ :=
-{ 
-  obj := λ Y, X ⟶ Y,
-  mor := λ Y Z f g, f ⊚ g,
-  resp_id' := by {intro Y, funext, simp, refl, },
-  resp_comp' := by {intros X Y Z f g, funext, simp, refl}, 
-}
-
-local notation ` 𝕁 ` : 15 :=  functor.representable 
-
-
-@[simp]
-def functor.corepresentable {𝓒 : Type u₁}[category.{v₁} 𝓒] (X : 𝓒) : 𝓒ᵒᵖ ⥤ Type v₁ :=
-{ 
-  obj := λ Y, unop Y ⟶ X, --  𝓒-morphisms from `Y` to `X`
-  mor := λ Y Z f (g : Y ⟶ X), g ⊚ (hom.unop f),
-  resp_id' := by {intro Y, funext, simp only [unop_id], simp, refl,  },
-  resp_comp' := by {intros U' V' W' f g, simp only [unop_comp], funext x, rw ← comp_assoc, refl, },
-}  
-
-local notation ` 𝕐 ` : 15 :=  functor.corepresentable 
-
-
-#check 𝕐 
-
-
-
-/-!
-## Natural transformations
+/-! ## Natural transformations
 
 A __natural transformation__ `α : nat_trans F G` consists of morphisms `α.cmpt X : F.obj X ⟶ G.obj X`,
 and the naturality squares `α.naturality f :  α.cmpt Y ⊚ F.map f = G.map f ⊚ α.cmpt X `, where `f : X ⟶ Y`.
@@ -447,7 +413,6 @@ attribute [simp] nat_trans.naturality
 
 namespace nat_trans
 
-  
 
 /- If two natural transforamtions are equal then all of their components are equal. -/
 
@@ -547,18 +512,46 @@ However if `𝓒` and `𝓓` are both large categories at the same universe leve
 this is a small category at the next higher level.
 -/
 
-
-#check 𝓒 ⥤ 𝓓 
-
 instance functor.cat : category.{(max u₁ v₂)} (𝓒 ⥤ 𝓓) :=
 { 
   hom     := λ F G, nat_trans F G,
   id      := λ F, nat_trans.id F,
   comp    := λ _ _ _ α β, vcomp α β, 
   id_comp' := by {intros F G θ, ext, simp, },  
-  comp_id' := by {intros F G θ, ext, simp,}, 
+  comp_id' := by {intros F G θ, ext, simp, }, 
   comp_assoc' := by {intros F G H K α β γ, ext, simp only [vcomp_cmpt], rw [comp_assoc], },
 }
+
+
+
+/-! ### Representable Functors  
+To every object `X` of a category `𝓒` we can associate a functor `Ϳ X : 𝓒 ⥤ Type*` which maps an object `Y` in `𝓒` to the hom-type `X ⟶ Y`. 
+-/ 
+
+--set_option trace.simp_lemmas true
+@[simp]
+def functor.representable {𝓒 : Type u₁}[category.{v₁} 𝓒] (X : 𝓒) : 𝓒 ⥤ Type* :=
+{ 
+  obj := λ Y, X ⟶ Y,
+  mor := λ Y Z f g, f ⊚ g,
+  resp_id' := by {intro Y, funext, simp, refl, },
+  resp_comp' := by {intros X Y Z f g, funext, simp, refl}, 
+}
+
+local notation ` 𝕁 ` : 15 :=  functor.representable 
+
+
+@[simp]
+def functor.corepresentable {𝓒 : Type u₁}[category.{v₁} 𝓒] (X : 𝓒) : 𝓒ᵒᵖ ⥤ Type* :=
+{ 
+  obj := λ Y, unop Y ⟶ X, --  𝓒-morphisms from `Y` to `X`
+  mor := λ Y Z f (g : Y ⟶ X), g ⊚ (hom.unop f),
+  resp_id' := by {intro Y, funext, simp only [unop_id], simp, refl,  },
+  resp_comp' := by {intros U' V' W' f g, simp only [unop_comp], funext x, rw ← comp_assoc, refl, },
+}  
+
+local notation ` 𝕐 ` : 15 :=  functor.corepresentable 
+
 
 
 @[simp]
@@ -568,7 +561,6 @@ begin
   refl, 
 end 
 
-
 @[simp]
 lemma corep_mor (A : 𝓒) (B C : 𝓒ᵒᵖ) (f : B ⟶ C) :  
    (𝕐 A).mor f =  λ g, g ⊚ (hom.unop f) := 
@@ -576,9 +568,8 @@ begin
   refl, 
 end 
 
-
 -- The hom bifunctor 
-def ℍom : 𝓒 ⥤ (𝓒ᵒᵖ ⥤ Type*) :=
+def ℍom : 𝓒 ⥤ (𝓒ᵒᵖ ⥤ Type v₁) :=
 { 
   -- the action of ℍom on objects of 𝓒
   obj := λ A, 𝕐 A,
@@ -612,21 +603,46 @@ end
 
 
 
-def yoneda (X Y : 𝓒) (α : ℍom.obj X ≃ ℍom.obj Y) : X ≃ Y :=
-{ 
-  to_mor := α.to_mor.cmpt (op X) (𝟙 X),
-  inv_mor := α.inv_mor.cmpt (op Y) (𝟙 Y),
-  left_inv := sorry,
-  right_inv := sorry, 
-}
+-- def yoneda (X Y : 𝓒) (α : ℍom.obj X ≃ ℍom.obj Y) : X ≃ Y :=
+-- { 
+--   to_mor := α.to_mor.cmpt (op X) (𝟙 X),
+--   inv_mor := α.inv_mor.cmpt (op Y) (𝟙 Y),
+--   left_inv := sorry,
+--   right_inv := sorry, 
+-- }
+
+#check hom.unop
 
 
-def Yoneda (A B : 𝓒) : 
+def yoneda₁ {𝓒 : Type*} [category 𝓒] {F : 𝓒ᵒᵖ ⥤ Type* } (A B : 𝓒) : 
+  (𝕐 A ⟶ F) ≅ F.obj A :=
+{ to_fun := λ α, α.cmpt (op A) (𝟙 A),
+  inv_fun := λ x, { cmpt := λ C, λ f, (F.mor f) x,
+                    naturality' := 
+                    by { intros D C k, dsimp, ext g,  
+                    let k' := hom.unop k, 
+                    conv 
+                          begin 
+                          to_rhs, 
+                          change (F.mor k) ((F.mor g) x),   
+                          end, 
+                        conv 
+                          begin
+                             change F.mor (g ⊚  k' ) x,  
+                          end,    }, 
+                  },
+  left_inv := _,
+  right_inv := _ }
+
+
+
+def Yoneda {𝓒 : Type*} [category 𝓒] (A B : 𝓒) : 
   ( (ℍom.obj A) ⟶ (ℍom.obj B)) ≅ (A ⟶ B) :=
 { 
-  to_fun := λ α, α.cmpt (op X) (𝟙 X) ,
+  to_fun := λ α, α.cmpt (op A) (𝟙 A) ,
   inv_fun := λf, 
-    { cmpt := λ Z,  λ g, f ⊚ g ,
+    { 
+      cmpt := λ Z, λ g, f ⊚ g ,
       naturality' := by {
         intros V W h, ext,  
         conv 
