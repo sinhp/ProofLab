@@ -636,63 +636,63 @@ def yoneda_covariant_to_rep (𝓒 : Type*) [category 𝓒] {F : 𝓒 ⥤ Type* }
     right_inv := (yoneda_covariant A).right_inv, 
 }  
 
-def yoneda_contravariant {𝓒 : Type*} [category 𝓒] {F : 𝓒ᵒᵖ ⥤ Type* } (A B : 𝓒) : 
-  (𝕐 A ⟶ F) ≅ F.obj A :=
-{ 
-  to_fun := λ α, α.cmpt (op A) (𝟙 A),
-  inv_fun := λ x, { cmpt := λ C, λ f, (F.mor (hom.unop f)) x,
-                    naturality' := 
-                    by { intros D C k, dsimp, ext g,  
-                    let k' := hom.unop k, 
-                    conv 
-                          begin 
-                          to_rhs, 
-                          change (F.mor k) ((F.mor g) x),   
-                          end, 
-                        conv 
-                          begin
-                             change F.mor (g ⊚  k' ) x,  
-                          end,    }, 
-                  },
-  left_inv := _,
-  right_inv := _,
-}
+-- def yoneda_contravariant {𝓒 : Type*} [category 𝓒] {F : 𝓒ᵒᵖ ⥤ Type* } (A B : 𝓒) : 
+--   (𝕐 A ⟶ F) ≅ F.obj A :=
+-- { 
+--   to_fun := λ α, α.cmpt (op A) (𝟙 A),
+--   inv_fun := λ x, { cmpt := λ C, λ f, (F.mor (hom.unop f)) x,
+--                     naturality' := 
+--                     by { intros D C k, dsimp, ext g,  
+--                     let k' := hom.unop k, 
+--                     conv 
+--                           begin 
+--                           to_rhs, 
+--                           change (F.mor k) ((F.mor g) x),   
+--                           end, 
+--                         conv 
+--                           begin
+--                              change F.mor (g ⊚  k' ) x,  
+--                           end,    }, 
+--                   },
+--   left_inv := _,
+--   right_inv := _,
+-- }
 
 
 
 
--- The Hom bifunctor 
-def ℍom : 𝓒 ⥤ (𝓒ᵒᵖ ⥤ Type v₁) :=
-{ 
-  -- the action of ℍom on objects of 𝓒
-  obj := λ A, 𝕐 A,
-  -- the action of ℍom on morphisms of 𝓒
-  mor := λ A B, λ f, { cmpt := λ W, λ a, f ⊚ a,
-                       naturality' := 
-                       by { 
-                             intros W' W g, 
-                             dsimp, 
-                             funext x, 
-                             change f ⊚ (x ⊚ (hom.unop g)) = (f ⊚ x) ⊚ (hom.unop g), 
-                             simp only [comp_assoc], 
-                          },
-                      },
-  -- ℍom is functorial in the first variable. 
-  resp_id' := by {intro X, ext Y, simp, refl,},
-  resp_comp' := by {
-                      intros X Y Z f g, 
-                      ext U, 
-                      simp, 
-                      refl,  
-                    }, 
-  }
+-- -- The Hom bifunctor 
+-- def ℍom : 𝓒 ⥤ (𝓒ᵒᵖ ⥤ Type v₁) :=
+-- { 
+--   -- the action of ℍom on objects of 𝓒
+--   obj := λ A, 𝕐 A,
+--   -- the action of ℍom on morphisms of 𝓒
+--   mor := λ A B, λ f, { cmpt := λ W, λ a, f ⊚ a,
+--                        naturality' := 
+--                        by { 
+--                              intros W' W g, 
+--                              dsimp, 
+--                              funext x, 
+--                              change f ⊚ (x ⊚ (hom.unop g)) = (f ⊚ x) ⊚ (hom.unop g), 
+--                              simp only [comp_assoc], 
+--                           },
+--                       },
+--   -- ℍom is functorial in the first variable. 
+--   resp_id' := by {intro X, ext Y, simp, refl,},
+--   resp_comp' := by {
+--                       intros X Y Z f g, 
+--                       ext U, 
+--                       simp, 
+--                       refl,  
+--                     }, 
+--   }
 
 
-@[simp]
-lemma hom_action (A : 𝓒) (W W' : 𝓒ᵒᵖ) (h : W' ⟶ W) (x : unop W' ⟶ A):  ((ℍom.obj A).mor h) x = x ⊚ h := 
-begin
-  refl, 
-end 
+-- @[simp]
+-- lemma hom_action (A : 𝓒) (W W' : 𝓒ᵒᵖ) (h : W' ⟶ W) (x : unop W' ⟶ A):  ((ℍom.obj A).mor h) x = x ⊚ h := 
+-- begin
+--   refl, 
+-- end 
 
-end nat_trans
+end nat_trans 
 end category
